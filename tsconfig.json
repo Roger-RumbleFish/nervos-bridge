@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "module": "esnext",
+    "allowJs": true,
+    "strictBindCallApply": true,
+    "types": ["jest", "node"],
+    "noImplicitAny": true,
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "target": "es2015",
+    "jsx": "react",
+    "lib": ["dom", "esnext"],
+    "baseUrl": "./",
+    "paths": {
+      "@api/*": [
+        "./src/api/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@interfaces/*": [
+        "./src/interfaces/*"
+      ],
+      "@state/*": [
+        "./src/state/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+    },
+  },
+
+  "include": [
+    "src/**/*",
+    "setup-tests.ts" ],
+  "exclude": [
+    "node_modules",
+    "scr/**/*.test.ts",
+    "scr/**/*.test.tsx"
+  ]
+}
