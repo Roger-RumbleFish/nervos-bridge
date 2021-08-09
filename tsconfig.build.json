@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "resolveJsonModule": true,
+    "declaration": true,
+    "target": "ES2021",
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@api/*": [
+        "./src/api/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@interfaces/*": [
+        "./src/interfaces/*"
+      ],
+      "@state/*": [
+        "./src/state/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+    },
+    "types": [
+      "@nervosnetwork/ckb-types"
+    ],
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/**/*.test.ts*",
+    "src/**/*.stories.ts*"
+  ]
+}

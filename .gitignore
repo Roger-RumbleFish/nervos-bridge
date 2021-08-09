@@ -1,0 +1,23 @@
+# OSX
+#
+.DS_Store
+
+# Visual Studio Code
+#
+.vscode/
+
+# node.js
+
+node_modules/
+dist/
+static-storybook/
+
+npm-debug.log
+yarn-error.log
+
+# env config
+.yarnrc
+.npmrc
+.env
+
+config.json
