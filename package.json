@@ -1,6 +1,6 @@
 {
   "name": "nervos-bridge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "storybook": "start-storybook -p 6008 --ci",
+    "storybook": "start-storybook -p 6008  -s ./src --ci",
     "lint": "eslint . --ext .ts --ext .tsx --fix"
   },
   "dependencies": {

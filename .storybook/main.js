@@ -26,6 +26,11 @@ module.exports = {
       use: ['@svgr/webpack', 'url-loader'],
     })
 
+    config.module.rules.push({
+      test: /\.(png|woff2|ttf|jpe?g|gif)$/i,
+      use: ['file-loader'],
+    })
+
     config.plugins.push(
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],

@@ -3,9 +3,9 @@ import React from 'react'
 import {
   createGenerateClassName,
   createTheme,
+  CssBaseline,
   StylesProvider,
 } from '@material-ui/core'
-import ScopedCssBaseline from '@material-ui/core/ScopedCssBaseline'
 import MUIThemeProvider from '@material-ui/styles/ThemeProvider'
 
 import InterBold from '../fonts/inter/Inter-Bold.woff2'
@@ -244,14 +244,15 @@ const theme = createTheme({
 })
 
 const generateClassName = createGenerateClassName({
-  productionPrefix: 'bridge',
   seed: 'bridge',
+  disableGlobal: true,
 })
 
 export const ThemeProvider: React.FC = ({ children }) => (
-  <StylesProvider generateClassName={generateClassName}>
+  <StylesProvider generateClassName={generateClassName} injectFirst>
     <MUIThemeProvider theme={theme}>
-      <ScopedCssBaseline>{children}</ScopedCssBaseline>
+      <CssBaseline />
+      {children}
     </MUIThemeProvider>
   </StylesProvider>
 )
