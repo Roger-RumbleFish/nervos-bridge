@@ -13,9 +13,21 @@ Library providing React component for Nervos blockchain assets bridging
    `import BridgeComponent from 'nervos-bridge`
 
 3. Add the component to your DOM (async)
-   `<Suspense fallback={<div>...Loading</div>}><BridgeComponent provider={web3Provider} userAddress="0x742971ac86E36152B9aac7090cF0B5C0acaa90F4" assetsBlacklist={[]} /> </Suspense>`
+   ```
+   <Suspense fallback={<div>...Loading</div>}>
+    <BridgeComponent
+      provider={web3Provider}    userAddress="0x742971ac86E36152B9aac7090cF0B5C0acaa90F4"
+      assetsBlacklist={[]}
+    />
+   </Suspense>
+   ```
    or
-   `<BridgeComponent provider={web3Provider} userAddress="0x742971ac86E36152B9aac7090cF0B5C0acaa90F4" assetsBlacklist={[]} />`
+   ```
+    <BridgeComponent
+      provider={web3Provider} userAddress="0x742971ac86E36152B9aac7090cF0B5C0acaa90F4"
+      assetsBlacklist={[]}
+    />
+   ```
 
 # Configuration
 
