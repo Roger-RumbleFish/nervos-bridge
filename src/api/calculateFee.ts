@@ -2,6 +2,7 @@ import { BigNumber } from 'ethers'
 
 import { IDisplayValue } from '@interfaces/data'
 import {
+  convertDecimalToIntegerDecimal,
   convertIntegerDecimalToDecimal,
   truncateDecimals,
 } from '@utils/stringOperations'
@@ -10,15 +11,19 @@ import { bridgeRpcClient } from './client'
 
 export const calculateFee = async (
   id: string,
-  amount: IDisplayValue,
+  amount: string,
+  amountDecimals: number,
   networkName: string,
 ): Promise<{
   exchangeResult: IDisplayValue
   percentageFee: string
 }> => {
   try {
+    const value = convertDecimalToIntegerDecimal(amount, amountDecimals)
+    const decimals = amountDecimals ?? 2
+
     const payload = {
-      amount: amount.value.toString(),
+      amount: value.toString(),
       network: networkName,
       xchainAssetIdent: id,
     }
@@ -27,14 +32,13 @@ export const calculateFee = async (
       payload,
     )
 
-    const exchangeValue = amount.value.sub(nervosBridgeFee.fee.amount)
-
-    const decimals = amount.decimals ?? 2
+    const exchangeValue = value.sub(nervosBridgeFee.fee.amount)
 
     const exchangeResult: IDisplayValue = {
       value: exchangeValue,
       displayValue: truncateDecimals(
         convertIntegerDecimalToDecimal(exchangeValue, decimals),
+        6,
       ),
       decimals: decimals,
     }

@@ -1,15 +1,20 @@
 import React from 'react'
 
-import Box from '@material-ui/core/Box'
+import { IIcon } from '@interfaces/data'
 
-const DaiIcon: React.FC<any> = () => {
+const DaiIcon: React.FC<IIcon> = ({ size }) => {
   return (
-    <Box>
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d={`M24 12C24 5.37305 18.628 0 12 0C5.37305 0 0 5.37305 
+    <svg
+      display="flex"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      height={size ?? undefined}
+      width={size ?? undefined}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d={`M24 12C24 5.37305 18.628 0 12 0C5.37305 0 0 5.37305 
           0 12C0 18.6275 5.37305 24 12 24C18.628 24 24 18.628 24 12ZM17.0018 12.8474H12.442H7.97179C7.88059
           12.8474 7.83564 12.8474 7.81349 12.8249C7.79197 12.8031 7.79197 12.76 7.79197 12.6751V11.3402C7.79197
           11.2349 7.82221 11.1976 7.93453 11.1976H17.0093C17.1071 11.1976 17.1519 11.2349 17.1519 11.3251C17.1891
@@ -36,9 +41,8 @@ const DaiIcon: React.FC<any> = () => {
           9.66133 4.40991 9.68347 4.40991 9.76609V11.0859C4.40991 11.2057 4.44717 11.2057 4.53735 11.2057H6.16493C6.28481 11.2057 6.28481 11.2279
           6.28481 11.3181V12.728C6.28481 12.8555 6.24701 12.8555 6.14981 12.8555H4.40991V14.2805C4.40991 14.4004 4.44717 14.4004 4.53735
           14.4004H6.16493C6.28481 14.4004 6.28481 14.415 6.28481 14.5127V16.2753V16.8677V18.6152Z`}
-        />
-      </svg>
-    </Box>
+      />
+    </svg>
   )
 }
 

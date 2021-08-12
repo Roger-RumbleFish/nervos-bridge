@@ -6,6 +6,10 @@ export interface IDisplayValue {
   decimals?: number
 }
 
+export interface IIcon {
+  size?: number
+}
+
 export interface TokenModel {
   id: string
   address: string

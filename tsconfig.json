@@ -28,6 +28,9 @@
       "@state/*": [
         "./src/state/*"
       ],
+      "@styles/*": [
+        "./src/styles/*"
+      ],
       "@utils/*": [
         "./src/utils/*"
       ],

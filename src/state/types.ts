@@ -9,6 +9,8 @@ export interface Token {
 
 export type BridgeState = {
   tokens: BridgeToken[]
+  fetchingTokens: boolean
+  isCalculating: boolean
   baseToken: BridgeToken
   quoteToken: BridgeToken
   exchangeValue: IDisplayValue
@@ -18,9 +20,11 @@ export type BridgeState = {
 export enum BRIDGE_ACTIONS {
   START_TYPING = 'startTyping',
   SET_TOKENS = 'setTokens',
+  SET_TOKENS_REQUEST = 'setTokensRequest',
   SET_BASE_TOKEN = 'setBaseToken',
   SET_QUOTE_TOKEN = 'setQuoteToken',
   CALCULATE = 'calculate',
+  CALCULATE_REQUEST = 'calculateRequest',
 }
 
 export interface IBridgeAction<
@@ -37,6 +41,12 @@ export type ISetTokensAction = IBridgeAction<
   {
     tokens: BridgeToken[]
   }
+>
+export type ISetTokensRequestAction = IBridgeAction<
+  typeof BRIDGE_ACTIONS.SET_TOKENS_REQUEST
+>
+export type ICalculateRequestAction = IBridgeAction<
+  typeof BRIDGE_ACTIONS.CALCULATE_REQUEST
 >
 
 export type ISetBaseTokenAction = IBridgeAction<

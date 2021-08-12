@@ -63,6 +63,7 @@ module.exports = {
       '@components': path.resolve(__dirname, 'src/components/'),
       '@interfaces': path.resolve(__dirname, 'src/interfaces/'),
       '@state': path.resolve(__dirname, 'src/state/'),
+      '@styles': path.resolve(__dirname, 'src/styles/'),
       '@utils': path.resolve(__dirname, 'src/utils/'),
     },
     extensions: ['.tsx', '.ts', '.js'],

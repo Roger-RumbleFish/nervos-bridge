@@ -1,17 +1,23 @@
 import React, { ReactElement } from 'react'
 
-import DaiIcon from '@components/icons/Dai'
-import UsdcIcon from '@components/icons/Usdc'
-import UsdtIcon from '@components/icons/Usdt'
+import DaiIcon from '@components/icons/tokens/Dai'
+import UsdcIcon from '@components/icons/tokens/Usdc'
+import UsdtIcon from '@components/icons/tokens/Usdt'
 
-export const resolveTokenIcon = (symbol: string): ReactElement | null => {
+export const resolveTokenIcon = (
+  symbol: string,
+  size?: number,
+): ReactElement | null => {
   switch (symbol.toUpperCase()) {
     case 'DAI':
-      return <DaiIcon />
+    case 'CKDAI':
+      return <DaiIcon size={size} />
     case 'USDC':
-      return <UsdcIcon />
+    case 'CKUSDC':
+      return <UsdcIcon size={size} />
     case 'USDT':
-      return <UsdtIcon />
+    case 'CKUSDT':
+      return <UsdtIcon size={size} />
     default:
       return null
   }

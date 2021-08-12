@@ -1,4 +1,3 @@
-import { IDisplayValue } from '@interfaces/data'
 import { Token } from '@state/types'
 
 export interface IBridgeProps {
@@ -10,8 +9,14 @@ export interface IBridgeProps {
   selectedBaseToken: Token
   quoteTokens: Token[]
   selectedQuoteToken: Token
+  isFetchingTokens?: boolean
+  isCalculating?: boolean
+  disableButton?: boolean
+  network: string
+  fee?: string
   onBaseTokenChange?: (token: Token) => void
   onQuoteTokenChange?: (token: Token) => void
-  onBaseTokenAmountChange?: (value: IDisplayValue) => void
+  onBaseTokenAmountChange?: (value: string) => void
   onBridgeRequest?: () => void
+  onNetworkChange?: (network: string) => void
 }

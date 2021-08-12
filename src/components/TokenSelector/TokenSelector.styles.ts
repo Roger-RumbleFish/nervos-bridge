@@ -1,19 +1,22 @@
 import { makeStyles } from '@material-ui/core/styles'
+import { lightGray, textDisabled } from '@styles/theme'
 
 const BORDER_RADIUS = 8
-export const textDisabled = '#9AA5B0'
-export const lightGray = '#E0E0E0'
 
-export const useStyles = makeStyles(({ spacing, palette }) => ({
+export const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
   inputContainer: {
     borderTopLeftRadius: BORDER_RADIUS,
     borderBottomLeftRadius: BORDER_RADIUS,
     borderRight: 'none',
     border: `1px solid ${lightGray}`,
-
+    justifyContent: 'center',
     boxShadow: '0px 3px rgba(0, 0, 0, 0.05)',
 
-    height: 114,
+    height: 80,
+    [breakpoints.up('sm')]: {
+      height: 114,
+    },
+    // height: 114,
   },
 
   autocompleteContainer: {
@@ -24,7 +27,10 @@ export const useStyles = makeStyles(({ spacing, palette }) => ({
 
     boxShadow: '0px 3px rgba(0, 0, 0, 0.05)',
 
-    height: 114,
+    height: 80,
+    [breakpoints.up('sm')]: {
+      height: 114,
+    },
   },
 
   tokenIcon: {
@@ -38,11 +44,18 @@ export const useStyles = makeStyles(({ spacing, palette }) => ({
   },
 
   inputText: {
-    fontSize: '34px',
-    height: '34px',
-    lineHeight: '34px',
     fontWeight: 700,
+    textOverflow: 'ellipsis',
     padding: 0,
+    fontSize: '20px',
+    height: '20px',
+    lineHeight: '20px',
+
+    [breakpoints.up('sm')]: {
+      fontSize: '34px',
+      height: '34px',
+      lineHeight: '34px',
+    },
   },
 
   disabledText: {

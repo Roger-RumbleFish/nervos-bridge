@@ -5,6 +5,8 @@ import {
   ISetBaseTokenAction,
   ICalculateAction,
   ISetQuoteTokenAction,
+  ISetTokensRequestAction,
+  ICalculateRequestAction,
 } from '@state/types'
 
 export const setBaseTokenAction = (symbol: string): ISetBaseTokenAction => ({
@@ -22,6 +24,16 @@ export const setTokensAction = (tokens: BridgeToken[]): ISetTokensAction => ({
   payload: {
     tokens,
   },
+})
+
+export const calculateRequestAction = (): ICalculateRequestAction => ({
+  type: BRIDGE_ACTIONS.CALCULATE_REQUEST,
+  payload: {},
+})
+
+export const setTokensRequestAction = (): ISetTokensRequestAction => ({
+  type: BRIDGE_ACTIONS.SET_TOKENS_REQUEST,
+  payload: {},
 })
 
 export const calculateAction = (

@@ -1,14 +1,14 @@
-import { IDisplayValue } from '@interfaces/data'
-
 export interface ITokenSelectorProps {
   tokens: any[]
+  isFetchingTokens?: boolean
+  isFetchingAmount?: boolean
   selectedToken: any
-  amount: string
   disabled?: boolean
   readOnly?: boolean
   inputLabel?: string
+  amount: string
   maxAmount?: string
+  onAmountChange?: (amount: string) => void
   // inputProps?: Pick<IBigNumberInputProps, 'displayDecimals'>
-  onAmountChange?: (amount: IDisplayValue) => void
   onTokenChange?: (token: any) => void
 }

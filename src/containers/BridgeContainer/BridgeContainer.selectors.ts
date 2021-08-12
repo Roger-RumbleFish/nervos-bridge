@@ -1,15 +1,7 @@
 import { IDisplayValue } from '@interfaces/data'
 import { BridgeState, Token } from '@state/types'
+import { Networks } from '@utils/constants'
 import { useSelectors } from '@utils/hooks'
-
-// : {
-//   getBaseTokensTokens: () => Token[]
-//   getBaseToken: () => Token
-//   getQuoteTokens: () => Token[]
-//   getQuoteToken: () => Token
-//   getExchangeResult: () => IDisplayValue
-//   getFee: () => string
-// }
 
 export const BridgeSelectors = (
   reducer: any,
@@ -20,24 +12,26 @@ export const BridgeSelectors = (
   getQuoteToken: () => Token
   getExchangeResult: () => IDisplayValue
   getFee: () => string
+  isFetchingTokens: () => boolean
+  isCalculating: () => boolean
 } =>
   useSelectors(reducer, (state: BridgeState) => ({
     getQuoteTokens: () =>
       state.tokens
-        .map((x) => ({
-          address: x.model.address,
-          network: x.network,
-          symbol: x.model.symbol,
+        .map((token) => ({
+          address: token.model.address,
+          network: token.network,
+          symbol: token.model.symbol,
         }))
-        .filter((y) => y.network === 'Nervos') ?? [],
+        .filter((token) => token.network === Networks.Nervos) ?? [],
     getBaseTokensTokens: () =>
       state.tokens
-        .map((x) => ({
-          address: x.model.address,
-          network: x.network,
-          symbol: x.model.symbol,
+        .map((token) => ({
+          address: token.model.address,
+          network: token.network,
+          symbol: token.model.symbol,
         }))
-        .filter((y) => y.network === 'Ethereum'),
+        .filter((token) => token.network === Networks.Ethereum),
     getBaseToken: (): Token => ({
       address: state.baseToken?.model?.address,
       network: state.baseToken?.network,
@@ -50,7 +44,8 @@ export const BridgeSelectors = (
       symbol: state.quoteToken?.model?.symbol,
       decimals: state.quoteToken?.model?.decimals,
     }),
-
+    isFetchingTokens: (): boolean => state.fetchingTokens,
     getExchangeResult: (): IDisplayValue => state.exchangeValue,
     getFee: (): string => state.fee,
+    isCalculating: (): boolean => state.isCalculating,
   }))

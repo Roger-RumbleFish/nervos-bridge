@@ -99,7 +99,7 @@ export const convertDecimalToIntegerDecimal = (
 
 export const truncateDecimals = (text: string, decimals = 2): string => {
   if (!text) return ''
-  console.log(text)
+
   const dotPlace = text.indexOf('.')
 
   if (dotPlace < 0) return text

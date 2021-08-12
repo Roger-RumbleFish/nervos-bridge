@@ -1,21 +1,24 @@
 import React, { useReducer, useState, useEffect } from 'react'
 
-import { BigNumber } from 'ethers'
-
+import { bridgeToken } from '@api/bridgeToken'
 import { calculateFee } from '@api/calculateFee'
 import { fetchSupportedTokens } from '@api/fetchSupportedTokens'
 import Bridge from '@components/Bridge'
-import { IDisplayValue } from '@interfaces/data'
 import Box from '@material-ui/core/Box'
 import { initialState, reducer } from '@state/reducer'
 import { Token } from '@state/types'
+import { Networks } from '@utils/constants'
 import { useDebounce } from '@utils/hooks'
 
 import { BridgeActions } from './BridgeContainer.actions'
 import { BridgeSelectors } from './BridgeContainer.selectors'
 import { IBridgeContainerProps } from './BridgeContainer.types'
 
-const BridgeContainer: React.FC<IBridgeContainerProps> = ({ blacklist }) => {
+const BridgeContainer: React.FC<IBridgeContainerProps> = ({
+  blacklist,
+  provider,
+  accountAddress,
+}) => {
   const DEBOUNCE = 400
   const BRIDGE_TITLE = 'Hadouken Bridge'
   const BRIDGE_DESCRIPTION =
@@ -23,11 +26,21 @@ const BridgeContainer: React.FC<IBridgeContainerProps> = ({ blacklist }) => {
 
   const bridgeReducer = useReducer(reducer, initialState)
 
-  const { setTokens, setBaseToken, setQuoteToken, calculate } = BridgeActions(
-    bridgeReducer,
-  )
+  const [value, setValue] = useState('100.00')
+  const [network, setNetwork] = useState(Networks.Ethereum)
 
   const {
+    setTokens,
+    setTokensRequest,
+    setBaseToken,
+    setQuoteToken,
+    calculate,
+    calculatingRequest,
+  } = BridgeActions(bridgeReducer)
+
+  const {
+    isFetchingTokens,
+    isCalculating,
     getFee,
     getBaseToken,
     getBaseTokensTokens,
@@ -38,10 +51,15 @@ const BridgeContainer: React.FC<IBridgeContainerProps> = ({ blacklist }) => {
 
   useEffect(() => {
     ;(async (): Promise<void> => {
+      setTokensRequest()
       const tokens = await fetchSupportedTokens(blacklist)
       setTokens(tokens)
     })()
   }, [])
+
+  const onNetworkChange = (network: string) => {
+    setNetwork(network as Networks)
+  }
 
   const onBaseTokenChange = async (token: Token) => {
     setBaseToken(token.symbol)
@@ -51,7 +69,7 @@ const BridgeContainer: React.FC<IBridgeContainerProps> = ({ blacklist }) => {
     setQuoteToken(token.symbol)
   }
 
-  const onBaseTokenAmountChange = (value: any) => {
+  const onBaseTokenAmountChange = (value: string) => {
     setValue(value)
   }
 
@@ -61,50 +79,64 @@ const BridgeContainer: React.FC<IBridgeContainerProps> = ({ blacklist }) => {
   const ethereumTokens = getBaseTokensTokens()
   const ckbTokens = getQuoteTokens()
 
+  const fee = getFee()
+
   const exchangeResult = getExchangeResult()
+  const isFetchingAllTokens = isFetchingTokens()
 
-  console.log({ bridgeReducer })
-
-  const [value, setValue] = useState<IDisplayValue>({
-    displayValue: '100.00',
-    value: BigNumber.from(100),
-  })
+  const calculating = isCalculating()
 
   const debounceValue = useDebounce(value, DEBOUNCE)
 
   useEffect(() => {
     ;(async (): Promise<void> => {
       if (baseToken?.address) {
+        calculatingRequest()
         const result = await calculateFee(
           baseToken.address,
-          {
-            displayValue: debounceValue.displayValue,
-            value: debounceValue.value,
-            decimals: baseToken.decimals,
-          },
-          'Ethereum',
+          value,
+          baseToken.decimals,
+          network,
         )
         if (result) {
           calculate(result.exchangeResult, result.percentageFee)
         }
       }
     })()
-  }, [baseToken.address, debounceValue, calculate])
+  }, [baseToken.address, debounceValue, calculate, network])
+
+  const onBridgeRequest = async () => {
+    await bridgeToken(
+      value,
+      baseToken.decimals,
+      baseToken.address,
+      accountAddress,
+      provider,
+      network,
+    )
+  }
 
   return (
     <Box>
       <Bridge
+        disableButton={provider === null}
+        isFetchingTokens={isFetchingAllTokens}
+        isCalculating={calculating}
         title={BRIDGE_TITLE}
         description={BRIDGE_DESCRIPTION}
-        baseTokenAmount={value?.displayValue}
+        baseTokenAmount={value}
         quoteTokenAmount={exchangeResult?.displayValue}
         baseTokens={ethereumTokens}
         quoteTokens={ckbTokens}
         selectedBaseToken={baseToken}
         selectedQuoteToken={quoteToken}
+        fee={fee}
+        network={network}
         onBaseTokenChange={onBaseTokenChange}
         onQuoteTokenChange={onQuoteTokenChange}
         onBaseTokenAmountChange={onBaseTokenAmountChange}
+        onBridgeRequest={onBridgeRequest}
+        onNetworkChange={onNetworkChange}
       />
     </Box>
   )

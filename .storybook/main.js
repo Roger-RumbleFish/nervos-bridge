@@ -44,6 +44,7 @@ module.exports = {
       '@components': path.resolve(rootPath, 'src/components/'),
       '@interfaces': path.resolve(rootPath, 'src/interfaces/'),
       '@state': path.resolve(rootPath, 'src/state/'),
+      '@styles': path.resolve(rootPath, 'src/styles/'),
       '@utils': path.resolve(rootPath, 'src/utils/'),
     }
     config.resolve.fallback = {

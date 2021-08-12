@@ -10,6 +10,8 @@ import {
 
 export const initialState: BridgeState = {
   tokens: [],
+  fetchingTokens: false,
+  isCalculating: false,
   baseToken: null,
   quoteToken: null,
   exchangeValue: null,
@@ -29,13 +31,13 @@ export const reducer = (
     case BRIDGE_ACTIONS.SET_BASE_TOKEN: {
       const setBaseTokenAction = action as ISetBaseTokenAction
       const newBaseToken = state.tokens.find(
-        (x) => x.model.symbol === setBaseTokenAction.payload,
+        (token) => token.model.symbol === setBaseTokenAction.payload,
       )
 
       const newQuoteToken = state.tokens.find(
-        (x) =>
-          x.network === newBaseToken?.shadow?.network &&
-          x.model.id === newBaseToken?.shadow?.id,
+        (token) =>
+          token.network === newBaseToken?.shadow?.network &&
+          token.model.id === newBaseToken?.shadow?.id,
       )
 
       return {
@@ -47,21 +49,32 @@ export const reducer = (
     case BRIDGE_ACTIONS.SET_QUOTE_TOKEN: {
       const setQuoteTokenAction = action as ISetQuoteTokenAction
       const newQuoteToken = state.tokens.find(
-        (x) => x.model.symbol === setQuoteTokenAction.payload,
+        (token) => token.model.symbol === setQuoteTokenAction.payload,
       )
 
-      console.log('new quote', newQuoteToken)
-
       const newBaseToken = state.tokens.find(
-        (x) =>
-          x.network === newQuoteToken?.shadow?.network &&
-          x.model.id === newQuoteToken?.shadow?.id,
+        (token) =>
+          token.network === newQuoteToken?.shadow?.network &&
+          token.model.id === newQuoteToken?.shadow?.id,
       )
 
       return {
         ...state,
         baseToken: newBaseToken,
         quoteToken: newQuoteToken,
+      }
+    }
+
+    case BRIDGE_ACTIONS.SET_TOKENS_REQUEST: {
+      return {
+        ...state,
+        fetchingTokens: true,
+      }
+    }
+    case BRIDGE_ACTIONS.CALCULATE_REQUEST: {
+      return {
+        ...state,
+        isCalculating: true,
       }
     }
     case BRIDGE_ACTIONS.SET_TOKENS: {
@@ -71,7 +84,7 @@ export const reducer = (
       const baseToken = tokens.length > 0 ? tokens[0] : null
 
       const quoteToken = baseToken
-        ? tokens.find((x) => x.model.id === baseToken.shadow.id)
+        ? tokens.find((token) => token.model.id === baseToken.shadow.id)
         : null
 
       return {
@@ -79,6 +92,7 @@ export const reducer = (
         tokens: tokens,
         baseToken: baseToken,
         quoteToken: quoteToken,
+        fetchingTokens: false,
       }
     }
     case BRIDGE_ACTIONS.CALCULATE: {
@@ -89,6 +103,7 @@ export const reducer = (
         ...state,
         exchangeValue: exchangeResult,
         fee: fee,
+        isCalculating: false,
       }
     }
     default:
