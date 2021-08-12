@@ -16,7 +16,8 @@ Library providing React component for Nervos blockchain assets bridging
    ```
    <Suspense fallback={<div>...Loading</div>}>
     <BridgeComponent
-      provider={web3Provider}  userAddress="0x742971ac86E36152B9aac7090cF0B5C0acaa90F4"
+      provider={web3Provider}
+      userAddress="0x742971ac86E36152B9aac7090cF0B5C0acaa90F4"
       assetsBlacklist={[]}
     />
    </Suspense>
@@ -24,13 +25,14 @@ Library providing React component for Nervos blockchain assets bridging
    or
    ```
     <BridgeComponent
-      provider={web3Provider}  userAddress="0x742971ac86E36152B9aac7090cF0B5C0acaa90F4"
+      provider={web3Provider}
+      userAddress="0x742971ac86E36152B9aac7090cF0B5C0acaa90F4"
       assetsBlacklist={[]}
     />
    ```
 
 # Configuration
 
-provider - web3Provider with logged in account\
-assetsBlacklist: string[] - assets that will be ignored\
-config?: - (Optional) configuration for rpc faucet url and Nervos blockchain configuration\
+provider - web3Provider with logged in account  
+assetsBlacklist: string[] - assets that will be ignored  
+config?: - (Optional) configuration for rpc faucet url and Nervos blockchain configuration
