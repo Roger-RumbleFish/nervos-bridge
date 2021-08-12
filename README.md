@@ -36,3 +36,11 @@ Library providing React component for Nervos blockchain assets bridging
 provider - web3Provider with logged in account  
 assetsBlacklist: string[] - assets that will be ignored  
 config?: - (Optional) configuration for rpc faucet url and Nervos blockchain configuration
+
+# Test locally
+
+1. clone the repository
+2. run `yarn`
+3. run `yarn storybook`
+
+![alt text](https://github.com/Roger-RumbleFish/nervos-bridge/blob/master/bridge.png?raw=true)
