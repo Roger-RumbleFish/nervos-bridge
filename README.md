@@ -43,4 +43,4 @@ config?: - (Optional) configuration for rpc faucet url and Nervos blockchain con
 2. run `yarn`
 3. run `yarn storybook`
 
-![Alt text](readme/bridge.jpg?raw=true 'Bridge storybook')
+![Alt text](readme/bridge.png 'Bridge storybook')
