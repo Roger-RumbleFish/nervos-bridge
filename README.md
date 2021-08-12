@@ -7,10 +7,10 @@ Library providing React component for Nervos blockchain assets bridging
 1. install the library to your project
    `npm i nervos-bridge`
 
-2. Import the components to your application (async)
-   `const BridgeComponent = React.lazy(() => import('nervos-bridge'))`
-   or
-   `import BridgeComponent from 'nervos-bridge`
+2. Import the components to your application (async)\
+   `const BridgeComponent = React.lazy(() => import('nervos-bridge'))`\
+   or\
+   `import BridgeComponent from 'nervos-bridge`\
 
 3. Add the component to your DOM (async)
    ```
