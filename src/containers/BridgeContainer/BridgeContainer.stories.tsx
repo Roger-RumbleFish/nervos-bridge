@@ -5,6 +5,7 @@ import { providers } from 'ethers'
 import LoginToMetaMask from '@components/LoginToMetaMask/LoginToMetaMask.component'
 import { Box, Typography } from '@material-ui/core'
 import { Story } from '@storybook/react/types-6-0'
+import { ConfigContext } from '@utils/hooks'
 
 import BridgeContainer from './BridgeContainer'
 
@@ -14,21 +15,27 @@ export default {
   component: BridgeContainer,
 }
 
-const Template: Story<ComponentProps<typeof BridgeContainer>> = (args) => {
+const Template: Story<ComponentProps<typeof BridgeContainer>> = () => {
   const [provider, setProvider] = useState<providers.Web3Provider | null>(null)
-  const afterLogin = (provider: providers.Web3Provider) => {
+  const [accounts, setAccounts] = useState<string[]>([])
+  const afterLogin = async (provider: providers.Web3Provider) => {
     setProvider(provider)
+    const acc = await provider?.listAccounts()
+    setAccounts(acc)
   }
 
   return (
     <Box>
       <LoginToMetaMask afterLogin={afterLogin} />
       {provider === null && <Typography>PROVIDER IS NULL, LOG IN</Typography>}
-      <BridgeContainer
-        blacklist={['eth']}
-        provider={provider}
-        accountAddress="0x742971ac86E36152B9aac7090cF0B5C0acaa90F4"
-      />
+      <ConfigContext.Provider
+        value={{
+          provider: provider,
+          assetsBlacklist: ['eth'],
+        }}
+      >
+        <BridgeContainer />
+      </ConfigContext.Provider>
     </Box>
   )
 }

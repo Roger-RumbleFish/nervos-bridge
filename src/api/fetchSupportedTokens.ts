@@ -2,8 +2,6 @@ import { BridgeRPCHandler } from 'nervos-godwoken-integration'
 
 import { BridgeToken } from '@interfaces/data'
 
-// import { bridgeRpcClient } from './client'
-
 export const fetchSupportedTokens = async (
   blacklist?: string[],
 ): Promise<BridgeToken[]> => {

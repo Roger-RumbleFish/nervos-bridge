@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, createContext } from 'react'
+
+import { IBridgeContainerProps } from '../containers/BridgeContainer/BridgeContainer.types'
 
 export function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -27,3 +29,13 @@ export function useActions(reducer: any, mapDispatchToActions: any) {
   const actions = useMemo(() => mapDispatchToActions(dispatch), [dispatch])
   return actions
 }
+
+export interface IConfigContext {
+  provider: IBridgeContainerProps['provider']
+  assetsBlacklist?: string[]
+  config?: IBridgeContainerProps['config']
+}
+
+const ConfigContext = createContext<IConfigContext>(null)
+
+export { ConfigContext }

@@ -1,23 +1,27 @@
 import React from 'react'
 
-import { ethers } from 'ethers'
+import { ConfigContext } from '@utils/hooks'
 
 import BridgeContainer from './containers/BridgeContainer/BridgeContainer'
 import { IBridgeContainerProps } from './containers/BridgeContainer/BridgeContainer.types'
 import { ThemeProvider } from './styles/theme'
 
 export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
-  blacklist,
+  assetsBlacklist,
   provider,
-  accountAddress,
+  config,
 }) => {
   return (
     <ThemeProvider>
-      <BridgeContainer
-        blacklist={blacklist}
-        provider={provider}
-        accountAddress={accountAddress}
-      />
+      <ConfigContext.Provider
+        value={{
+          config: config,
+          provider: provider,
+          assetsBlacklist: assetsBlacklist,
+        }}
+      >
+        <BridgeContainer />
+      </ConfigContext.Provider>
     </ThemeProvider>
   )
 }

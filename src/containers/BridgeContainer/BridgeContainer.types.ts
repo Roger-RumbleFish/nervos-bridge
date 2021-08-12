@@ -1,7 +1,11 @@
 import { ethers } from 'ethers'
+import { IAddressTranslatorConfig } from 'nervos-godwoken-integration'
 
 export interface IBridgeContainerProps {
-  blacklist: string[]
+  assetsBlacklist: string[]
   provider: ethers.providers.Web3Provider
-  accountAddress: string
+  config?: {
+    addressTranslator?: IAddressTranslatorConfig
+    rpcFaucetUrl?: string
+  }
 }
