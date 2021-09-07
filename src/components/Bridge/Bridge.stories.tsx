@@ -1,6 +1,5 @@
 import React, { useState, ComponentProps } from 'react'
 
-import { IDisplayValue } from '@interfaces/data'
 import { Story } from '@storybook/react/types-6-0'
 
 import Bridge from './Bridge.component'
@@ -14,9 +13,9 @@ export default {
 const Template: Story<ComponentProps<typeof Bridge>> = (args) => {
   const [value, setValue] = useState(args.baseTokenAmount)
   const [quoteValue, setQuoteToken] = useState(args.quoteTokenAmount)
-  const onBaseTokenAmountChange = (value: IDisplayValue) => {
-    setValue(value.displayValue)
-    setQuoteToken(value.displayValue)
+  const onBaseTokenAmountChange = (value: string) => {
+    setValue(value)
+    setQuoteToken(value)
   }
 
   return (

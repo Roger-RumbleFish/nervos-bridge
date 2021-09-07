@@ -1,6 +1,6 @@
 {
   "name": "nervos-bridge",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,7 +25,7 @@
     "file-loader": "^6.0.0",
     "http-browserify": "^1.7.0",
     "https-browserify": "^1.0.0",
-    "nervos-godwoken-integration": "^0.0.4",
+    "nervos-godwoken-integration": "^0.0.6",
     "os-browserify": "^0.3.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
