@@ -1,13 +1,12 @@
-import { BridgeRPCHandler } from 'nervos-godwoken-integration'
-
 import { BridgeToken } from '@interfaces/data'
+
+import { getBridgeRPCClient } from './client'
 
 export const fetchSupportedTokens = async (
   blacklist?: string[],
 ): Promise<BridgeToken[]> => {
   try {
-    const forceBridgeUrl = 'https://bridge-godwoken.rumblefish.dev/'
-    const rpcClient = new BridgeRPCHandler(forceBridgeUrl)
+    const rpcClient = getBridgeRPCClient()
 
     const tokens = await rpcClient.getAssetList('all')
 
