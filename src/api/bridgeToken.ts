@@ -2,6 +2,7 @@ import { providers } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
+import { Networks } from '@utils/constants'
 import { IConfigContext } from '@utils/hooks'
 import { convertDecimalToIntegerDecimal } from '@utils/stringOperations'
 
@@ -31,39 +32,41 @@ export const bridgeToken = async (
       userAddress,
     )
 
-    const payload = {
-      asset: {
-        network: network,
-        ident: tokenAddress,
-        amount: value.toString(),
-      },
-      recipient: recipient.addressString,
-      sender: userAddress,
-    }
+    if (network === Networks.Ethereum) {
+      const payload = {
+        asset: {
+          network: network,
+          ident: tokenAddress,
+          amount: value.toString(),
+        },
+        recipient: recipient.addressString,
+        sender: userAddress,
+      }
 
-    const signer = provider.getSigner()
+      const signer = provider.getSigner()
 
-    const tokenFactory = ERC20__factory.connect(tokenAddress, signer)
+      const tokenFactory = ERC20__factory.connect(tokenAddress, signer)
 
-    const allowedAmount = await tokenFactory.allowance(
-      userAddress,
-      bridgeConfig.xchains.Ethereum.contractAddress,
-    )
-
-    if (!allowedAmount.gte(value)) {
-      const tx = await tokenFactory.approve(
+      const allowedAmount = await tokenFactory.allowance(
+        userAddress,
         bridgeConfig.xchains.Ethereum.contractAddress,
-        value,
       )
 
-      await tx.wait()
+      if (!allowedAmount.gte(value)) {
+        const tx = await tokenFactory.approve(
+          bridgeConfig.xchains.Ethereum.contractAddress,
+          value,
+        )
+
+        await tx.wait()
+      }
+
+      const result = await bridgeRpcClient.generateBridgeInNervosTransaction(
+        payload,
+      )
+
+      await signer.sendTransaction(result.rawTransaction)
     }
-
-    const result = await bridgeRpcClient.generateBridgeInNervosTransaction(
-      payload,
-    )
-
-    await signer.sendTransaction(result.rawTransaction)
   } catch (error) {
     console.error(error)
   }
