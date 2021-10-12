@@ -17,6 +17,7 @@ export interface IBridgeProps {
   onBaseTokenChange?: (token: Token) => void
   onQuoteTokenChange?: (token: Token) => void
   onBaseTokenAmountChange?: (value: string) => void
+  onQuoteTokenAmountChange?: (value: string) => void
   onBridgeRequest?: () => void
   onNetworkChange?: (network: string) => void
 }

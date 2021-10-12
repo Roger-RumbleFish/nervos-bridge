@@ -38,6 +38,6 @@ export const fetchSupportedTokens = async (
       shadow: { id: tok.info.shadow.ident, network: tok.info.shadow.network },
     }))
   } catch (e) {
-    console.log(e)
+    console.error(e)
   }
 }

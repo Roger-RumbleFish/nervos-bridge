@@ -31,6 +31,7 @@ const Bridge: React.FC<IBridgeProps> = ({
   onBaseTokenAmountChange,
   onBaseTokenChange,
   onQuoteTokenChange,
+  onQuoteTokenAmountChange,
   onNetworkChange,
 }) => {
   const isMobile = !useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
@@ -91,9 +92,10 @@ const Bridge: React.FC<IBridgeProps> = ({
             isFetchingTokens={isFetchingTokens}
             isFetchingAmount={isCalculating}
             tokens={quoteTokens}
-            amount={quoteTokenAmount ?? '0.00'}
+            amount={quoteTokenAmount}
             selectedToken={selectedQuoteToken}
             onTokenChange={onQuoteTokenChange}
+            onAmountChange={onQuoteTokenAmountChange}
           />
         </Box>
         <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>

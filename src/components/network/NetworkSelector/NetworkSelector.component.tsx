@@ -29,13 +29,14 @@ const NetworkSelector: React.FC<INetworkSelectorProps> = ({
   }, [currentItem, onChange])
 
   useEffect(() => {
-    if (selectedNetwork) {
-      onChange?.(
+    if (selectedNetwork && selectedNetwork !== currentItem.from) {
+      const newNetwork =
         GET_NETWORK_TRANSFER_ITEMS[selectedNetwork].id ??
-          NETWORK_TRANSFER_ITEMS[0].id,
-      )
+        NETWORK_TRANSFER_ITEMS[0].id
+
+      onChange?.(newNetwork)
     }
-  }, [selectedNetwork, onChange])
+  }, [selectedNetwork, currentItem, onChange])
 
   const handleDropdownOpen = () => {
     setAnchorEl(inputEl?.current)

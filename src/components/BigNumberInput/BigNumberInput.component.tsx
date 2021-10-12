@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import { BigNumber } from 'ethers'
 
-import { InputBase } from '@material-ui/core'
+import { CircularProgress, InputBase } from '@material-ui/core'
 import {
   convertDecimalToIntegerDecimal,
   getInputValue,
@@ -11,12 +11,15 @@ import {
 
 import { IBigNumberInputProps } from './BigNumberInput.types'
 
+const Loader = () => <CircularProgress />
+
 const BigNumberInput: React.FC<IBigNumberInputProps> = ({
   decimals,
   displayDecimals,
   value,
   onChange,
   inputComponent: Input = InputBase,
+  isFetching,
   ...rest
 }) => {
   const [stateValue, setStateValue] = useState(value)
@@ -65,6 +68,7 @@ const BigNumberInput: React.FC<IBigNumberInputProps> = ({
       inputProps={{ inputMode: 'numeric' }}
       onChange={valueChangeHandler}
       value={value}
+      inputComponent={isFetching ? Loader : undefined}
     />
   )
 }

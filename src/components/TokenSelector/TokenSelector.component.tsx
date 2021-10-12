@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react'
 
 import clsx from 'clsx'
 
+import BigNumberInput from '@components/BigNumberInput'
+import { IDisplayValue } from '@interfaces/data'
 import { Box, InputAdornment, InputBase, Typography } from '@material-ui/core'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { Autocomplete } from '@material-ui/lab'
 import { resolveTokenIcon } from '@utils/icons'
-import { getInputValue } from '@utils/stringOperations'
 
 import { useStyles } from './TokenSelector.styles'
 import { ITokenSelectorProps } from './TokenSelector.types'
@@ -27,18 +28,10 @@ const TokenSelector: React.FC<ITokenSelectorProps> = ({
   const classes = useStyles()
   const [stateValue, setStateValue] = useState(amount)
 
-  const DISPLAY_DECIMALS = 6
   const BALANCE = 'balance'
 
-  const valueChangeHandler = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
-  ) => {
-    const value = getInputValue(event?.currentTarget?.value, DISPLAY_DECIMALS)
-    if (value || value === '') {
-      setStateValue(value)
-
-      onAmountChange?.(value)
-    }
+  const valueChangeHandler = (value: IDisplayValue) => {
+    onAmountChange?.(value.displayValue)
   }
 
   useEffect(() => {
@@ -76,23 +69,22 @@ const TokenSelector: React.FC<ITokenSelectorProps> = ({
             {inputLabel}
           </Typography>
         )}
-        {isFetchingAmount ? (
-          <CircularProgress />
-        ) : (
-          <InputBase
-            disabled={disabled || readOnly}
-            classes={{
-              input: clsx(classes.inputText),
-              disabled: clsx({
-                [classes.disabledText]: disabled,
-                [classes.disabledText]: readOnly,
-              }),
-            }}
-            inputProps={{ inputMode: 'numeric' }}
-            onChange={valueChangeHandler}
-            value={stateValue}
-          />
-        )}
+
+        <BigNumberInput
+          decimals={selectedToken.decimals}
+          displayDecimals={2}
+          onChange={valueChangeHandler}
+          value={stateValue}
+          classes={{
+            input: clsx(classes.inputText),
+            disabled: clsx({
+              [classes.disabledText]: disabled,
+              [classes.disabledText]: readOnly,
+            }),
+          }}
+          isFetching={isFetchingAmount}
+          disabled={disabled || readOnly}
+        />
       </Box>
       <Box
         flexBasis={{ xs: 150, sm: 188, md: 220 }}
