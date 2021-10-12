@@ -6,6 +6,7 @@ export interface IBigNumberInputProps
   value: string
   decimals: number
   displayDecimals: number
+  isFetching?: boolean
   onChange: (value: IDisplayValue) => void
   inputComponent?: React.ElementType<InputBaseProps>
 }

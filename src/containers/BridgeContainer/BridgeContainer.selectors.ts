@@ -1,12 +1,12 @@
 import { IDisplayValue } from '@interfaces/data'
 import { BridgeState, Token } from '@state/types'
-import { Networks } from '@utils/constants'
+import { ApiNetworks, Networks } from '@utils/constants'
 import { useSelectors } from '@utils/hooks'
 
 export const BridgeSelectors = (
   reducer: any,
 ): {
-  getBaseTokensTokens: () => Token[]
+  getBaseTokens: () => Token[]
   getBaseToken: () => Token
   getQuoteTokens: () => Token[]
   getQuoteToken: () => Token
@@ -14,24 +14,42 @@ export const BridgeSelectors = (
   getFee: () => string
   isFetchingTokens: () => boolean
   isCalculating: () => boolean
+  getNetwork: () => string
 } =>
   useSelectors(reducer, (state: BridgeState) => ({
-    getQuoteTokens: () =>
-      state.tokens
+    getQuoteTokens: () => {
+      const currentNetwork =
+        state.network === Networks.Ethereum ||
+        state.network === Networks.NervosL1
+          ? ApiNetworks.Nervos
+          : ApiNetworks.Ethereum
+
+      return (
+        state.tokens
+          .map((token) => ({
+            address: token.model.address,
+            network: token.network,
+            symbol: token.model.symbol,
+          }))
+          .filter((token) => token.network === currentNetwork) ?? []
+      )
+    },
+
+    getBaseTokens: () => {
+      const currentNetwork =
+        state.network === Networks.Ethereum
+          ? ApiNetworks.Ethereum
+          : ApiNetworks.Nervos
+
+      return state.tokens
         .map((token) => ({
           address: token.model.address,
           network: token.network,
           symbol: token.model.symbol,
         }))
-        .filter((token) => token.network === Networks.Nervos) ?? [],
-    getBaseTokensTokens: () =>
-      state.tokens
-        .map((token) => ({
-          address: token.model.address,
-          network: token.network,
-          symbol: token.model.symbol,
-        }))
-        .filter((token) => token.network === Networks.Ethereum),
+        .filter((token) => token.network === currentNetwork)
+    },
+
     getBaseToken: (): Token => ({
       address: state.baseToken?.model?.address,
       network: state.baseToken?.network,
@@ -48,4 +66,5 @@ export const BridgeSelectors = (
     getExchangeResult: (): IDisplayValue => state.exchangeValue,
     getFee: (): string => state.fee,
     isCalculating: (): boolean => state.isCalculating,
+    getNetwork: (): string => state.network,
   }))

@@ -1,4 +1,5 @@
 import { BridgeToken, IDisplayValue } from '@interfaces/data'
+import { Networks } from '@utils/constants'
 
 export interface Token {
   address: string
@@ -14,12 +15,14 @@ export type BridgeState = {
   baseToken: BridgeToken
   quoteToken: BridgeToken
   exchangeValue: IDisplayValue
+  network: Networks
   fee: string
 }
 
 export enum BRIDGE_ACTIONS {
   START_TYPING = 'startTyping',
   SET_TOKENS = 'setTokens',
+  SET_NETWORK = 'setNetwork',
   SET_TOKENS_REQUEST = 'setTokensRequest',
   SET_BASE_TOKEN = 'setBaseToken',
   SET_QUOTE_TOKEN = 'setQuoteToken',
@@ -40,6 +43,13 @@ export type ISetTokensAction = IBridgeAction<
   typeof BRIDGE_ACTIONS.SET_TOKENS,
   {
     tokens: BridgeToken[]
+  }
+>
+
+export type ISetNetworkAction = IBridgeAction<
+  typeof BRIDGE_ACTIONS.SET_NETWORK,
+  {
+    network: string
   }
 >
 export type ISetTokensRequestAction = IBridgeAction<

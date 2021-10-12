@@ -1,9 +1,13 @@
+import { BridgeToken } from '@interfaces/data'
+import { ApiNetworks, Networks } from '@utils/constants'
+
 import {
   BridgeState,
   BRIDGE_ACTIONS,
   IBridgeAction,
   ICalculateAction,
   ISetBaseTokenAction,
+  ISetNetworkAction,
   ISetQuoteTokenAction,
   ISetTokensAction,
 } from './types'
@@ -15,7 +19,19 @@ export const initialState: BridgeState = {
   baseToken: null,
   quoteToken: null,
   exchangeValue: null,
+  network: Networks.Ethereum,
   fee: null,
+}
+
+const getShadowToken = (
+  tokens: BridgeToken[],
+  firstToken: BridgeToken,
+): BridgeToken => {
+  return tokens.find(
+    (token) =>
+      token.network === firstToken?.shadow?.network &&
+      token.model.id === firstToken?.shadow?.id,
+  )
 }
 
 export const reducer = (
@@ -34,16 +50,23 @@ export const reducer = (
         (token) => token.model.symbol === setBaseTokenAction.payload,
       )
 
-      const newQuoteToken = state.tokens.find(
-        (token) =>
-          token.network === newBaseToken?.shadow?.network &&
-          token.model.id === newBaseToken?.shadow?.id,
-      )
+      if (state.network === Networks.NervosL1) {
+        return {
+          ...state,
+          baseToken: newBaseToken,
+          quoteToken: newBaseToken,
+        }
+      }
 
-      return {
-        ...state,
-        baseToken: newBaseToken,
-        quoteToken: newQuoteToken,
+      if (
+        state.network === Networks.NervosL2 ||
+        state.network === Networks.Ethereum
+      ) {
+        return {
+          ...state,
+          baseToken: newBaseToken,
+          quoteToken: getShadowToken(state.tokens, newBaseToken),
+        }
       }
     }
     case BRIDGE_ACTIONS.SET_QUOTE_TOKEN: {
@@ -52,16 +75,23 @@ export const reducer = (
         (token) => token.model.symbol === setQuoteTokenAction.payload,
       )
 
-      const newBaseToken = state.tokens.find(
-        (token) =>
-          token.network === newQuoteToken?.shadow?.network &&
-          token.model.id === newQuoteToken?.shadow?.id,
-      )
+      if (state.network === Networks.NervosL1) {
+        return {
+          ...state,
+          baseToken: newQuoteToken,
+          quoteToken: newQuoteToken,
+        }
+      }
 
-      return {
-        ...state,
-        baseToken: newBaseToken,
-        quoteToken: newQuoteToken,
+      if (
+        state.network === Networks.NervosL2 ||
+        state.network === Networks.Ethereum
+      ) {
+        return {
+          ...state,
+          baseToken: getShadowToken(state.tokens, newQuoteToken),
+          quoteToken: newQuoteToken,
+        }
       }
     }
 
@@ -80,12 +110,16 @@ export const reducer = (
     case BRIDGE_ACTIONS.SET_TOKENS: {
       const setAction = action as ISetTokensAction
       const tokens = setAction.payload.tokens
+      const currentNetwork =
+        state.network === Networks.Ethereum
+          ? ApiNetworks.Ethereum
+          : ApiNetworks.Nervos
+      const baseToken =
+        tokens.length > 0
+          ? tokens.find((token) => token.network === currentNetwork)
+          : null
 
-      const baseToken = tokens.length > 0 ? tokens[0] : null
-
-      const quoteToken = baseToken
-        ? tokens.find((token) => token.model.id === baseToken.shadow.id)
-        : null
+      const quoteToken = getShadowToken(tokens, baseToken)
 
       return {
         ...state,
@@ -93,6 +127,66 @@ export const reducer = (
         baseToken: baseToken,
         quoteToken: quoteToken,
         fetchingTokens: false,
+      }
+    }
+    case BRIDGE_ACTIONS.SET_NETWORK: {
+      const setAction = action as ISetNetworkAction
+      const network = setAction.payload.network
+
+      if (network === Networks.NervosL1) {
+        const baseToken =
+          state?.baseToken?.network !== ApiNetworks.Ethereum
+            ? state?.baseToken
+            : state?.tokens.find(
+                (token) => token.network !== ApiNetworks.Ethereum,
+              )
+
+        return {
+          ...state,
+          baseToken: baseToken,
+          quoteToken: baseToken,
+          network,
+        }
+      }
+
+      if (network === Networks.NervosL2) {
+        const baseToken =
+          state?.baseToken?.network !== ApiNetworks.Ethereum
+            ? state?.baseToken
+            : state?.tokens.find(
+                (token) => token.network !== ApiNetworks.Ethereum,
+              )
+
+        const quoteToken = getShadowToken(state.tokens, baseToken)
+
+        return {
+          ...state,
+          baseToken: baseToken,
+          quoteToken: quoteToken,
+          network,
+        }
+      }
+
+      if (network === Networks.Ethereum) {
+        const baseToken =
+          state?.baseToken?.network === ApiNetworks.Ethereum
+            ? state?.baseToken
+            : state?.tokens.find(
+                (token) => token.network === ApiNetworks.Ethereum,
+              )
+
+        const quoteToken = getShadowToken(state.tokens, baseToken)
+
+        return {
+          ...state,
+          baseToken,
+          quoteToken,
+          network,
+        }
+      }
+
+      return {
+        ...state,
       }
     }
     case BRIDGE_ACTIONS.CALCULATE: {

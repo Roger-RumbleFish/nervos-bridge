@@ -7,7 +7,6 @@ import Bridge from '@components/Bridge'
 import Box from '@material-ui/core/Box'
 import { initialState, reducer } from '@state/reducer'
 import { Token } from '@state/types'
-import { Networks } from '@utils/constants'
 import { ConfigContext, useDebounce } from '@utils/hooks'
 
 import { BridgeActions } from './BridgeContainer.actions'
@@ -22,11 +21,12 @@ const BridgeContainer: React.FC = () => {
   const bridgeReducer = useReducer(reducer, initialState)
   const context = useContext(ConfigContext)
   const [value, setValue] = useState('100.00')
-  const [network, setNetwork] = useState(Networks.Ethereum)
+  const [quoteValue, setQuoteValue] = useState('100.00')
 
   const {
     setTokens,
     setTokensRequest,
+    setNetwork,
     setBaseToken,
     setQuoteToken,
     calculate,
@@ -36,13 +36,16 @@ const BridgeContainer: React.FC = () => {
   const {
     isFetchingTokens,
     isCalculating,
+    getNetwork,
     getFee,
     getBaseToken,
-    getBaseTokensTokens,
+    getBaseTokens,
     getExchangeResult,
     getQuoteToken,
     getQuoteTokens,
   } = BridgeSelectors(bridgeReducer)
+
+  const network = getNetwork()
 
   useEffect(() => {
     ;(async (): Promise<void> => {
@@ -52,8 +55,10 @@ const BridgeContainer: React.FC = () => {
     })()
   }, [])
 
-  const onNetworkChange = (network: string) => {
-    setNetwork(network as Networks)
+  const onNetworkChange = (newNetwork: string) => {
+    if (newNetwork !== network) {
+      setNetwork?.(newNetwork)
+    }
   }
 
   const onBaseTokenChange = async (token: Token) => {
@@ -68,10 +73,14 @@ const BridgeContainer: React.FC = () => {
     setValue(value)
   }
 
+  const onQuoteTokenAmountChange = (value: string) => {
+    setQuoteValue(value)
+  }
+
   const baseToken = getBaseToken()
   const quoteToken = getQuoteToken()
 
-  const ethereumTokens = getBaseTokensTokens()
+  const ethereumTokens = getBaseTokens()
   const ckbTokens = getQuoteTokens()
 
   const fee = getFee()
@@ -85,12 +94,12 @@ const BridgeContainer: React.FC = () => {
 
   useEffect(() => {
     ;(async (): Promise<void> => {
-      if (baseToken?.address) {
+      if (baseToken?.address && quoteToken?.address) {
         calculatingRequest()
         const result = await calculateFee(
-          baseToken.address,
+          baseToken,
+          quoteToken,
           value,
-          baseToken.decimals,
           network,
           context.config,
         )
@@ -100,6 +109,12 @@ const BridgeContainer: React.FC = () => {
       }
     })()
   }, [baseToken.address, debounceValue, calculate, network])
+
+  useEffect(() => {
+    if (exchangeResult?.displayValue) {
+      setQuoteValue(exchangeResult?.displayValue)
+    }
+  }, [exchangeResult?.value])
 
   const onBridgeRequest = async () => {
     await bridgeToken(
@@ -121,7 +136,7 @@ const BridgeContainer: React.FC = () => {
         title={BRIDGE_TITLE}
         description={BRIDGE_DESCRIPTION}
         baseTokenAmount={value}
-        quoteTokenAmount={exchangeResult?.displayValue}
+        quoteTokenAmount={quoteValue}
         baseTokens={ethereumTokens}
         quoteTokens={ckbTokens}
         selectedBaseToken={baseToken}
@@ -131,6 +146,7 @@ const BridgeContainer: React.FC = () => {
         onBaseTokenChange={onBaseTokenChange}
         onQuoteTokenChange={onQuoteTokenChange}
         onBaseTokenAmountChange={onBaseTokenAmountChange}
+        onQuoteTokenAmountChange={onQuoteTokenAmountChange}
         onBridgeRequest={onBridgeRequest}
         onNetworkChange={onNetworkChange}
       />
