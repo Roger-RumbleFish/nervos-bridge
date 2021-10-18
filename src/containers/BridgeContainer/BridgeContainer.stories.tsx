@@ -31,7 +31,7 @@ const Template: Story<ComponentProps<typeof BridgeContainer>> = () => {
       <ConfigContext.Provider
         value={{
           provider: provider,
-          assetsBlacklist: ['eth'],
+          assetsWhitelist: ['usdt', 'usdc', 'dai'],
         }}
       >
         <BridgeContainer />

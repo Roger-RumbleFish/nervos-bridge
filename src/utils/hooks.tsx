@@ -32,7 +32,7 @@ export function useActions(reducer: any, mapDispatchToActions: any) {
 
 export interface IConfigContext {
   provider: IBridgeContainerProps['provider']
-  assetsBlacklist?: string[]
+  assetsWhitelist?: string[]
   config?: IBridgeContainerProps['config']
 }
 

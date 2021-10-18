@@ -50,7 +50,7 @@ const BridgeContainer: React.FC = () => {
   useEffect(() => {
     ;(async (): Promise<void> => {
       setTokensRequest()
-      const tokens = await fetchSupportedTokens(context.assetsBlacklist)
+      const tokens = await fetchSupportedTokens(context.assetsWhitelist)
       setTokens(tokens)
     })()
   }, [])
@@ -80,8 +80,8 @@ const BridgeContainer: React.FC = () => {
   const baseToken = getBaseToken()
   const quoteToken = getQuoteToken()
 
-  const ethereumTokens = getBaseTokens()
-  const ckbTokens = getQuoteTokens()
+  const baseTokens = getBaseTokens()
+  const quoteTokens = getQuoteTokens()
 
   const fee = getFee()
 
@@ -97,6 +97,7 @@ const BridgeContainer: React.FC = () => {
       if (baseToken?.address && quoteToken?.address) {
         calculatingRequest()
         const result = await calculateFee(
+          context.provider,
           baseToken,
           quoteToken,
           value,
@@ -104,7 +105,7 @@ const BridgeContainer: React.FC = () => {
           context.config,
         )
         if (result) {
-          calculate(result.exchangeResult, result.percentageFee)
+          calculate(result.fee, result.percentage)
         }
       }
     })()
@@ -137,8 +138,8 @@ const BridgeContainer: React.FC = () => {
         description={BRIDGE_DESCRIPTION}
         baseTokenAmount={value}
         quoteTokenAmount={quoteValue}
-        baseTokens={ethereumTokens}
-        quoteTokens={ckbTokens}
+        baseTokens={baseTokens}
+        quoteTokens={quoteTokens}
         selectedBaseToken={baseToken}
         selectedQuoteToken={quoteToken}
         fee={fee}

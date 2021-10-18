@@ -3,28 +3,32 @@ import { BridgeToken } from '@interfaces/data'
 import { getBridgeRPCClient } from './client'
 
 export const fetchSupportedTokens = async (
-  blacklist?: string[],
+  assetsWhitelist?: string[],
 ): Promise<BridgeToken[]> => {
   try {
     const rpcClient = getBridgeRPCClient()
 
     const tokens = await rpcClient.getAssetList('all')
 
-    const blacklistedTokens = tokens.filter((token) =>
-      blacklist.some(
-        (blackListSymbol) =>
-          blackListSymbol.toUpperCase() === token.info.symbol.toUpperCase(),
-      ),
+    const whitelistedTokens = tokens.filter((token) =>
+      assetsWhitelist
+        ? assetsWhitelist.some(
+            (whitelistSymbol) =>
+              whitelistSymbol.toUpperCase() === token.info.symbol.toUpperCase(),
+          )
+        : true,
     )
 
-    const tokensIdsToRemove: string[] = []
+    const tokenIdsToSupport: string[] = []
 
-    tokensIdsToRemove.push(...blacklistedTokens.map((x) => x.ident))
-    tokensIdsToRemove.push(...blacklistedTokens.map((x) => x.info.shadow.ident))
+    tokenIdsToSupport.push(...whitelistedTokens.map((x) => x.ident))
+    tokenIdsToSupport.push(...whitelistedTokens.map((x) => x.info.shadow.ident))
 
-    const filteredTokens = tokens.filter(
-      (x) => !tokensIdsToRemove.some((y) => y === x.ident),
+    const filteredTokens = tokens.filter((token) =>
+      tokenIdsToSupport.some((id) => id === token.ident),
     )
+
+    console.log('all tokens', filteredTokens)
 
     return filteredTokens.map((tok) => ({
       model: {

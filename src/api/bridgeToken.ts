@@ -27,6 +27,7 @@ export const bridgeToken = async (
 
     const addressTranslator = new AddressTranslator(config?.addressTranslator)
     const web3 = new Web3(Web3.givenProvider)
+
     const recipient = await addressTranslator.getLayer2DepositAddress(
       web3,
       userAddress,
@@ -66,6 +67,16 @@ export const bridgeToken = async (
       )
 
       await signer.sendTransaction(result.rawTransaction)
+    }
+
+    if (network === Networks.NervosL1) {
+      // const web3 = new Web3(Web3.givenProvider)
+      // const tx = await addressTranslator.transferFromLayer1ToLayer2(
+      //   web3 as any,
+      //   userAddress,
+      //   tokenAddress,
+      //   amount,
+      // )
     }
   } catch (error) {
     console.error(error)

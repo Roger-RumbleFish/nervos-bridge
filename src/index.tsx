@@ -7,7 +7,7 @@ import { IBridgeContainerProps } from './containers/BridgeContainer/BridgeContai
 import { ThemeProvider } from './styles/theme'
 
 export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
-  assetsBlacklist,
+  assetsWhitelist,
   provider,
   config,
 }) => {
@@ -17,7 +17,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         value={{
           config: config,
           provider: provider,
-          assetsBlacklist: assetsBlacklist,
+          assetsWhitelist: assetsWhitelist,
         }}
       >
         <BridgeContainer />
