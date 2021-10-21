@@ -14,7 +14,7 @@ module.exports = {
     },
   },
   stories: ['../src/**/*.stories.@(tsx|mdx)'],
-  addons: ['@storybook/addon-essentials'],
+  addons: ['@storybook/addon-essentials', './addons/web3/src/preset.js'],
   webpackFinal: async (config) => {
     const rootPath = path.join(__dirname, '../')
     const fileLoaderRule = config.module.rules.find((rule) =>

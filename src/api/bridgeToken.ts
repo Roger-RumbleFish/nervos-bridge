@@ -17,11 +17,12 @@ export const bridgeToken = async (
   network: string,
   config?: IConfigContext['config'],
 ): Promise<void> => {
+  console.log('Bridge Token', provider)
   try {
     const accounts = await provider?.listAccounts()
     if (!accounts || accounts.length === 0) throw Error('you are not logged in')
     const userAddress = accounts[0]
-    const bridgeRpcClient = getBridgeRPCClient(config?.rpcFaucetUrl)
+    const bridgeRpcClient = getBridgeRPCClient(config?.rpcBridgeUrl)
     const bridgeConfig = await bridgeRpcClient.getBridgeConfig()
     const value = convertDecimalToIntegerDecimal(amount, decimals)
 
@@ -70,6 +71,7 @@ export const bridgeToken = async (
     }
 
     if (network === Networks.NervosL1) {
+      console.log('Nothing happending for now')
       // const web3 = new Web3(Web3.givenProvider)
       // const tx = await addressTranslator.transferFromLayer1ToLayer2(
       //   web3 as any,

@@ -31,7 +31,7 @@ export function useActions(reducer: any, mapDispatchToActions: any) {
 }
 
 export interface IConfigContext {
-  provider: IBridgeContainerProps['provider']
+  getProvider: () => IBridgeContainerProps['provider']
   assetsWhitelist?: string[]
   config?: IBridgeContainerProps['config']
 }

@@ -52,7 +52,7 @@ export const calculateFee = async (
   percentage: string
 }> => {
   try {
-    const bridgeRpcClient = getBridgeRPCClient(config?.rpcFaucetUrl)
+    const bridgeRpcClient = getBridgeRPCClient(config?.rpcBridgeUrl)
     const decimals = baseToken.decimals ?? 2
     const value = convertDecimalToIntegerDecimal(amount, decimals)
 

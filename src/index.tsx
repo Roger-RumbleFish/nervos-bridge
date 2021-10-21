@@ -16,7 +16,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
       <ConfigContext.Provider
         value={{
           config: config,
-          provider: provider,
+          getProvider: () => provider,
           assetsWhitelist: assetsWhitelist,
         }}
       >

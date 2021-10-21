@@ -6,7 +6,7 @@ export interface IBridgeContainerProps {
   provider: ethers.providers.Web3Provider
   config?: {
     addressTranslator?: IAddressTranslatorConfig
-    rpcFaucetUrl?: string
+    rpcBridgeUrl?: string
     supportedTokens?: string[]
   }
 }

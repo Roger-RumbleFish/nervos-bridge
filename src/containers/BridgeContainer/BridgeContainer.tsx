@@ -10,16 +10,17 @@ import { Token } from '@state/types'
 import { ConfigContext, useDebounce } from '@utils/hooks'
 
 import { BridgeActions } from './BridgeContainer.actions'
+import messages from './BridgeContainer.messages'
 import { BridgeSelectors } from './BridgeContainer.selectors'
 
 const BridgeContainer: React.FC = () => {
+  console.log('BridgeContainer')
   const DEBOUNCE = 400
-  const BRIDGE_TITLE = 'Hadouken Bridge'
-  const BRIDGE_DESCRIPTION =
-    'Only use personal wallets. Depositing from an exchange may cause loss of funds'
 
   const bridgeReducer = useReducer(reducer, initialState)
-  const context = useContext(ConfigContext)
+  const { getProvider, config, assetsWhitelist } = useContext(ConfigContext)
+
+  const provider = getProvider()
   const [value, setValue] = useState('100.00')
   const [quoteValue, setQuoteValue] = useState('100.00')
 
@@ -50,7 +51,7 @@ const BridgeContainer: React.FC = () => {
   useEffect(() => {
     ;(async (): Promise<void> => {
       setTokensRequest()
-      const tokens = await fetchSupportedTokens(context.assetsWhitelist)
+      const tokens = await fetchSupportedTokens(assetsWhitelist)
       setTokens(tokens)
     })()
   }, [])
@@ -97,19 +98,19 @@ const BridgeContainer: React.FC = () => {
       if (baseToken?.address && quoteToken?.address) {
         calculatingRequest()
         const result = await calculateFee(
-          context.provider,
+          provider,
           baseToken,
           quoteToken,
           value,
           network,
-          context.config,
+          config,
         )
         if (result) {
           calculate(result.fee, result.percentage)
         }
       }
     })()
-  }, [baseToken.address, debounceValue, calculate, network])
+  }, [baseToken.address, debounceValue, calculate, network, provider])
 
   useEffect(() => {
     if (exchangeResult?.displayValue) {
@@ -122,20 +123,20 @@ const BridgeContainer: React.FC = () => {
       value,
       baseToken.decimals,
       baseToken.address,
-      context.provider,
+      provider,
       network,
-      context.config,
+      config,
     )
   }
 
   return (
     <Box>
       <Bridge
-        disableButton={context.provider === null}
+        disableButton={provider === null}
         isFetchingTokens={isFetchingAllTokens}
         isCalculating={calculating}
-        title={BRIDGE_TITLE}
-        description={BRIDGE_DESCRIPTION}
+        title={messages.BRIDGE_TITLE}
+        description={messages.BRIDGE_DESCRIPTION}
         baseTokenAmount={value}
         quoteTokenAmount={quoteValue}
         baseTokens={baseTokens}
