@@ -56,7 +56,7 @@ const Index = () => {
   }, [])
 
   return (
-    <div>
+    <>
       <Box margin={2}>
         {loginRequired && (
           <Button variant="outlined" onClick={onLoginRequest}>
@@ -70,7 +70,7 @@ const Index = () => {
         )}
       </Box>
       <Bridge provider={provider} assetsWhitelist={['usdt', 'usdc', 'dai']} />
-    </div>
+    </>
   )
 }
 

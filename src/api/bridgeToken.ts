@@ -71,7 +71,7 @@ export const bridgeToken = async (
     }
 
     if (network === Networks.NervosL1) {
-      console.log('Nothing happending for now')
+      // console.log('Nothing happending for now')
       // const web3 = new Web3(Web3.givenProvider)
       // const tx = await addressTranslator.transferFromLayer1ToLayer2(
       //   web3 as any,
@@ -79,6 +79,7 @@ export const bridgeToken = async (
       //   tokenAddress,
       //   amount,
       // )
+      // console.log(tx)
     }
   } catch (error) {
     console.error(error)

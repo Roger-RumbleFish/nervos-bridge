@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "dev": "webpack serve --config webpack.config.dev.js --hot",
+    "dev": "webpack serve --config webpack.config.dev.js",
     "storybook": "start-storybook -p 6008  -s ./src --ci  --no-manager-cache",
     "lint": "eslint . --ext .ts --ext .tsx --fix"
   },
@@ -67,6 +67,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.20.4",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "html-webpack-plugin": "^5.4.0",
     "jest": "^26.6.3",
     "jest-svg-transformer": "^1.0.0",
     "prettier": "2.2.1",

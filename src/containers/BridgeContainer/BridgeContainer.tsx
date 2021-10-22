@@ -2,6 +2,7 @@ import React, { useReducer, useState, useEffect, useContext } from 'react'
 
 import { bridgeToken } from '@api/bridgeToken'
 import { calculateFee } from '@api/calculateFee'
+import { fetchTokens } from '@api/dataSource/forceBridge/tokens'
 import { fetchSupportedTokens } from '@api/fetchSupportedTokens'
 import Bridge from '@components/Bridge'
 import Box from '@material-ui/core/Box'
@@ -14,7 +15,6 @@ import messages from './BridgeContainer.messages'
 import { BridgeSelectors } from './BridgeContainer.selectors'
 
 const BridgeContainer: React.FC = () => {
-  console.log('BridgeContainer')
   const DEBOUNCE = 400
 
   const bridgeReducer = useReducer(reducer, initialState)
@@ -51,7 +51,8 @@ const BridgeContainer: React.FC = () => {
   useEffect(() => {
     ;(async (): Promise<void> => {
       setTokensRequest()
-      const tokens = await fetchSupportedTokens(assetsWhitelist)
+      const tokens = await fetchTokens(assetsWhitelist)
+      console.log('Bridge Container: tokens', tokens)
       setTokens(tokens)
     })()
   }, [])
