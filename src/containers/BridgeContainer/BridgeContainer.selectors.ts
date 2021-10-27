@@ -21,7 +21,7 @@ export const BridgeSelectors = (
       const currentNetwork =
         state.network === Networks.Ethereum ||
         state.network === Networks.NervosL1
-          ? ApiNetworks.Nervos
+          ? Networks.NervosL1
           : ApiNetworks.Ethereum
 
       return (
@@ -34,12 +34,23 @@ export const BridgeSelectors = (
           .filter((token) => token.network === currentNetwork) ?? []
       )
     },
-
     getBaseTokens: () => {
       const currentNetwork =
         state.network === Networks.Ethereum
           ? ApiNetworks.Ethereum
-          : ApiNetworks.Nervos
+          : Networks.NervosL2
+
+      console.log('bridge::selectors::tokens', state.tokens)
+      console.log(
+        'bridge::selector::baseTokens',
+        state.tokens
+          .map((token) => ({
+            address: token.model.address,
+            network: token.network,
+            symbol: token.model.symbol,
+          }))
+          .filter((token) => token.network === currentNetwork),
+      )
 
       return state.tokens
         .map((token) => ({
@@ -49,13 +60,15 @@ export const BridgeSelectors = (
         }))
         .filter((token) => token.network === currentNetwork)
     },
-
-    getBaseToken: (): Token => ({
-      address: state.baseToken?.model?.address,
-      network: state.baseToken?.network,
-      symbol: state.baseToken?.model?.symbol,
-      decimals: state.baseToken?.model?.decimals,
-    }),
+    getBaseToken: (): Token => {
+      console.log('bridge::selector::baseToken', state.baseToken)
+      return {
+        address: state.baseToken?.model?.address,
+        network: state.baseToken?.network,
+        symbol: state.baseToken?.model?.symbol,
+        decimals: state.baseToken?.model?.decimals,
+      }
+    },
     getQuoteToken: (): Token => ({
       address: state.quoteToken?.model?.address,
       network: state.quoteToken?.network,

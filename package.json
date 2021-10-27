@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "dev": "webpack serve --config webpack.config.dev.js",
+    "dev": "webpack serve --config webpack.config.dev.js --port 8043",
     "storybook": "start-storybook -p 6008  -s ./src --ci  --no-manager-cache",
     "lint": "eslint . --ext .ts --ext .tsx --fix"
   },
@@ -31,7 +31,8 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "stream-browserify": "^3.0.0",
-    "url-loader": "^4.1.1"
+    "url-loader": "^4.1.1",
+    "web3": "1.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",

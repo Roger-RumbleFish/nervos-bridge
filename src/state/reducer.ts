@@ -110,10 +110,12 @@ export const reducer = (
     case BRIDGE_ACTIONS.SET_TOKENS: {
       const setAction = action as ISetTokensAction
       const tokens = setAction.payload.tokens
+      console.log('bridge::reducer::setTokens', tokens)
+
       const currentNetwork =
         state.network === Networks.Ethereum
           ? ApiNetworks.Ethereum
-          : ApiNetworks.Nervos
+          : Networks.NervosL1
       const baseToken =
         tokens.length > 0
           ? tokens.find((token) => token.network === currentNetwork)

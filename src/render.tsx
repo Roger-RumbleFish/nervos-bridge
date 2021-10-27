@@ -33,6 +33,7 @@ const Index = () => {
         )
         setProvider(web3Provider)
         setAccount(account)
+        setLoginRequired(false)
       } else {
         setLoginRequired(true)
       }

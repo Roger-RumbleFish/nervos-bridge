@@ -1,9 +1,8 @@
 import React, { useReducer, useState, useEffect, useContext } from 'react'
 
-import { bridgeToken } from '@api/bridgeToken'
 import { calculateFee } from '@api/calculateFee'
-import { fetchTokens } from '@api/dataSource/forceBridge/tokens'
-import { fetchSupportedTokens } from '@api/fetchSupportedTokens'
+// import { bridgeToken } from '@api/bridgeToken'
+import { fetchTokens, bridgeToken } from '@api/dataSource/register'
 import Bridge from '@components/Bridge'
 import Box from '@material-ui/core/Box'
 import { initialState, reducer } from '@state/reducer'
@@ -129,6 +128,10 @@ const BridgeContainer: React.FC = () => {
       config,
     )
   }
+  console.log('bridge::BridgeContainer::value', value)
+  console.log('bridge::BridgeContainer::baseToken', baseToken)
+  console.log('bridge::BridgeContainer::baseTokens', baseTokens)
+  console.log('bridge::BridgeContainer::quoteTokens', quoteTokens)
 
   return (
     <Box>
