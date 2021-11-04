@@ -56,10 +56,6 @@ export const bridgeToken = async (
         config,
       )
     } else if (network === Networks.NervosL1) {
-      const amountRaw = convertDecimalToIntegerDecimal(
-        amount,
-        decimals,
-      ).toString()
       await L1L2bridgeToken(
         amount,
         tokenAddress,

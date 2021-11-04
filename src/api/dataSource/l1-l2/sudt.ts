@@ -20,4 +20,10 @@ export const TokenConfig: ITokenConfig = {
     decimals: 8,
     network: Networks.NervosL2,
   },
+  '0x0000000000000000000000000000000000000000000000000000000000000000': {
+    id: '0x0000000000000000000000000000000000000000',
+    name: 'CKB',
+    decimals: 8,
+    network: Networks.NervosL2,
+  },
 }
