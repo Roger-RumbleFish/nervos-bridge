@@ -10,10 +10,10 @@ export interface ITokenConfig {
 }
 
 export function inverseBridgeNetwork(network: Networks): Networks {
-  return network === Networks.NervosL1 ? Networks.NervosL2 : Networks.NervosL2
+  return network === Networks.NervosL1 ? Networks.NervosL2 : Networks.NervosL1
 }
 
-export const TokenConfig: ITokenConfig = {
+export const TokenConfigByL1: ITokenConfig = {
   '0xc43009f083e70ae3fee342d59b8df9eec24d669c1c3a3151706d305f5362c37e': {
     id: '0xd64488E7E97242F3cd18627458907c0f1455d946',
     name: 'dCKB',

@@ -4,6 +4,21 @@ import { lightGray, textDisabled } from '@styles/theme'
 const BORDER_RADIUS = 8
 
 export const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
+  inputContainer: {
+    borderTopLeftRadius: BORDER_RADIUS,
+    borderBottomLeftRadius: BORDER_RADIUS,
+    borderRight: 'none',
+    border: `1px solid ${lightGray}`,
+    justifyContent: 'center',
+    boxShadow: '0px 3px rgba(0, 0, 0, 0.05)',
+
+    height: 80,
+    [breakpoints.up('sm')]: {
+      height: 114,
+    },
+    // height: 114,
+  },
+
   autocompleteContainer: {
     borderTopRightRadius: BORDER_RADIUS,
     borderBottomRightRadius: BORDER_RADIUS,
@@ -49,7 +64,6 @@ export const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
 
   autocompleteText: {
     color: palette.text.secondary,
-    width: 300,
   },
 
   availableButton: {

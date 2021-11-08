@@ -1,19 +1,24 @@
 import React, { useReducer, useState, useEffect, useContext } from 'react'
 
 import { calculateFee } from '@api/calculateFee'
-// import { bridgeToken } from '@api/bridgeToken'
-import { fetchTokens, bridgeToken } from '@api/dataSource/register'
+import { fetchTokens, bridgeToken, fetchBalances } from '@api/bridges/__register'
 import Bridge from '@components/Bridge'
+import NetworkSelector from '@components/network/NetworkSelector'
 import Box from '@material-ui/core/Box'
+import Typography from '@material-ui/core/Typography'
 import { initialState, reducer } from '@state/reducer'
-import { Token } from '@state/types'
+import { AccountBoundToken, Token } from '@state/types'
 import { ConfigContext, useDebounce } from '@utils/hooks'
 
 import { BridgeActions } from './BridgeContainer.actions'
 import messages from './BridgeContainer.messages'
 import { BridgeSelectors } from './BridgeContainer.selectors'
+import { BigNumber } from '@ethersproject/bignumber'
+import { Button, Theme, useMediaQuery } from '@material-ui/core'
 
 const BridgeContainer: React.FC = () => {
+  const isMobile = !useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
+
   const DEBOUNCE = 400
 
   const bridgeReducer = useReducer(reducer, initialState)
@@ -48,7 +53,7 @@ const BridgeContainer: React.FC = () => {
   const network = getNetwork()
 
   useEffect(() => {
-    ;(async (): Promise<void> => {
+    ; (async (): Promise<void> => {
       setTokensRequest()
       const tokens = await fetchTokens(assetsWhitelist)
       console.log('Bridge Container: tokens', tokens)
@@ -56,6 +61,20 @@ const BridgeContainer: React.FC = () => {
     })()
   }, [])
 
+  useEffect(() => {
+    ;(async (): Promise<void> => {
+      console.log('Bridge Container: balances effect')
+      if (provider) {
+        await fetchBalances(network, provider)
+        console.log('Bridge Container: balances')
+      }
+    })()
+  }, [provider, network])
+
+  const bindAccountBalanceToToken = (token: Token): AccountBoundToken => ({
+    ...token,
+    balance: BigNumber.from(0)
+  })
   const onNetworkChange = (newNetwork: string) => {
     if (newNetwork !== network) {
       setNetwork?.(newNetwork)
@@ -94,7 +113,7 @@ const BridgeContainer: React.FC = () => {
   const debounceValue = useDebounce(value, DEBOUNCE)
 
   useEffect(() => {
-    ;(async (): Promise<void> => {
+    ; (async (): Promise<void> => {
       if (baseToken?.address && quoteToken?.address) {
         calculatingRequest()
         const result = await calculateFee(
@@ -134,7 +153,24 @@ const BridgeContainer: React.FC = () => {
   console.log('bridge::BridgeContainer::quoteTokens', quoteTokens)
 
   return (
-    <Box>
+    <Box padding={{ xs: 2, sm: 10 }} bgcolor="white" borderRadius={8}>
+      <Box display={{ xs: 'block', sm: 'flex' }} justifyContent="space-between">
+        <Box>
+          <Typography variant="h4">{messages.BRIDGE_TITLE}</Typography>
+          <Typography variant="body1">{messages.BRIDGE_DESCRIPTION}</Typography>
+        </Box>
+        <Box
+          maxWidth={500}
+          minWidth={{ xs: 250, sm: 320 }}
+          py={{ xs: 2, sm: 0 }}
+        >
+          <NetworkSelector
+            selectedNetwork={network}
+            onChange={onNetworkChange}
+          />
+        </Box>
+      </Box>
+
       <Bridge
         disableButton={provider === null}
         isFetchingTokens={isFetchingAllTokens}
@@ -143,19 +179,30 @@ const BridgeContainer: React.FC = () => {
         description={messages.BRIDGE_DESCRIPTION}
         baseTokenAmount={value}
         quoteTokenAmount={quoteValue}
-        baseTokens={baseTokens}
-        quoteTokens={quoteTokens}
-        selectedBaseToken={baseToken}
-        selectedQuoteToken={quoteToken}
+        baseTokens={baseTokens.map(bindAccountBalanceToToken)}
+        quoteTokens={quoteTokens.map(bindAccountBalanceToToken)}
+        selectedBaseToken={bindAccountBalanceToToken(baseToken)}
+        selectedQuoteToken={bindAccountBalanceToToken(quoteToken)}
         fee={fee}
         network={network}
         onBaseTokenChange={onBaseTokenChange}
         onQuoteTokenChange={onQuoteTokenChange}
         onBaseTokenAmountChange={onBaseTokenAmountChange}
         onQuoteTokenAmountChange={onQuoteTokenAmountChange}
-        onBridgeRequest={onBridgeRequest}
+        onDepositRequest={onBridgeRequest}
         onNetworkChange={onNetworkChange}
       />
+      <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>
+        <Button
+          style={{ width: isMobile ? '100%' : 'auto' }}
+          disabled={provider === null}
+          variant="contained"
+          color="primary"
+          onClick={onBridgeRequest}
+        >
+          Bridge
+        </Button>
+      </Box>
     </Box>
   )
 }

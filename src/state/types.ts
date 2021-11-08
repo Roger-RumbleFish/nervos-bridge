@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers'
+
 import { BridgeToken, IDisplayValue } from '@interfaces/data'
 import { Networks } from '@utils/constants'
 
@@ -6,6 +8,10 @@ export interface Token {
   symbol: string
   network: string
   decimals: number
+}
+
+export interface AccountBoundToken extends Token {
+  balance: BigNumber
 }
 
 export type BridgeState = {

@@ -6,7 +6,7 @@ export type IBridgeTokenHandler = (
   amount: string,
   tokenAddress: string,
   userAddress: string,
-  provider: providers.Web3Provider,
-  network: string,
+  provider?: providers.Web3Provider,
+  network?: string,
   config?: IConfigContext['config'],
 ) => Promise<void>

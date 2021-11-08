@@ -2,6 +2,7 @@ import { AddressTranslator } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
 import { BigNumber } from '@ethersproject/bignumber'
+import { IBridge, BridgedPair } from '@interfaces/data'
 import PWCore, {
   Address,
   AddressType,
@@ -15,43 +16,26 @@ import PWCore, {
   AmountUnit,
 } from '@lay2/pw-core'
 
-import { IBridgeTokenHandler } from '../types'
-
-interface Bridge {
-  init(): Promise<Bridge>
-  deposit(
-    amount: BigNumber,
-    accountAddress: string,
-    tokenAddress: string,
-  ): Promise<string>
-  withdraw(
-    amount: BigNumber,
-    accountAddress: string,
-    tokenAddress: string,
-  ): Promise<string>
-  getBalance(accountAddress: string, tokenAddress?: string): Promise<BigNumber>
-}
-
-interface L1L2BridgeConfig {
+interface CkbBridgeConfig {
   ckbUrl: string
   indexerUrl: string
-  godwokenUrl: string
 }
 
+const ZERO_LOCK_HASH =
+  '0x0000000000000000000000000000000000000000000000000000000000000000'
 const IS_TESTNET = true
 
-export class L1L2Bridge implements Bridge {
-  private _web3Provider: Web3
+export class CkbBridge implements IBridge {
+  private _web3: Web3
   private _pwCore: PWCore
   private _web3CKBProvider: Provider
   private _indexerCollector: IndexerCollector
   private _addressTranslator: AddressTranslator
-  private _godwoken: Godwoken
 
-  constructor(web3Provider: Web3, config: L1L2BridgeConfig) {
-    this._web3Provider = web3Provider
+  constructor(web3: Web3, config: CkbBridgeConfig) {
+    this._web3 = web3
 
-    const web3CKBProvider = new Web3ModalProvider(web3Provider)
+    const web3CKBProvider = new Web3ModalProvider(web3)
     this._web3CKBProvider = web3CKBProvider
 
     const indexerCollector = new IndexerCollector(config.indexerUrl)
@@ -62,14 +46,16 @@ export class L1L2Bridge implements Bridge {
 
     const addressTranslator = new AddressTranslator()
     this._addressTranslator = addressTranslator
-
-    const godwoken = new Godwoken(config.godwokenUrl)
   }
 
-  async init(): Promise<Bridge> {
+  async init(): Promise<IBridge> {
     await this._pwCore.init(this._web3CKBProvider, this._indexerCollector)
 
-    return this as Bridge
+    return this as IBridge
+  }
+
+  _isNativeBridgePair(bridgedPair: BridgedPair): boolean {
+    return bridgedPair.shadow.address === ZERO_LOCK_HASH
   }
 
   async _getBalanceNative(ckbAddress: Address): Promise<BigNumber> {
@@ -98,15 +84,16 @@ export class L1L2Bridge implements Bridge {
 
   async getBalance(
     ethereumAccountAddress: string,
-    sudtIssuerLockHash?: string,
+    bridgedPair: BridgedPair,
   ): Promise<BigNumber> {
     const ckbAddressString = this._addressTranslator.ethAddressToCkbAddress(
       ethereumAccountAddress,
       IS_TESTNET,
     )
+    const { address: sudtIssuerLockHash } = bridgedPair.shadow
     const ckbAddress = new Address(ckbAddressString, AddressType.ckb)
 
-    if (sudtIssuerLockHash) {
+    if (!this._isNativeBridgePair(bridgedPair)) {
       return this._getBalanceSUDT(ckbAddress, sudtIssuerLockHash)
     }
 
@@ -166,84 +153,31 @@ export class L1L2Bridge implements Bridge {
 
   async deposit(
     amount: BigNumber,
-    ethereumAccountAddress: string,
-    sudtIssuerLockHash: string,
+    bridgedPair: BridgedPair,
   ): Promise<string> {
+    const [ ethereumAccountAddress ] = await this._web3.eth.getAccounts()
+    const { address: sudtIssuerLockHash } = bridgedPair.shadow
     const layer2depositAddress = await this._addressTranslator.getLayer2DepositAddress(
       this._web3CKBProvider,
       ethereumAccountAddress,
     )
 
-    if (
-      sudtIssuerLockHash &&
-      sudtIssuerLockHash !==
-        '0x0000000000000000000000000000000000000000000000000000000000000000'
-    ) {
+    if (!this._isNativeBridgePair(bridgedPair)) {
       return this._depositSUDT(amount, layer2depositAddress, sudtIssuerLockHash)
     }
 
     return this._depositNative(amount, layer2depositAddress)
   }
 
-  async _withdrawNative(
-    amount: BigNumber,
-    ethereumAccountAddress: string,
-  ): Promise<string> {
-
-  }
-
   async withdraw(
     amount: BigNumber,
-    ethereumAccountAddress: string,
-    sudtIssuerLockHash: string,
+    bridgedPair: BridgedPair,
   ): Promise<string> {
+    const [ ethereumAccountAddress ] = await this._web3.eth.getAccounts()
+    const { address: sudtIssuerLockHash } = bridgedPair.shadow
     console.log('amount', amount)
     console.log('address', ethereumAccountAddress)
     console.log('sudt issuer lock hash', sudtIssuerLockHash)
     return 'withdraw'
-  }
-}
-
-export const bridgeToken: IBridgeTokenHandler = async (
-  amount,
-  tokenAddress,
-  ethereumAddress,
-  provider,
-  network,
-  config,
-) => {
-  try {
-    const numberAmount = Number(amount.split('.')[0])
-    console.log('L1 -> L2 bridge')
-    console.log('L1 -> L2 bridge::token address', tokenAddress)
-    console.log('L1 -> L2 bridge::amount', numberAmount)
-
-    const web3provider = new Web3(Web3.givenProvider)
-
-    const bridge = await new L1L2Bridge(web3provider, {
-      ckbUrl: 'https://testnet.ckb.dev',
-      indexerUrl: 'https://testnet.ckb.dev/indexer',
-      godwokenUrl: 'https://godwoken-testnet-web3-rpc.ckbapp.dev',
-    }).init()
-
-    let balanceCKB = await bridge.getBalance(ethereumAddress)
-    console.log('balance ckb', balanceCKB.toString())
-    let balanceSUDT = await bridge.getBalance(ethereumAddress, tokenAddress)
-    console.log('balance sudt', balanceSUDT.toString())
-
-    await bridge.deposit(
-      BigNumber.from(numberAmount).mul(BigNumber.from(10).pow(8)),
-      ethereumAddress,
-      tokenAddress,
-    )
-
-    balanceCKB = await bridge.getBalance(ethereumAddress)
-    console.log('balance ckb', balanceCKB.toString())
-    balanceSUDT = await bridge.getBalance(ethereumAddress, tokenAddress)
-    console.log('balance sudt', balanceSUDT.toString())
-
-    console.log('tx')
-  } catch (error) {
-    console.error(error)
   }
 }
