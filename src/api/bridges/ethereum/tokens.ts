@@ -1,6 +1,6 @@
 import { BridgeToken } from '@interfaces/data'
 
-import { getBridgeRPCClient } from './client'
+import { getBridgeRPCClient } from './__client'
 
 export const fetchTokens = async (
   tokensWhitelist?: string[],

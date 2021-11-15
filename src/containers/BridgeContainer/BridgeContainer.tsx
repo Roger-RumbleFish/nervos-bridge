@@ -1,7 +1,7 @@
 import React, { useReducer, useState, useEffect, useContext } from 'react'
 
 import { calculateFee } from '@api/calculateFee'
-import { fetchTokens, bridgeToken, fetchBalances } from '@api/bridges/__register'
+import { fetchTokens, bridgeToken, fetchBalances, withdrawToken } from '@api/bridges/__register'
 import Bridge from '@components/Bridge'
 import NetworkSelector from '@components/network/NetworkSelector'
 import Box from '@material-ui/core/Box'
@@ -51,7 +51,6 @@ const BridgeContainer: React.FC = () => {
   } = BridgeSelectors(bridgeReducer)
 
   const network = getNetwork()
-
   useEffect(() => {
     ; (async (): Promise<void> => {
       setTokensRequest()
@@ -62,7 +61,7 @@ const BridgeContainer: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    ;(async (): Promise<void> => {
+    ; (async (): Promise<void> => {
       console.log('Bridge Container: balances effect')
       if (provider) {
         await fetchBalances(network, provider)
@@ -147,6 +146,16 @@ const BridgeContainer: React.FC = () => {
       config,
     )
   }
+  const onWithdrawRequest = async () => {
+    await withdrawToken(
+      value,
+      baseToken.decimals,
+      baseToken.address,
+      provider,
+      network,
+      config,
+    )
+  }
   console.log('bridge::BridgeContainer::value', value)
   console.log('bridge::BridgeContainer::baseToken', baseToken)
   console.log('bridge::BridgeContainer::baseTokens', baseTokens)
@@ -200,7 +209,18 @@ const BridgeContainer: React.FC = () => {
           color="primary"
           onClick={onBridgeRequest}
         >
-          Bridge
+          Deposit
+        </Button>
+      </Box>
+      <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>
+        <Button
+          style={{ width: isMobile ? '100%' : 'auto' }}
+          disabled={provider === null}
+          variant="contained"
+          color="primary"
+          onClick={onWithdrawRequest}
+        >
+          Withdraw
         </Button>
       </Box>
     </Box>

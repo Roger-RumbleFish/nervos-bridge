@@ -75,13 +75,12 @@ export const bridgeToken = async (
       const web3 = new Web3(Web3.givenProvider)
       console.log('bridge:: token address', tokenAddress)
 
-      const tx = await addressTranslator.transferFromLayer1ToLayer2(
-        web3 as any,
-        userAddress,
-        tokenAddress,
-        amount,
-      )
-      console.log(tx)
+      // const tx = await addressTranslator.transferFromLayer1ToLayer2(
+      //   web3 as any,
+      //   userAddress,
+      //   tokenAddress,
+      //   amount,
+      // )
     }
   } catch (error) {
     console.error(error)

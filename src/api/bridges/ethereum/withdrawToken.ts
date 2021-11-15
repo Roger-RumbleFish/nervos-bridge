@@ -5,7 +5,7 @@ import { IBridgeTokenHandler } from '../types'
 import { EthereumForceBridge } from './bridge'
 import { BigNumber } from '@ethersproject/bignumber'
 
-export const bridgeToken: IBridgeTokenHandler = async (
+export const withdrawToken: IBridgeTokenHandler = async (
   amount,
   tokenAddress,
   ethereumAddress,
@@ -25,6 +25,10 @@ export const bridgeToken: IBridgeTokenHandler = async (
       address: tokenAddress,
       network: 'Ethereum'
     }
+    const bridgedPair = {
+        shadow,
+        address: tokenAddress
+    }
     const shadowNative = {
       network: 'Ethereum'
     }
@@ -34,14 +38,14 @@ export const bridgeToken: IBridgeTokenHandler = async (
     let balanceSUDT = await bridge.getBalance(ethereumAddress, { shadow })
     console.log('balance sudt', balanceSUDT.toString())
 
-    await bridge.deposit(
+    await bridge.withdraw(
       numberAmount,
-      { shadow },
+      bridgedPair,
     )
 
     balanceCKB = await bridge.getBalance(ethereumAddress, { shadow: shadowNative })
     console.log('balance ckb', balanceCKB.toString())
-    balanceSUDT = await bridge.getBalance(ethereumAddress, { shadow })
+    balanceSUDT = await bridge.getBalance(ethereumAddress, bridgedPair)
     console.log('balance sudt', balanceSUDT.toString())
   } catch (error) {
     console.error(error)

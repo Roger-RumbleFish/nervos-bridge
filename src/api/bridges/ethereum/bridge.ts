@@ -1,11 +1,15 @@
-import { AddressTranslator, BridgeRPCHandler, GetConfigResponse } from 'nervos-godwoken-integration'
+import {
+    AddressTranslator,
+    ForceBridgeRPCHandler,
+    GenerateBridgeOutNervosTransactionPayload,
+    GetConfigResponse
+} from 'nervos-godwoken-integration'
 
 import { BigNumber } from '@ethersproject/bignumber'
 import { IBridge, BridgedPair } from '@interfaces/data'
 import { ethers, providers } from 'ethers'
 import { ERC20__factory } from '../../../factories/ERC20__factory'
 import Web3 from 'web3'
-import { Amount } from '@lay2/pw-core'
 
 
 interface EthereumBridgeConfig {
@@ -18,7 +22,7 @@ const ETHEREUM_ZERO_ADDRESS =
 export class EthereumForceBridge implements IBridge {
     private _web3: Web3
     private _jsonRpcProvider: providers.JsonRpcProvider
-    private _forceBridgeClient: BridgeRPCHandler
+    private _forceBridgeClient: ForceBridgeRPCHandler
     private _forceBridgeAddress: string
     private _addressTranslator: AddressTranslator
 
@@ -27,7 +31,7 @@ export class EthereumForceBridge implements IBridge {
 
         this._jsonRpcProvider = provider
 
-        const forceBridgeClient = new BridgeRPCHandler(config.forceBridgeUrl)
+        const forceBridgeClient = new ForceBridgeRPCHandler(config.forceBridgeUrl)
         this._forceBridgeClient = forceBridgeClient
 
 
@@ -56,11 +60,18 @@ export class EthereumForceBridge implements IBridge {
     }
 
     async _getBalanceERC20(
-        ethereumAddress: string,
-        erc20Address: string,
+        ethereumAccountAddress: string,
+        bridgedPair: BridgedPair,
     ): Promise<BigNumber> {
+        const { shadow: { address: erc20Address } } = bridgedPair
 
-        return BigNumber.from(0)
+        const signer = this._jsonRpcProvider.getSigner()
+
+        const erc20Contract = ERC20__factory.connect(erc20Address, signer)
+
+        const balance = await erc20Contract.balanceOf(ethereumAccountAddress)
+
+        return balance
     }
 
     async getBalance(
@@ -70,7 +81,7 @@ export class EthereumForceBridge implements IBridge {
         const { address: erc20Address } = bridgedPair.shadow
 
         if (!this._isNativeBridgePair(bridgedPair)) {
-            return this._getBalanceERC20(ethereumAccountAddress, erc20Address)
+            return this._getBalanceERC20(ethereumAccountAddress, bridgedPair)
         }
 
         return this._getBalanceNative(ethereumAccountAddress)
@@ -150,9 +161,30 @@ export class EthereumForceBridge implements IBridge {
         amount: BigNumber,
         bridgedPair: BridgedPair,
     ): Promise<string> {
-        const { address: sudtIssuerLockHash } = bridgedPair.shadow
-        console.log('amount', amount)
-        console.log('sudt issuer lock hash', sudtIssuerLockHash)
-        return 'withdraw'
+        const { address: ethereumErc20Address } = bridgedPair.shadow
+        console.log('[withdraw][token pair]', bridgedPair)
+
+        const signer = this._jsonRpcProvider.getSigner()
+        const ethereumAccountAddress = signer._address
+
+        const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
+            this._web3,
+            ethereumAccountAddress,
+        )
+        const payload: GenerateBridgeOutNervosTransactionPayload = {
+            network: 'Ethereum',
+            asset: ethereumErc20Address,
+            recipient: ethereumAccountAddress,
+            sender: depositAddress.addressString,
+            amount: amount.toString()
+        }
+
+        const result = await this._forceBridgeClient.generateBridgeOutNervosTransaction(
+            payload,
+        )
+
+        const transaction = await signer.sendTransaction(result.rawTransaction)
+
+        return transaction.hash
     }
 }

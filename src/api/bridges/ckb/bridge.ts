@@ -16,6 +16,9 @@ import PWCore, {
   AmountUnit,
 } from '@lay2/pw-core'
 
+import { CanonicalTokenSymbol, TokensRegistry } from '@api/types'
+import { registry } from './registry'
+import { Networks } from '@utils/constants'
 interface CkbBridgeConfig {
   ckbUrl: string
   indexerUrl: string
@@ -31,6 +34,8 @@ export class CkbBridge implements IBridge {
   private _web3CKBProvider: Provider
   private _indexerCollector: IndexerCollector
   private _addressTranslator: AddressTranslator
+
+  private _bridgePairRegistry: { [key in CanonicalTokenSymbol]?: BridgedPair } = {}
 
   constructor(web3: Web3, config: CkbBridgeConfig) {
     this._web3 = web3
@@ -48,11 +53,73 @@ export class CkbBridge implements IBridge {
     this._addressTranslator = addressTranslator
   }
 
-  async init(): Promise<IBridge> {
+  async init(godwokenTokensRegistry: TokensRegistry): Promise<CkbBridge> {
+    Object.keys(godwokenTokensRegistry.tokens).forEach((cTokenSymbol: CanonicalTokenSymbol) => {
+      const bridgedNetwork = godwokenTokensRegistry.network
+      const registeredToken = godwokenTokensRegistry.tokens[cTokenSymbol]
+      this._registerToken(cTokenSymbol, registeredToken.address, bridgedNetwork)
+    })
+
     await this._pwCore.init(this._web3CKBProvider, this._indexerCollector)
 
-    return this as IBridge
+    return this
   }
+
+  // TODO REFACTOR
+  _registerToken(
+    registeredToken: CanonicalTokenSymbol,
+    tokenAddressGodwoken: string,
+    bridgedNetwork: Networks,
+  ) {
+    if (Object.keys(registry.tokens).includes(registeredToken)) {
+      const tokenShadow = registry.tokens[registeredToken]
+      this._bridgePairRegistry[registeredToken] = {
+        address: tokenAddressGodwoken,
+        name: tokenShadow.name,
+        symbol: tokenShadow.name,
+        decimals: tokenShadow.decimals,
+        network: bridgedNetwork,
+        shadow: {
+          address: tokenShadow.address,
+          network: registry.network,
+        },
+      }
+
+      return this
+    }
+
+    throw Error(`${registeredToken} doesn't registered in CKB - Godwoken Bridge`)
+  }
+
+  getBridgedPairs(): BridgedPair[] {
+    return Object.values(this._bridgePairRegistry)
+  }et
+  getBridgedPairByCanonSymbol(canonSymbol: CanonicalTokenSymbol): BridgedPair | undefined {
+    return this._bridgePairRegistry[canonSymbol]
+  }
+
+  getBridgedPairByAddress(address: string, network: Networks): BridgedPair | undefined {
+    const anyRegisteredPair = this._bridgePairRegistry[
+      Object.keys(this._bridgePairRegistry)[0] as CanonicalTokenSymbol
+    ]
+    const baseNetwork = anyRegisteredPair.network
+    const shadowNetwork = anyRegisteredPair.shadow.network
+
+    if (network === baseNetwork) {
+      const bridgedPair = Object.values(this._bridgePairRegistry).find(
+        ({ address: baseAddress }) => baseAddress === address
+      )
+      return bridgedPair
+    } else if (network === shadowNetwork) {
+      const bridgedPair = Object.values(this._bridgePairRegistry).find(
+        ({ shadow: { address: shadowAddress } }) => shadowAddress === address
+      )
+      return bridgedPair
+    }
+
+    throw new Error(`Network ${network} is not correct`)
+  }
+  // END TODO REFACTOR
 
   _isNativeBridgePair(bridgedPair: BridgedPair): boolean {
     return bridgedPair.shadow.address === ZERO_LOCK_HASH
@@ -90,9 +157,11 @@ export class CkbBridge implements IBridge {
       ethereumAccountAddress,
       IS_TESTNET,
     )
-    const { address: sudtIssuerLockHash } = bridgedPair.shadow
     const ckbAddress = new Address(ckbAddressString, AddressType.ckb)
 
+    const { address: sudtIssuerLockHash } = bridgedPair.shadow
+
+    console.log('[bridge] get balance', bridgedPair)
     if (!this._isNativeBridgePair(bridgedPair)) {
       return this._getBalanceSUDT(ckbAddress, sudtIssuerLockHash)
     }
@@ -155,8 +224,11 @@ export class CkbBridge implements IBridge {
     amount: BigNumber,
     bridgedPair: BridgedPair,
   ): Promise<string> {
-    const [ ethereumAccountAddress ] = await this._web3.eth.getAccounts()
+    const [ethereumAccountAddress] = await this._web3.eth.getAccounts()
     const { address: sudtIssuerLockHash } = bridgedPair.shadow
+
+    console.log('[bridge][l1-l2] sudt issuer lock hash', sudtIssuerLockHash)
+
     const layer2depositAddress = await this._addressTranslator.getLayer2DepositAddress(
       this._web3CKBProvider,
       ethereumAccountAddress,
@@ -173,7 +245,7 @@ export class CkbBridge implements IBridge {
     amount: BigNumber,
     bridgedPair: BridgedPair,
   ): Promise<string> {
-    const [ ethereumAccountAddress ] = await this._web3.eth.getAccounts()
+    const [ethereumAccountAddress] = await this._web3.eth.getAccounts()
     const { address: sudtIssuerLockHash } = bridgedPair.shadow
     console.log('amount', amount)
     console.log('address', ethereumAccountAddress)

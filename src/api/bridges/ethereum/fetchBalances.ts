@@ -19,10 +19,11 @@ export const fetchBalances = async (
     forceBridgeUrl: 'https://testnet.forcebridge.com/api/force-bridge/api/v1'
   }).init()
 
+  console.log('[balances][fetchBalances][ethereum] tokens', tokens)
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
-    console.log('[token][addres]', token.shadow.id)
+    console.log('[balances][fetchBalances][ethereum] token shadow id', token.shadow.id)
     const shadow = {
       address: token.shadow.id,
       network: token.shadow.network
@@ -35,12 +36,7 @@ export const fetchBalances = async (
       token.model.decimals,
     )
     console.log(
-      '%c[bridge]%c[l1-l2]%c[user]%c[balance]%c[token]',
-      'background: #222; color: #bada55',
-      'background: #700560; color: #caca55',
-      'background: #333; color: #caca55',
-      'background: #333; color: #caca55',
-      'background: #333; color: #caca55',
+      '[balances][fetchBalances][ethereum] balance',
       token.model.symbol,
       balanceDisplayValue.displayValue,
     )

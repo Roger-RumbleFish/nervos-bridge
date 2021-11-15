@@ -1,3 +1,5 @@
+import { CanonicalTokenSymbol, TokensRegistry } from '@api/types'
+import { Networks } from '@utils/constants'
 import { BigNumber } from 'ethers'
 
 export type BridgedPairShadow = {
@@ -10,11 +12,12 @@ export type BridgedPair = {
   name?: string
   symbol?: string
   decimals?: number
+  network?: Networks
   shadow: BridgedPairShadow
 }
 
 export interface IBridge {
-  init(): Promise<IBridge>
+  init(registry: TokensRegistry): Promise<IBridge>
   deposit(
     amount: BigNumber,
     bridgedPair: BridgedPair,

@@ -75,17 +75,6 @@ const Bridge: React.FC<IBridgeProps> = ({
           onAmountChange={onQuoteTokenAmountChange}
         />
       </Box>
-      <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>
-        <Button
-          style={{ width: isMobile ? '100%' : 'auto' }}
-          disabled={disableButton}
-          variant="contained"
-          color="primary"
-          onClick={onDepositRequest}
-        >
-          Bridge
-        </Button>
-      </Box>
     </Box>
   )
 }

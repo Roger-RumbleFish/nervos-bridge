@@ -8,17 +8,21 @@ import { IConfigContext } from '@utils/hooks'
 import { convertDecimalToIntegerDecimal } from '@utils/stringOperations'
 
 import { fetchBalances as fetchCkbBalances } from './ckb/fetchBalances'
-import { fetchBalances as fetchEthereumBalances } from './ckb/fetchBalances'
+import { fetchBalances as fetchEthereumBalances } from './ethereum/fetchBalances'
 import { bridgeToken as ethL2bridgeToken } from './ethereum/bridgeToken'
+import { withdrawToken as withdrawToEthToken } from './ethereum/withdrawToken'
+import { withdrawToken as withdrawToCkbToken } from './ckb/withdraw'
 import { fetchTokens as ethL2FeatchTokens } from './ethereum/tokens'
 import { bridgeToken as L1L2bridgeToken } from './ckb/bridgeToken'
 import { getTokens as L1L2FeatchTokens } from './ckb/getTokens'
+import { Godwoken } from '@api/godwoken'
 
 export const fetchTokens = async (
   tokensWhitelist?: string[],
 ): Promise<BridgeToken[]> => {
   const ethL2Tokens = await ethL2FeatchTokens(tokensWhitelist)
   const l1l2Tokens = await L1L2FeatchTokens()
+  console.log('[bridge][l1-l2]', l1l2Tokens)
 
   return [...ethL2Tokens, ...l1l2Tokens]
 }
@@ -32,7 +36,7 @@ export const bridgeToken = async (
   config?: IConfigContext['config'],
 ): Promise<void> => {
   try {
-    const [ ethereumAccountAddress] = await provider?.listAccounts()
+    const [ethereumAccountAddress] = await provider?.listAccounts()
 
     if (network === Networks.Ethereum) {
       await ethL2bridgeToken(
@@ -65,12 +69,17 @@ export const fetchBalances = async (
 ): Promise<void> => {
   try {
     if (network === Networks.Ethereum) {
-      console.log("Ethereum Balances")
+      console.log("[balances][fetchBalances] network", network)
       const ethTokens = await ethL2FeatchTokens(tokensWhitelist)
-      await fetchEthereumBalances(ethTokens, provider)
+      const inBridgeToken = ethTokens.filter(token => token.network === 'Nervos')
+      console.log("[balances][fetchBalances] tokens", inBridgeToken)
+
+      await fetchEthereumBalances(inBridgeToken, provider)
+
     } else if (network === Networks.NervosL1) {
       console.log("CKB Balances")
       const ckbTokens = await L1L2FeatchTokens()
+      console.log('[bridge] ckb bridge tokens', ckbTokens)
       await fetchCkbBalances(
         ckbTokens,
         provider,
@@ -90,10 +99,10 @@ export const withdrawToken = async (
   config?: IConfigContext['config'],
 ): Promise<void> => {
   try {
-    const [ ethereumAccountAddress] = await provider?.listAccounts()
+    const [ethereumAccountAddress] = await provider?.listAccounts()
 
     if (network === Networks.Ethereum) {
-      await ethL2bridgeToken(
+      await withdrawToEthToken(
         amount,
         tokenAddress,
         ethereumAccountAddress,
@@ -102,7 +111,14 @@ export const withdrawToken = async (
         config,
       )
     } else if (network === Networks.NervosL1) {
-      console.log('not yet implemented')
+      await withdrawToCkbToken(
+        amount,
+        tokenAddress,
+        ethereumAccountAddress,
+        provider,
+        network,
+        config,
+      )
     }
   } catch (error) {
     console.error(error)

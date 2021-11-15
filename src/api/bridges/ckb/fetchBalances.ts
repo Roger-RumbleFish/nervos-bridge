@@ -3,6 +3,7 @@ import Web3 from 'web3'
 
 import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils'
 
+import { registry as godwokenTokensRegistry } from '../../godwoken/registry'
 import { CkbBridge } from './bridge'
 import { BridgeToken } from '@interfaces/data'
 
@@ -13,12 +14,14 @@ export const fetchBalances = async (
   const accounts = await provider?.listAccounts()
   const userAddress = accounts[0]
 
+  const signer = provider.getSigner()
+  
   const web3 = new Web3(Web3.givenProvider)
 
   const bridge = await new CkbBridge(web3, {
     ckbUrl: 'https://testnet.ckb.dev',
     indexerUrl: 'https://testnet.ckb.dev/indexer',
-  }).init()
+  }).init(godwokenTokensRegistry)
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]

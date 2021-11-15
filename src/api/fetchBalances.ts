@@ -22,6 +22,7 @@ export const fetchBalances = async (
 
     const bridgeRpcClient = getBridgeRPCClient(config?.rpcBridgeUrl)
 
+    console.log('network', network)
     if (network === Networks.Ethereum) {
     } else {
       const payload = tokens.map((tok) => ({
