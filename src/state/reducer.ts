@@ -1,4 +1,4 @@
-import { BridgeToken } from '@interfaces/data'
+import { AccountBoundToken } from '@interfaces/data'
 import { ApiNetworks, Networks } from '@utils/constants'
 
 import {
@@ -13,6 +13,7 @@ import {
 } from './types'
 
 export const initialState: BridgeState = {
+  bridges: [],
   tokens: [],
   fetchingTokens: false,
   isCalculating: false,
@@ -24,13 +25,13 @@ export const initialState: BridgeState = {
 }
 
 const getShadowToken = (
-  tokens: BridgeToken[],
-  firstToken: BridgeToken,
-): BridgeToken => {
+  tokens: AccountBoundToken[],
+  firstToken: AccountBoundToken,
+): AccountBoundToken => {
   return tokens.find(
     (token) =>
       token.network === firstToken?.shadow?.network &&
-      token.model.id === firstToken?.shadow?.id,
+      token.address === firstToken?.shadow?.address,
   )
 }
 
@@ -46,33 +47,23 @@ export const reducer = (
     }
     case BRIDGE_ACTIONS.SET_BASE_TOKEN: {
       const setBaseTokenAction = action as ISetBaseTokenAction
-      const newBaseToken = state.tokens.find(
-        (token) => token.model.symbol === setBaseTokenAction.payload,
+      const baseTokenSymbol = setBaseTokenAction.payload
+      console.log('[state][reducer] state tokens', state.tokens)
+      const baseToken = state.tokens.find(
+        (token) => token.symbol === baseTokenSymbol,
       )
 
-      if (state.network === Networks.NervosL1) {
-        return {
-          ...state,
-          baseToken: newBaseToken,
-          quoteToken: newBaseToken,
-        }
-      }
-
-      if (
-        state.network === Networks.NervosL2 ||
-        state.network === Networks.Ethereum
-      ) {
-        return {
-          ...state,
-          baseToken: newBaseToken,
-          quoteToken: getShadowToken(state.tokens, newBaseToken),
-        }
+      console.log('[state][reducer] base token', baseToken)
+      return {
+        ...state,
+        baseToken: baseToken,
+        quoteToken: baseToken,
       }
     }
     case BRIDGE_ACTIONS.SET_QUOTE_TOKEN: {
       const setQuoteTokenAction = action as ISetQuoteTokenAction
       const newQuoteToken = state.tokens.find(
-        (token) => token.model.symbol === setQuoteTokenAction.payload,
+        (token) => token.symbol === setQuoteTokenAction.payload,
       )
 
       if (state.network === Networks.NervosL1) {
@@ -110,16 +101,8 @@ export const reducer = (
     case BRIDGE_ACTIONS.SET_TOKENS: {
       const setAction = action as ISetTokensAction
       const tokens = setAction.payload.tokens
-      console.log('bridge::reducer::setTokens', tokens)
 
-      const currentNetwork =
-        state.network === Networks.Ethereum
-          ? ApiNetworks.Ethereum
-          : Networks.NervosL1
-      const baseToken =
-        tokens.length > 0
-          ? tokens.find((token) => token.network === currentNetwork)
-          : null
+      const baseToken = tokens[0]
 
       const quoteToken = getShadowToken(tokens, baseToken)
 
@@ -137,11 +120,9 @@ export const reducer = (
 
       if (network === Networks.NervosL1) {
         const baseToken =
-          state?.baseToken?.network !== ApiNetworks.Ethereum
+          state?.baseToken?.network !== Networks.Ethereum
             ? state?.baseToken
-            : state?.tokens.find(
-                (token) => token.network !== ApiNetworks.Ethereum,
-              )
+            : state?.tokens.find((token) => token.network !== Networks.Ethereum)
 
         return {
           ...state,
@@ -151,31 +132,14 @@ export const reducer = (
         }
       }
 
-      if (network === Networks.NervosL2) {
-        const baseToken =
-          state?.baseToken?.network !== ApiNetworks.Ethereum
-            ? state?.baseToken
-            : state?.tokens.find(
-                (token) => token.network !== ApiNetworks.Ethereum,
-              )
-
-        const quoteToken = getShadowToken(state.tokens, baseToken)
-
-        return {
-          ...state,
-          baseToken: baseToken,
-          quoteToken: quoteToken,
-          network,
-        }
+      if (network === Networks.NervosL1) {
       }
 
       if (network === Networks.Ethereum) {
         const baseToken =
-          state?.baseToken?.network === ApiNetworks.Ethereum
+          state?.baseToken?.network === Networks.Ethereum
             ? state?.baseToken
-            : state?.tokens.find(
-                (token) => token.network === ApiNetworks.Ethereum,
-              )
+            : state?.tokens.find((token) => token.network === Networks.Ethereum)
 
         const quoteToken = getShadowToken(state.tokens, baseToken)
 

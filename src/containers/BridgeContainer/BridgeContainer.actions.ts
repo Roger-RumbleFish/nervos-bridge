@@ -1,4 +1,9 @@
 import {
+  AccountBoundToken,
+  BridgedToken,
+  IDisplayValue,
+} from '@interfaces/data'
+import {
   calculateAction,
   calculateRequestAction,
   setBaseTokenAction,
@@ -6,15 +11,14 @@ import {
   setQuoteTokenAction,
   setTokensAction,
   setTokensRequestAction,
-} from '@api/actions'
-import { BridgeToken, IDisplayValue } from '@interfaces/data'
+} from '@state/actions'
 import { useActions } from '@utils/hooks'
 
 export const BridgeActions = (
   bridgeReducer: any,
 ): {
   setTokensRequest: () => void
-  setTokens: (tokens: BridgeToken[]) => void
+  setTokens: (tokens: BridgedToken[]) => void
   setBaseToken: (symbol: string) => void
   setQuoteToken: (symbol: string) => void
   setNetwork: (network: string) => void
@@ -23,7 +27,8 @@ export const BridgeActions = (
 } =>
   useActions(bridgeReducer, (dispatch: typeof bridgeReducer[1]) => ({
     setTokensRequest: () => dispatch(setTokensRequestAction()),
-    setTokens: (tokens: BridgeToken[]) => dispatch(setTokensAction(tokens)),
+    setTokens: (tokens: AccountBoundToken[]) =>
+      dispatch(setTokensAction(tokens)),
     setNetwork: (network: string) => dispatch(setNetworkAction(network)),
     setBaseToken: (symbol: string) => dispatch(setBaseTokenAction(symbol)),
     setQuoteToken: (symbol: string) => dispatch(setQuoteTokenAction(symbol)),

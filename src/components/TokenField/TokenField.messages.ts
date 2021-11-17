@@ -1,3 +1,3 @@
 export default {
-  TOKEN_MAX_VALUE: 'Balance',
+  BALANCE: 'Balance',
 }

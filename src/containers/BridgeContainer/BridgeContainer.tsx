@@ -1,20 +1,21 @@
 import React, { useReducer, useState, useEffect, useContext } from 'react'
 
-import { calculateFee } from '@api/calculateFee'
-import { fetchTokens, bridgeToken, fetchBalances, withdrawToken } from '@api/bridges/__register'
+import {
+  fetchTokens,
+  bridgeToken,
+  withdrawToken,
+} from '@api/bridges/__register'
 import Bridge from '@components/Bridge'
-import NetworkSelector from '@components/network/NetworkSelector'
+import Tabs from '@components/Tabs'
+import { AccountBoundToken, Token } from '@interfaces/data'
+import { Button, Theme, useMediaQuery } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
 import { initialState, reducer } from '@state/reducer'
-import { AccountBoundToken, Token } from '@state/types'
 import { ConfigContext, useDebounce } from '@utils/hooks'
 
 import { BridgeActions } from './BridgeContainer.actions'
 import messages from './BridgeContainer.messages'
 import { BridgeSelectors } from './BridgeContainer.selectors'
-import { BigNumber } from '@ethersproject/bignumber'
-import { Button, Theme, useMediaQuery } from '@material-ui/core'
 
 const BridgeContainer: React.FC = () => {
   const isMobile = !useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
@@ -22,9 +23,12 @@ const BridgeContainer: React.FC = () => {
   const DEBOUNCE = 400
 
   const bridgeReducer = useReducer(reducer, initialState)
-  const { getProvider, config, assetsWhitelist } = useContext(ConfigContext)
+  const { getProvider, config, bridge } = useContext(ConfigContext)
+
+  console.log('[containers][bridge] bridge', bridge)
 
   const provider = getProvider()
+  console.log('[containers][bridge][provider] get provider', provider)
   const [value, setValue] = useState('100.00')
   const [quoteValue, setQuoteValue] = useState('100.00')
 
@@ -34,8 +38,8 @@ const BridgeContainer: React.FC = () => {
     setNetwork,
     setBaseToken,
     setQuoteToken,
-    calculate,
-    calculatingRequest,
+    // calculate,
+    // calculatingRequest,
   } = BridgeActions(bridgeReducer)
 
   const {
@@ -51,29 +55,53 @@ const BridgeContainer: React.FC = () => {
   } = BridgeSelectors(bridgeReducer)
 
   const network = getNetwork()
-  useEffect(() => {
-    ; (async (): Promise<void> => {
-      setTokensRequest()
-      const tokens = await fetchTokens(assetsWhitelist)
-      console.log('Bridge Container: tokens', tokens)
-      setTokens(tokens)
-    })()
-  }, [])
+  // useEffect(() => {
+  //   ;(async (): Promise<void> => {
+  //     setTokensRequest()
+  //     const tokens = await fetchTokens(assetsWhitelist)
+  //     console.log('Bridge Container: tokens', tokens)
+  //     setTokens(tokens)
+  //   })()
+  // }, [])
 
   useEffect(() => {
-    ; (async (): Promise<void> => {
+    ;(async (): Promise<void> => {
       console.log('Bridge Container: balances effect')
-      if (provider) {
-        await fetchBalances(network, provider)
-        console.log('Bridge Container: balances')
+      setTokensRequest()
+      if (provider && bridge) {
+        console.log('[bridge][container][balances] network', network)
+        // const balancesF = await fetchBalances(network, provider)
+        // console.log('[bridge][container][balances] balances', balancesF)
+
+        const tokens = await bridge.getTokens()
+        const accountAddress = await provider.getSigner().getAddress()
+
+        const accountBoundTokens: AccountBoundToken[] = []
+        for (let i = 0; i < tokens.length; i++) {
+          const shadow = {
+            address: tokens[i].shadow.address,
+            network: tokens[i].shadow.network,
+          }
+          const balance = await bridge.getBalance(accountAddress, { shadow })
+          console.log(
+            `[bridge][container][balances] balance ${tokens[i].symbol}`,
+            balance.toString(),
+          )
+          accountBoundTokens.push({
+            ...tokens[i],
+            balance: balance,
+          })
+        }
+        console.log(
+          '[bridge][container][balances] balances',
+          accountBoundTokens,
+        )
+
+        setTokens(accountBoundTokens)
       }
     })()
-  }, [provider, network])
+  }, [provider, network, bridge])
 
-  const bindAccountBalanceToToken = (token: Token): AccountBoundToken => ({
-    ...token,
-    balance: BigNumber.from(0)
-  })
   const onNetworkChange = (newNetwork: string) => {
     if (newNetwork !== network) {
       setNetwork?.(newNetwork)
@@ -99,8 +127,14 @@ const BridgeContainer: React.FC = () => {
   const baseToken = getBaseToken()
   const quoteToken = getQuoteToken()
 
+  console.log('[container][bridge][tokens] base token', baseToken)
+  console.log('[container][bridge][tokens] quote token', quoteToken)
+
   const baseTokens = getBaseTokens()
   const quoteTokens = getQuoteTokens()
+
+  console.log('[container][bridge][tokens] base tokens', baseTokens)
+  console.log('[container][bridge][tokens] quote tokens', quoteTokens)
 
   const fee = getFee()
 
@@ -111,24 +145,24 @@ const BridgeContainer: React.FC = () => {
 
   const debounceValue = useDebounce(value, DEBOUNCE)
 
-  useEffect(() => {
-    ; (async (): Promise<void> => {
-      if (baseToken?.address && quoteToken?.address) {
-        calculatingRequest()
-        const result = await calculateFee(
-          provider,
-          baseToken,
-          quoteToken,
-          value,
-          network,
-          config,
-        )
-        if (result) {
-          calculate(result.fee, result.percentage)
-        }
-      }
-    })()
-  }, [baseToken.address, debounceValue, calculate, network, provider])
+  // useEffect(() => {
+  //   ;(async (): Promise<void> => {
+  //     if (baseToken?.address && quoteToken?.address) {
+  //       calculatingRequest()
+  //       const result = await calculateFee(
+  //         provider,
+  //         baseToken,
+  //         quoteToken,
+  //         value,
+  //         network,
+  //         config,
+  //       )
+  //       if (result) {
+  //         calculate(result.fee, result.percentage)
+  //       }
+  //     }
+  //   })()
+  // }, [baseToken.address, debounceValue, calculate, network, provider])
 
   useEffect(() => {
     if (exchangeResult?.displayValue) {
@@ -136,7 +170,7 @@ const BridgeContainer: React.FC = () => {
     }
   }, [exchangeResult?.value])
 
-  const onBridgeRequest = async () => {
+  const handleDepositRequest = async () => {
     await bridgeToken(
       value,
       baseToken.decimals,
@@ -145,8 +179,17 @@ const BridgeContainer: React.FC = () => {
       network,
       config,
     )
+    // const bridgedPair = bridge.getBridgedPairByAddress(
+    //   baseToken.address,
+    //   Networks.CKB,
+    // )
+
+    // const bridgedAmount = BigNumber.from(value).mul(
+    //   BigNumber.from(10).pow(bridgedPair.decimals),
+    // )
+    // await bridge.deposit(bridgedAmount, bridgedAmount)
   }
-  const onWithdrawRequest = async () => {
+  const handleWithdrawRequest = async () => {
     await withdrawToken(
       value,
       baseToken.decimals,
@@ -156,30 +199,18 @@ const BridgeContainer: React.FC = () => {
       config,
     )
   }
-  console.log('bridge::BridgeContainer::value', value)
-  console.log('bridge::BridgeContainer::baseToken', baseToken)
-  console.log('bridge::BridgeContainer::baseTokens', baseTokens)
-  console.log('bridge::BridgeContainer::quoteTokens', quoteTokens)
 
+  const [selectedTab, setSelectedTab] = useState('Deposit')
   return (
-    <Box padding={{ xs: 2, sm: 10 }} bgcolor="white" borderRadius={8}>
-      <Box display={{ xs: 'block', sm: 'flex' }} justifyContent="space-between">
-        <Box>
-          <Typography variant="h4">{messages.BRIDGE_TITLE}</Typography>
-          <Typography variant="body1">{messages.BRIDGE_DESCRIPTION}</Typography>
-        </Box>
-        <Box
-          maxWidth={500}
-          minWidth={{ xs: 250, sm: 320 }}
-          py={{ xs: 2, sm: 0 }}
-        >
-          <NetworkSelector
-            selectedNetwork={network}
-            onChange={onNetworkChange}
-          />
-        </Box>
-      </Box>
-
+    <>
+      <Tabs<string>
+        items={[
+          { label: 'Deposit', value: 'Deposit' },
+          { label: 'Withdraw', value: 'Withdraw' },
+        ]}
+        selectedValue={selectedTab}
+        onChange={(val) => setSelectedTab(val)}
+      />
       <Bridge
         disableButton={provider === null}
         isFetchingTokens={isFetchingAllTokens}
@@ -188,42 +219,45 @@ const BridgeContainer: React.FC = () => {
         description={messages.BRIDGE_DESCRIPTION}
         baseTokenAmount={value}
         quoteTokenAmount={quoteValue}
-        baseTokens={baseTokens.map(bindAccountBalanceToToken)}
-        quoteTokens={quoteTokens.map(bindAccountBalanceToToken)}
-        selectedBaseToken={bindAccountBalanceToToken(baseToken)}
-        selectedQuoteToken={bindAccountBalanceToToken(quoteToken)}
+        baseTokens={baseTokens}
+        quoteTokens={quoteTokens}
+        selectedBaseToken={baseToken}
+        selectedQuoteToken={quoteToken}
         fee={fee}
         network={network}
         onBaseTokenChange={onBaseTokenChange}
         onQuoteTokenChange={onQuoteTokenChange}
         onBaseTokenAmountChange={onBaseTokenAmountChange}
         onQuoteTokenAmountChange={onQuoteTokenAmountChange}
-        onDepositRequest={onBridgeRequest}
+        onDepositRequest={handleDepositRequest}
         onNetworkChange={onNetworkChange}
       />
-      <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>
-        <Button
-          style={{ width: isMobile ? '100%' : 'auto' }}
-          disabled={provider === null}
-          variant="contained"
-          color="primary"
-          onClick={onBridgeRequest}
-        >
-          Deposit
-        </Button>
-      </Box>
-      <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>
-        <Button
-          style={{ width: isMobile ? '100%' : 'auto' }}
-          disabled={provider === null}
-          variant="contained"
-          color="primary"
-          onClick={onWithdrawRequest}
-        >
-          Withdraw
-        </Button>
-      </Box>
-    </Box>
+      {selectedTab === 'Deposit' ? (
+        <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>
+          <Button
+            style={{ width: isMobile ? '100%' : 'auto' }}
+            disabled={provider === null}
+            variant="contained"
+            color="primary"
+            onClick={handleWithdrawRequest}
+          >
+            Deposit
+          </Button>
+        </Box>
+      ) : (
+        <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>
+          <Button
+            style={{ width: isMobile ? '100%' : 'auto' }}
+            disabled={provider === null}
+            variant="contained"
+            color="primary"
+            onClick={handleWithdrawRequest}
+          >
+            Withdraw
+          </Button>
+        </Box>
+      )}
+    </>
   )
 }
 

@@ -1,4 +1,4 @@
-import { AccountBoundToken } from '@state/types'
+import { AccountBoundToken } from '@interfaces/data'
 
 export interface ITokenFieldProps {
   tokens: AccountBoundToken[]

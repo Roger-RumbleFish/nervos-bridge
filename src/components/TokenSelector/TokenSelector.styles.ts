@@ -1,23 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles'
-import { lightGray, textDisabled } from '@styles/theme'
-
-const BORDER_RADIUS = 8
+import { textDisabled } from '@styles/theme'
 
 export const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
-  autocompleteContainer: {
-    borderTopRightRadius: BORDER_RADIUS,
-    borderBottomRightRadius: BORDER_RADIUS,
-    borderLeft: 'none',
-    border: `1px solid ${lightGray}`,
-
-    boxShadow: '0px 3px rgba(0, 0, 0, 0.05)',
-
-    height: 80,
-    [breakpoints.up('sm')]: {
-      height: 114,
-    },
-  },
-
   tokenIcon: {
     marginRight: spacing(3),
   },

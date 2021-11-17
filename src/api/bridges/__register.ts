@@ -1,25 +1,25 @@
 import { providers } from 'ethers'
-import { AddressTranslator } from 'nervos-godwoken-integration'
-import Web3 from 'web3'
 
-import { BridgeToken } from '@interfaces/data'
+// import { AddressTranslator } from 'nervos-godwoken-integration'
+// import Web3 from 'web3'
+// import { Godwoken } from '@api/godwoken'
+import { BridgedToken, IDisplayValue } from '@interfaces/data'
 import { Networks } from '@utils/constants'
 import { IConfigContext } from '@utils/hooks'
-import { convertDecimalToIntegerDecimal } from '@utils/stringOperations'
 
-import { fetchBalances as fetchCkbBalances } from './ckb/fetchBalances'
-import { fetchBalances as fetchEthereumBalances } from './ethereum/fetchBalances'
-import { bridgeToken as ethL2bridgeToken } from './ethereum/bridgeToken'
-import { withdrawToken as withdrawToEthToken } from './ethereum/withdrawToken'
-import { withdrawToken as withdrawToCkbToken } from './ckb/withdraw'
-import { fetchTokens as ethL2FeatchTokens } from './ethereum/tokens'
+// import { convertDecimalToIntegerDecimal } from '@utils/stringOperations'
 import { bridgeToken as L1L2bridgeToken } from './ckb/bridgeToken'
+import { fetchBalances as fetchCkbBalances } from './ckb/fetchBalances'
 import { getTokens as L1L2FeatchTokens } from './ckb/getTokens'
-import { Godwoken } from '@api/godwoken'
+import { withdrawToken as withdrawToCkbToken } from './ckb/withdraw'
+import { bridgeToken as ethL2bridgeToken } from './ethereum/bridgeToken'
+import { fetchBalances as fetchEthereumBalances } from './ethereum/fetchBalances'
+import { fetchTokens as ethL2FeatchTokens } from './ethereum/tokens'
+import { withdrawToken as withdrawToEthToken } from './ethereum/withdrawToken'
 
 export const fetchTokens = async (
   tokensWhitelist?: string[],
-): Promise<BridgeToken[]> => {
+): Promise<BridgedToken[]> => {
   const ethL2Tokens = await ethL2FeatchTokens(tokensWhitelist)
   const l1l2Tokens = await L1L2FeatchTokens()
   console.log('[bridge][l1-l2]', l1l2Tokens)
@@ -66,24 +66,24 @@ export const fetchBalances = async (
   network: string,
   provider: providers.Web3Provider,
   tokensWhitelist?: string[],
-): Promise<void> => {
+): Promise<IDisplayValue[]> => {
   try {
     if (network === Networks.Ethereum) {
-      console.log("[balances][fetchBalances] network", network)
+      console.log('[balances][fetchBalances] network', network)
       const ethTokens = await ethL2FeatchTokens(tokensWhitelist)
-      const inBridgeToken = ethTokens.filter(token => token.network === 'Nervos')
-      console.log("[balances][fetchBalances] tokens", inBridgeToken)
+      const inBridgeToken = ethTokens.filter(
+        (token) => token.shadow.network === Networks.Ethereum,
+      )
+      console.log('[balances][fetchBalances] tokens', inBridgeToken)
 
-      await fetchEthereumBalances(inBridgeToken, provider)
-
+      const balances = await fetchEthereumBalances(inBridgeToken, provider)
+      return balances
     } else if (network === Networks.NervosL1) {
-      console.log("CKB Balances")
+      console.log('CKB Balances')
       const ckbTokens = await L1L2FeatchTokens()
       console.log('[bridge] ckb bridge tokens', ckbTokens)
-      await fetchCkbBalances(
-        ckbTokens,
-        provider,
-      )
+      const balances = await fetchCkbBalances(ckbTokens, provider)
+      return balances
     }
   } catch (error) {
     console.error(error)

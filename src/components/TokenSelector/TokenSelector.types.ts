@@ -1,4 +1,4 @@
-import { Token } from '@state/types'
+import { Token } from '@interfaces/data'
 
 export interface ITokenSelectorProps {
   tokens: Token[]

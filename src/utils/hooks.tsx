@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, createContext } from 'react'
 
+import { IBridge } from '@interfaces/data'
+
 import { IBridgeContainerProps } from '../containers/BridgeContainer/BridgeContainer.types'
 
 export function useDebounce<T>(value: T, delay: number): T {
@@ -31,6 +33,7 @@ export function useActions(reducer: any, mapDispatchToActions: any) {
 }
 
 export interface IConfigContext {
+  bridge?: IBridge
   getProvider: () => IBridgeContainerProps['provider']
   assetsWhitelist?: string[]
   config?: IBridgeContainerProps['config']

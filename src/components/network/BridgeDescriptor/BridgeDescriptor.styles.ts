@@ -1,13 +1,10 @@
 import { makeStyles } from '@material-ui/core/styles'
 
-const useStyles = makeStyles(({ palette, spacing }) => ({
-  item: {
+const useStyles = makeStyles(({ palette }) => ({
+  hovered: {
     '&:hover': {
       background: palette.primary.main,
     },
-    padding: spacing(2, 3),
-    display: 'flex',
-    justifyContent: 'space-between',
     cursor: 'pointer',
   },
 }))

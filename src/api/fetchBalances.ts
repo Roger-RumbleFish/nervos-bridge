@@ -1,8 +1,8 @@
 import { providers } from 'ethers'
 
+import { Token } from '@interfaces/data'
 // import { AddressTranslator } from 'nervos-godwoken-integration'
 // import Web3 from 'web3'
-import { Token } from '@state/types'
 import { ApiNetworks, Networks } from '@utils/constants'
 import { IConfigContext } from '@utils/hooks'
 

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react'
 
 import clsx from 'clsx'
+import { BigNumber } from 'ethers'
 
 import BigNumberInput from '@components/BigNumberInput'
+import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils'
 import TokenSelector from '@components/TokenSelector'
 import { IDisplayValue } from '@interfaces/data'
-import { Box, Button, Typography } from '@material-ui/core'
+import { Box, Button, Paper, Typography } from '@material-ui/core'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import { Skeleton } from '@material-ui/lab'
+import { lightGray } from '@styles/theme'
 
 import messages from './TokenField.messages'
 import { useStyles } from './TokenField.styles'
@@ -21,7 +25,6 @@ const TokenField: React.FC<ITokenFieldProps> = ({
   onAmountChange,
   onTokenChange,
   inputLabel,
-  maxAmount,
   isFetchingTokens,
   isFetchingAmount,
 }) => {
@@ -40,75 +43,117 @@ const TokenField: React.FC<ITokenFieldProps> = ({
   }, [amount])
 
   return (
-    <Box display="flex" width="100%">
+    <Paper variant="outlined">
       <Box
-        flexShrink={1}
-        flexGrow={0}
         display="flex"
-        flexDirection="column"
-        justifyContent="space-between"
-        paddingX={{ xs: 2, sm: 2, md: 4 }}
-        paddingY={2}
-        className={classes.inputContainer}
         width="100%"
+        flexDirection={{ xs: 'column-reverse', md: 'row' }}
       >
-        {inputLabel && (
-          <Typography
-            variant="subtitle1"
+        <Box
+          flexShrink={1}
+          flexGrow={0}
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          paddingX={{ xs: 1, sm: 2, md: 4 }}
+          paddingY={0.5}
+          width="100%"
+        >
+          {!inputLabel || isFetchingTokens ? (
+            <Skeleton width={150} />
+          ) : (
+            <Typography color="textSecondary" variant="caption">
+              {inputLabel}
+            </Typography>
+          )}
+
+          <BigNumberInput
+            decimals={selectedToken?.decimals ?? 8}
+            displayDecimals={2}
+            onChange={valueChangeHandler}
+            value={stateValue}
             classes={{
-              subtitle1: clsx({
+              input: clsx(classes.inputText),
+              disabled: clsx({
                 [classes.disabledText]: disabled,
                 [classes.disabledText]: readOnly,
               }),
             }}
+            isFetching={isFetchingAmount}
+            disabled={disabled || readOnly}
+          />
+        </Box>
+        <Box
+          flexBasis={{ sm: 188, md: 220 }}
+          flexShrink={0}
+          flexGrow={1}
+          paddingY={0.5}
+          borderLeft={{ md: `1px solid ${lightGray}` }}
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-around"
+        >
+          <Box
+            width="100%"
+            paddingY={0.5}
+            borderBottom={{ md: `1px solid ${lightGray}` }}
+            paddingX={{ xs: 1, md: 2 }}
           >
-            {inputLabel}
-          </Typography>
-        )}
+            <Button
+              fullWidth
+              onClick={() => {
+                onAmountChange?.(
+                  getDisplayValue(
+                    selectedToken?.balance ?? BigNumber.from(0),
+                    2,
+                    selectedToken?.decimals ?? 2,
+                  ).displayValue,
+                )
+              }}
+            >
+              <Box
+                width="100%"
+                display="flex"
+                flexDirection="column"
+                alignItems="flex-start"
+              >
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                >{`${messages.BALANCE}:`}</Typography>
 
-        <BigNumberInput
-          decimals={selectedToken.decimals}
-          displayDecimals={2}
-          onChange={valueChangeHandler}
-          value={stateValue}
-          classes={{
-            input: clsx(classes.inputText),
-            disabled: clsx({
-              [classes.disabledText]: disabled,
-              [classes.disabledText]: readOnly,
-            }),
-          }}
-          isFetching={isFetchingAmount}
-          disabled={disabled || readOnly}
-        />
-      </Box>
-      <Box
-        flexBasis={{ xs: 150, sm: 188, md: 220 }}
-        flexShrink={0}
-        flexGrow={1}
-        paddingX={{ xs: 1, sm: 2, md: 4 }}
-        paddingY={2}
-        className={classes.autocompleteContainer}
-        width="100%"
-        display="flex"
-        flexDirection="column"
-      >
-        <Typography variant="caption" color="textSecondary">{`${
-          messages.TOKEN_MAX_VALUE
-        }: ${selectedToken.balance ?? 0}`}</Typography>
-        <Box display="flex" height="100%">
-          {isFetchingTokens ? (
-            <CircularProgress disableShrink />
-          ) : (
-            <TokenSelector
-              tokens={tokens}
-              selectedToken={selectedToken}
-              onTokenChange={onTokenChange}
-            />
-          )}
+                {isFetchingTokens ? (
+                  <Skeleton width={150} />
+                ) : (
+                  <Typography color="textSecondary">
+                    <b>
+                      {
+                        getDisplayValue(
+                          selectedToken?.balance ?? BigNumber.from(0),
+                          2,
+                          selectedToken?.decimals ?? 2,
+                        ).displayValue
+                      }
+                    </b>
+                  </Typography>
+                )}
+              </Box>
+            </Button>
+          </Box>
+          <Box width="100%" paddingY={0.5} paddingX={{ xs: 1, md: 2 }}>
+            {isFetchingTokens ? (
+              <Skeleton width={150} />
+            ) : (
+              <TokenSelector
+                tokens={tokens}
+                selectedToken={selectedToken}
+                onTokenChange={onTokenChange}
+              />
+            )}
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </Paper>
   )
 }
 

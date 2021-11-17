@@ -1,7 +1,7 @@
 import React from 'react'
 
 import TokenField from '@components/TokenField'
-import NetworkSelector from '@components/network/NetworkSelector'
+import NetworkSelector from '@components/network/BridgeSelector'
 import {
   Button,
   CircularProgress,
@@ -37,24 +37,18 @@ const Bridge: React.FC<IBridgeProps> = ({
   const isMobile = !useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
 
   return (
-    <Box>
-      <Box
-        display="flex"
-        alignItems="center"
-        marginY={2}
-        justifyContent="space-between"
-      >
-        <TokenField
-          isFetchingTokens={isFetchingTokens}
-          tokens={baseTokens}
-          amount={baseTokenAmount ?? '0.00'}
-          selectedToken={selectedBaseToken}
-          onTokenChange={onBaseTokenChange}
-          onAmountChange={onBaseTokenAmountChange}
-        />
-      </Box>
-
-      <Box display="flex" alignItems="center" marginY={2}>
+    <Box width="100%">
+      <TokenField
+        inputLabel={!isMobile ? selectedBaseToken?.symbol : undefined}
+        isFetchingTokens={isFetchingTokens}
+        tokens={baseTokens}
+        amount={baseTokenAmount}
+        selectedToken={selectedBaseToken}
+        onTokenChange={onBaseTokenChange}
+        onAmountChange={onBaseTokenAmountChange}
+      />
+    </Box>
+    /* <Box display="flex" alignItems="center" marginY={2}>
         <Typography>Fee</Typography>
         {isCalculating ? (
           <CircularProgress style={{ marginLeft: 6 }} size={16} />
@@ -74,8 +68,7 @@ const Bridge: React.FC<IBridgeProps> = ({
           onTokenChange={onQuoteTokenChange}
           onAmountChange={onQuoteTokenAmountChange}
         />
-      </Box>
-    </Box>
+      </Box> */
   )
 }
 

@@ -1,8 +1,7 @@
 import { BigNumber, providers } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
-import { IDisplayValue } from '@interfaces/data'
-import { Token } from '@state/types'
+import { IDisplayValue, Token } from '@interfaces/data'
 import { ApiNetworks, Networks } from '@utils/constants'
 import { IConfigContext } from '@utils/hooks'
 import {

@@ -1,31 +1,20 @@
-import { BigNumber } from 'ethers'
-
-import { BridgeToken, IDisplayValue } from '@interfaces/data'
+import { AccountBoundToken, IBridge, IDisplayValue } from '@interfaces/data'
 import { Networks } from '@utils/constants'
 
-export interface Token {
-  address: string
-  symbol: string
-  network: string
-  decimals: number
-}
-
-export interface AccountBoundToken extends Token {
-  balance: BigNumber
-}
-
 export type BridgeState = {
-  tokens: BridgeToken[]
+  bridges: IBridge[]
+  tokens: AccountBoundToken[]
   fetchingTokens: boolean
   isCalculating: boolean
-  baseToken: BridgeToken
-  quoteToken: BridgeToken
+  baseToken: AccountBoundToken
+  quoteToken: AccountBoundToken
   exchangeValue: IDisplayValue
   network: Networks
   fee: string
 }
 
 export enum BRIDGE_ACTIONS {
+  INIT_BRIDGES = 'initBridges',
   START_TYPING = 'startTyping',
   SET_TOKENS = 'setTokens',
   SET_NETWORK = 'setNetwork',
@@ -45,10 +34,19 @@ export interface IBridgeAction<
   payload: P
 }
 
+export type IInitBridgesAction = IBridgeAction<
+  typeof BRIDGE_ACTIONS.INIT_BRIDGES,
+  {
+    bridges: {
+      [key: string]: IBridge[]
+    }
+  }
+>
+
 export type ISetTokensAction = IBridgeAction<
   typeof BRIDGE_ACTIONS.SET_TOKENS,
   {
-    tokens: BridgeToken[]
+    tokens: AccountBoundToken[]
   }
 >
 

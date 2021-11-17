@@ -1,6 +1,7 @@
-import { BridgeToken, IDisplayValue } from '@interfaces/data'
+import { AccountBoundToken, IBridge, IDisplayValue } from '@interfaces/data'
 import {
   BRIDGE_ACTIONS,
+  IInitBridgesAction,
   ISetTokensAction,
   ISetBaseTokenAction,
   ICalculateAction,
@@ -10,6 +11,18 @@ import {
   ISetNetworkAction,
 } from '@state/types'
 
+export const initBridgesAction = (bridges: IBridge[]): IInitBridgesAction => ({
+  type: BRIDGE_ACTIONS.INIT_BRIDGES,
+  payload: {
+    bridges: bridges.reduce(
+      (bridgesMap, bridge) => ({
+        ...bridgesMap,
+        [bridge.id]: bridge,
+      }),
+      {},
+    ),
+  },
+})
 export const setBaseTokenAction = (symbol: string): ISetBaseTokenAction => ({
   type: BRIDGE_ACTIONS.SET_BASE_TOKEN,
   payload: symbol,
@@ -20,7 +33,9 @@ export const setQuoteTokenAction = (symbol: string): ISetQuoteTokenAction => ({
   payload: symbol,
 })
 
-export const setTokensAction = (tokens: BridgeToken[]): ISetTokensAction => ({
+export const setTokensAction = (
+  tokens: AccountBoundToken[],
+): ISetTokensAction => ({
   type: BRIDGE_ACTIONS.SET_TOKENS,
   payload: {
     tokens,

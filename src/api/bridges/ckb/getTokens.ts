@@ -1,14 +1,14 @@
-import { providers } from 'ethers'
+// import { providers } from 'ethers'
 import Web3 from 'web3'
 
-import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils'
+// import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils'
+import { BridgedToken } from '@interfaces/data'
+import { Networks } from '@utils/constants'
 
 import { registry as godwokenTokensRegistry } from '../../godwoken/registry'
 import { CkbBridge } from './bridge'
-import { BridgeToken } from '@interfaces/data'
-import { Networks } from '@utils/constants'
 
-export const getTokens = async (): Promise<BridgeToken[]> => {
+export const getTokens = async (): Promise<BridgedToken[]> => {
   const web3 = new Web3(Web3.givenProvider)
 
   const bridge = await new CkbBridge(web3, {
@@ -18,18 +18,19 @@ export const getTokens = async (): Promise<BridgeToken[]> => {
 
   const bridgedPairs = bridge.getBridgedPairs()
 
-  return bridgedPairs.map(bridgedPair => ({
-    model: {
-      address: bridgedPair.shadow.address,
-      decimals: bridgedPair.decimals,
-      id: bridgedPair.shadow.address,
-      name: bridgedPair.name,
-      symbol: bridgedPair.name,
-    },
-    network: Networks.NervosL2,
-    shadow: {
-      id: bridgedPair.shadow.address,
-      network: Networks.NervosL1,
-    }
-  } as BridgeToken))
+  return bridgedPairs.map(
+    (bridgedPair) =>
+      ({
+        address: bridgedPair.shadow.address,
+        decimals: bridgedPair.decimals,
+        id: bridgedPair.shadow.address,
+        name: bridgedPair.name,
+        symbol: bridgedPair.name,
+        network: Networks.NervosL2,
+        shadow: {
+          address: bridgedPair.shadow.address,
+          network: Networks.NervosL1,
+        },
+      } as BridgedToken),
+  )
 }

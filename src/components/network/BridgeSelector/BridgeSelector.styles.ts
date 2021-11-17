@@ -10,9 +10,6 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     border: `1px solid ${lightGray}`,
     borderRadius: spacing(0.75),
   },
-  itemsContainer: {
-    backgroundColor: palette.common.white,
-  },
 }))
 
 export default useStyles

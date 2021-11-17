@@ -1,10 +1,11 @@
-import { BridgeToken } from '@interfaces/data'
+import { BridgedToken } from '@interfaces/data'
 
+import { mapForceBridgeNetwork } from './bridges/ethereum/utils'
 import { getBridgeRPCClient } from './client'
 
 export const fetchSupportedTokens = async (
   assetsWhitelist?: string[],
-): Promise<BridgeToken[]> => {
+): Promise<BridgedToken[]> => {
   try {
     const rpcClient = getBridgeRPCClient()
 
@@ -31,15 +32,16 @@ export const fetchSupportedTokens = async (
     console.log('all tokens', filteredTokens)
 
     return filteredTokens.map((tok) => ({
-      model: {
-        id: tok.ident,
-        address: tok.ident,
-        name: tok.info.symbol,
-        decimals: tok.info.decimals,
-        symbol: tok.info.symbol,
+      id: tok.ident,
+      address: tok.ident,
+      name: tok.info.symbol,
+      decimals: tok.info.decimals,
+      symbol: tok.info.symbol,
+      network: mapForceBridgeNetwork(tok.network),
+      shadow: {
+        address: tok.info.shadow.ident,
+        network: mapForceBridgeNetwork(tok.info.shadow.network),
       },
-      network: tok.network,
-      shadow: { id: tok.info.shadow.ident, network: tok.info.shadow.network },
     }))
   } catch (e) {
     console.error(e)

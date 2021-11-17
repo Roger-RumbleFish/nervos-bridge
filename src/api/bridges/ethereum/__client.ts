@@ -1,4 +1,4 @@
-import { ForceBridgeRPCHandler } from 'nervos-godwoken-integration'
+import { BridgeRPCHandler as ForceBridgeRPCHandler } from 'nervos-godwoken-integration'
 
 import { DEFAULT_BRIDGE_RPC } from './__constant'
 
