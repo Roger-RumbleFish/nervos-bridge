@@ -10,6 +10,13 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     border: `1px solid ${lightGray}`,
     borderRadius: spacing(0.75),
   },
+  list: {
+    width: '100%',
+    maxWidth: 360,
+    position: 'relative',
+    overflow: 'auto',
+    maxHeight: 300,
+  },
 }))
 
 export default useStyles

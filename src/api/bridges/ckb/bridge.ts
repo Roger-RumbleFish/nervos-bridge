@@ -287,4 +287,24 @@ export class CkbBridge implements IBridge {
         } as BridgedToken),
     )
   }
+
+  async getShadowTokens(): Promise<BridgedToken[]> {
+    const bridgedPairs = this.getBridgedPairs()
+
+    return bridgedPairs.map(
+      (bridgedPair) =>
+        ({
+          address: bridgedPair.shadow.address,
+          decimals: bridgedPair.decimals,
+          id: bridgedPair.shadow.address,
+          name: bridgedPair.name,
+          symbol: bridgedPair.name,
+          network: Networks.NervosL2,
+          shadow: {
+            address: bridgedPair.shadow.address,
+            network: Networks.NervosL1,
+          },
+        } as BridgedToken),
+    )
+  }
 }

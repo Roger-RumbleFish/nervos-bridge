@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils'
+import SummaryCard from '@components/SummaryCard'
 import TokenField from '@components/TokenField'
 import NetworkSelector from '@components/network/BridgeSelector'
 import {
@@ -47,6 +49,36 @@ const Bridge: React.FC<IBridgeProps> = ({
         onTokenChange={onBaseTokenChange}
         onAmountChange={onBaseTokenAmountChange}
       />
+      {selectedBaseToken && (
+        <Box display="flex" justifyContent="space-between" marginTop={4}>
+          <Box flexBasis="45%" width="100%">
+            <SummaryCard
+              label={selectedBaseToken.shadow.network}
+              tokens={[
+                {
+                  id: selectedBaseToken?.id,
+                  symbol: selectedBaseToken?.symbol,
+                  displayValue: baseTokenAmount,
+                },
+              ]}
+              isFetching={isFetchingTokens && !selectedBaseToken}
+            />
+          </Box>
+          <Box flexBasis="45%" width="100%">
+            <SummaryCard
+              label={selectedBaseToken.network}
+              tokens={[
+                {
+                  id: selectedBaseToken?.id,
+                  symbol: selectedBaseToken?.symbol,
+                  displayValue: baseTokenAmount,
+                },
+              ]}
+              isFetching={isFetchingTokens && !selectedBaseToken}
+            />
+          </Box>
+        </Box>
+      )}
     </Box>
     /* <Box display="flex" alignItems="center" marginY={2}>
         <Typography>Fee</Typography>
@@ -55,20 +87,7 @@ const Bridge: React.FC<IBridgeProps> = ({
         ) : (
           <Typography style={{ marginLeft: 6 }}>{fee ?? '-'}</Typography>
         )}
-      </Box>
-
-      <Box>
-        <TokenField
-          disabled
-          isFetchingTokens={isFetchingTokens}
-          isFetchingAmount={isCalculating}
-          tokens={quoteTokens}
-          amount={quoteTokenAmount}
-          selectedToken={selectedQuoteToken}
-          onTokenChange={onQuoteTokenChange}
-          onAmountChange={onQuoteTokenAmountChange}
-        />
-      </Box> */
+      </Box>*/
   )
 }
 

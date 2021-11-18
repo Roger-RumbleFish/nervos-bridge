@@ -8,7 +8,7 @@ import {
 import Bridge from '@components/Bridge'
 import Tabs from '@components/Tabs'
 import { AccountBoundToken, Token } from '@interfaces/data'
-import { Button, Theme, useMediaQuery } from '@material-ui/core'
+import { Button, Paper, Theme, useMediaQuery } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
 import { initialState, reducer } from '@state/reducer'
 import { ConfigContext, useDebounce } from '@utils/hooks'
@@ -22,6 +22,7 @@ const BridgeContainer: React.FC = () => {
 
   const DEBOUNCE = 400
 
+  const [selectedTab, setSelectedTab] = useState('Deposit')
   const bridgeReducer = useReducer(reducer, initialState)
   const { getProvider, config, bridge } = useContext(ConfigContext)
 
@@ -73,7 +74,10 @@ const BridgeContainer: React.FC = () => {
         // const balancesF = await fetchBalances(network, provider)
         // console.log('[bridge][container][balances] balances', balancesF)
 
-        const tokens = await bridge.getTokens()
+        const tokens =
+          selectedTab === 'Deposit'
+            ? await bridge.getTokens()
+            : await bridge.getShadowTokens()
         const accountAddress = await provider.getSigner().getAddress()
 
         const accountBoundTokens: AccountBoundToken[] = []
@@ -100,7 +104,7 @@ const BridgeContainer: React.FC = () => {
         setTokens(accountBoundTokens)
       }
     })()
-  }, [provider, network, bridge])
+  }, [provider, network, bridge, selectedTab])
 
   const onNetworkChange = (newNetwork: string) => {
     if (newNetwork !== network) {
@@ -200,63 +204,78 @@ const BridgeContainer: React.FC = () => {
     )
   }
 
-  const [selectedTab, setSelectedTab] = useState('Deposit')
   return (
     <>
-      <Tabs<string>
-        items={[
-          { label: 'Deposit', value: 'Deposit' },
-          { label: 'Withdraw', value: 'Withdraw' },
-        ]}
-        selectedValue={selectedTab}
-        onChange={(val) => setSelectedTab(val)}
-      />
-      <Bridge
-        disableButton={provider === null}
-        isFetchingTokens={isFetchingAllTokens}
-        isCalculating={calculating}
-        title={messages.BRIDGE_TITLE}
-        description={messages.BRIDGE_DESCRIPTION}
-        baseTokenAmount={value}
-        quoteTokenAmount={quoteValue}
-        baseTokens={baseTokens}
-        quoteTokens={quoteTokens}
-        selectedBaseToken={baseToken}
-        selectedQuoteToken={quoteToken}
-        fee={fee}
-        network={network}
-        onBaseTokenChange={onBaseTokenChange}
-        onQuoteTokenChange={onQuoteTokenChange}
-        onBaseTokenAmountChange={onBaseTokenAmountChange}
-        onQuoteTokenAmountChange={onQuoteTokenAmountChange}
-        onDepositRequest={handleDepositRequest}
-        onNetworkChange={onNetworkChange}
-      />
-      {selectedTab === 'Deposit' ? (
-        <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>
-          <Button
-            style={{ width: isMobile ? '100%' : 'auto' }}
-            disabled={provider === null}
-            variant="contained"
-            color="primary"
-            onClick={handleWithdrawRequest}
-          >
-            Deposit
-          </Button>
+      <Box marginY={1}>
+        <Tabs<string>
+          items={[
+            { label: 'Deposit', value: 'Deposit' },
+            { label: 'Withdraw', value: 'Withdraw' },
+          ]}
+          selectedValue={selectedTab}
+          onChange={(val) => setSelectedTab(val)}
+        />
+      </Box>
+      <Paper variant="outlined">
+        <Box marginY={4} marginX={4}>
+          <Bridge
+            disableButton={provider === null}
+            isFetchingTokens={isFetchingAllTokens}
+            isCalculating={calculating}
+            title={selectedTab}
+            description={messages.BRIDGE_DESCRIPTION}
+            baseTokenAmount={value}
+            quoteTokenAmount={quoteValue}
+            baseTokens={baseTokens}
+            quoteTokens={quoteTokens}
+            selectedBaseToken={baseToken}
+            selectedQuoteToken={quoteToken}
+            fee={fee}
+            network={network}
+            onBaseTokenChange={onBaseTokenChange}
+            onQuoteTokenChange={onQuoteTokenChange}
+            onBaseTokenAmountChange={onBaseTokenAmountChange}
+            onQuoteTokenAmountChange={onQuoteTokenAmountChange}
+            onDepositRequest={handleDepositRequest}
+            onNetworkChange={onNetworkChange}
+          />
+          {selectedTab === 'Deposit' ? (
+            <Box
+              marginTop={4}
+              width="100%"
+              display="flex"
+              justifyContent="flex-end"
+            >
+              <Button
+                style={{ width: isMobile ? '100%' : 'auto', minWidth: '160px' }}
+                disabled={provider === null}
+                variant="contained"
+                color="primary"
+                onClick={handleWithdrawRequest}
+              >
+                Deposit
+              </Button>
+            </Box>
+          ) : (
+            <Box
+              marginTop={4}
+              width="100%"
+              display="flex"
+              justifyContent="flex-end"
+            >
+              <Button
+                style={{ width: isMobile ? '100%' : 'auto', minWidth: '160px' }}
+                disabled={provider === null}
+                variant="contained"
+                color="primary"
+                onClick={handleWithdrawRequest}
+              >
+                Withdraw
+              </Button>
+            </Box>
+          )}
         </Box>
-      ) : (
-        <Box mt={2} width={{ xs: '100%', sm: 'auto' }}>
-          <Button
-            style={{ width: isMobile ? '100%' : 'auto' }}
-            disabled={provider === null}
-            variant="contained"
-            color="primary"
-            onClick={handleWithdrawRequest}
-          >
-            Withdraw
-          </Button>
-        </Box>
-      )}
+      </Paper>
     </>
   )
 }

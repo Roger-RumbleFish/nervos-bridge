@@ -8,6 +8,8 @@ import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
 import SyncAltIcon from '@material-ui/icons/SyncAlt'
 import { Skeleton } from '@material-ui/lab'
 
@@ -65,7 +67,7 @@ const BridgeSelector: React.FC<IBridgeSelectorProps> = ({
             onClick={handleClickOpen}
           >
             {!selectedBridge ? (
-              'Select Bridge'
+              'Bridges'
             ) : (
               <Box display="flex" justifyContent="center">
                 <Box display="flex" alignItems="center" marginRight={1}>
@@ -88,23 +90,19 @@ const BridgeSelector: React.FC<IBridgeSelectorProps> = ({
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>Select Bridge</DialogTitle>
           <DialogContent>
-            {bridgeDescriptors?.map((bridgeDescriptor) => (
-              <BridgeDescriptor
-                key={bridgeDescriptor.id}
-                id={bridgeDescriptor.id}
-                sides={bridgeDescriptor.sides}
-                handleClose={handleItemSelection}
-              />
-            ))}
+            <List className={classes.list}>
+              {bridgeDescriptors?.map((bridgeDescriptor) => (
+                <ListItem key={bridgeDescriptor.id}>
+                  <BridgeDescriptor
+                    key={bridgeDescriptor.id}
+                    id={bridgeDescriptor.id}
+                    sides={bridgeDescriptor.sides}
+                    onClick={handleItemSelection}
+                  />
+                </ListItem>
+              ))}
+            </List>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleClose} color="primary">
-              Ok
-            </Button>
-          </DialogActions>
         </Dialog>
       </Paper>
     </>

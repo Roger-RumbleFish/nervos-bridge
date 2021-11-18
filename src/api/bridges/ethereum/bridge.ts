@@ -191,17 +191,47 @@ export class EthereumForceBridge implements IBridge {
     const ethTokens = tokens.filter(
       (token) => token.info.shadow.network === Networks.Ethereum,
     )
+    console.log('[bridge][ethereum] ethereum tokens', ethTokens)
+    const nervosL1Tokens = tokens.filter(
+      (token) => token.info.shadow.network === 'Nervos',
+    )
+    console.log('[bridge][ethereum] nervos L1 tokens', nervosL1Tokens)
 
-    return ethTokens.map((token) => ({
-      id: token.ident,
+    return nervosL1Tokens.map((token) => ({
+      id: token.info.shadow.ident,
       address: token.ident,
       name: token.info.symbol,
-      decimals: token.info.decimals,
       symbol: token.info.symbol,
-      network: mapForceBridgeNetwork(token.network),
+      decimals: token.info.decimals,
+      network: mapForceBridgeNetwork(token.info.shadow.network),
       shadow: {
-        address: token.info.shadow.ident,
-        network: mapForceBridgeNetwork(token.info.shadow.network),
+        address: token.ident,
+        network: mapForceBridgeNetwork(token.network),
+      },
+    }))
+  }
+
+  async getShadowTokens(): Promise<BridgedToken[]> {
+    const tokens = await this._forceBridgeClient.getAssetList()
+    const ethTokens = tokens.filter(
+      (token) => token.info.shadow.network === Networks.Ethereum,
+    )
+    console.log('[bridge][ethereum] ethereum tokens', ethTokens)
+    const nervosL1Tokens = tokens.filter(
+      (token) => token.info.shadow.network === 'Nervos',
+    )
+    console.log('[bridge][ethereum] nervos L1 tokens', nervosL1Tokens)
+
+    return ethTokens.map((token) => ({
+      id: token.info.shadow.ident,
+      address: token.info.shadow.ident,
+      name: token.info.symbol,
+      symbol: token.info.symbol,
+      decimals: token.info.decimals,
+      network: mapForceBridgeNetwork(token.info.shadow.network),
+      shadow: {
+        address: token.ident,
+        network: mapForceBridgeNetwork(token.network),
       },
     }))
   }

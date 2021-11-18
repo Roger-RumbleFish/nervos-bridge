@@ -1,5 +1,5 @@
 import { AccountBoundToken } from '@interfaces/data'
-import { ApiNetworks, Networks } from '@utils/constants'
+import { Networks } from '@utils/constants'
 
 import {
   BridgeState,

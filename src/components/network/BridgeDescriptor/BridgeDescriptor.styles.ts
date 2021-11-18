@@ -4,6 +4,7 @@ const useStyles = makeStyles(({ palette }) => ({
   hovered: {
     '&:hover': {
       background: palette.primary.main,
+      color: palette.primary.contrastText,
     },
     cursor: 'pointer',
   },

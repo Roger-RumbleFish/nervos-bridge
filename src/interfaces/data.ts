@@ -6,6 +6,8 @@ import { Networks } from '@utils/constants'
 export type BridgedPairShadow = {
   address?: string
   network: Networks
+  name?: string
+  symbol?: string
 }
 
 export type BridgedPair = {
@@ -27,6 +29,7 @@ export interface IBridge {
     bridgedPair: BridgedPair,
   ): Promise<BigNumber>
   getTokens(): Promise<BridgedToken[]>
+  getShadowTokens(): Promise<BridgedToken[]>
 }
 
 // REDEFINE

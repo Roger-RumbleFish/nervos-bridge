@@ -13,14 +13,12 @@ import { fetchBalances as fetchCkbBalances } from './ckb/fetchBalances'
 import { getTokens as L1L2FeatchTokens } from './ckb/getTokens'
 import { withdrawToken as withdrawToCkbToken } from './ckb/withdraw'
 import { bridgeToken as ethL2bridgeToken } from './ethereum/bridgeToken'
-import { fetchBalances as fetchEthereumBalances } from './ethereum/fetchBalances'
-import { fetchTokens as ethL2FeatchTokens } from './ethereum/tokens'
 import { withdrawToken as withdrawToEthToken } from './ethereum/withdrawToken'
 
 export const fetchTokens = async (
   tokensWhitelist?: string[],
 ): Promise<BridgedToken[]> => {
-  const ethL2Tokens = await ethL2FeatchTokens(tokensWhitelist)
+  const ethL2Tokens: BridgedToken[] = []
   const l1l2Tokens = await L1L2FeatchTokens()
   console.log('[bridge][l1-l2]', l1l2Tokens)
 
@@ -70,13 +68,7 @@ export const fetchBalances = async (
   try {
     if (network === Networks.Ethereum) {
       console.log('[balances][fetchBalances] network', network)
-      const ethTokens = await ethL2FeatchTokens(tokensWhitelist)
-      const inBridgeToken = ethTokens.filter(
-        (token) => token.shadow.network === Networks.Ethereum,
-      )
-      console.log('[balances][fetchBalances] tokens', inBridgeToken)
-
-      const balances = await fetchEthereumBalances(inBridgeToken, provider)
+      const balances: IDisplayValue[] = []
       return balances
     } else if (network === Networks.NervosL1) {
       console.log('CKB Balances')
