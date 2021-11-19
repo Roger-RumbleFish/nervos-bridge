@@ -12,12 +12,9 @@ export interface IBridgeProps {
   isFetchingTokens?: boolean
   isCalculating?: boolean
   disableButton?: boolean
-  network: string
-  fee?: string
   onBaseTokenChange?: (token: AccountBoundToken) => void
   onQuoteTokenChange?: (token: AccountBoundToken) => void
   onBaseTokenAmountChange?: (value: string) => void
   onQuoteTokenAmountChange?: (value: string) => void
   onDepositRequest?: () => void
-  onNetworkChange?: (network: string) => void
 }

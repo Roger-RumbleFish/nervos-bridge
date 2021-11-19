@@ -1,10 +1,4 @@
-export type INetworkName = string
-
-export interface IBridgeDescriptor {
-  id: string
-  name: string
-  sides: [INetworkName, INetworkName]
-}
+import { IBridgeDescriptor } from '@interfaces/data'
 
 export interface IBridgeSelectorProps {
   bridgeDescriptors: IBridgeDescriptor[]

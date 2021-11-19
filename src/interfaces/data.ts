@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 
+import { INetworkAdapter } from '@api/bridges/network-adapter/types'
 import { TokensRegistry } from '@api/types'
 import { Networks } from '@utils/constants'
 
@@ -19,11 +20,20 @@ export type BridgedPair = {
   shadow: BridgedPairShadow
 }
 
-export interface IBridge {
+export type NetworkName = string
+
+export interface IBridgeDescriptor {
   id: string
-  init(registry: TokensRegistry): Promise<IBridge>
+  name: string
+  networks: [INetworkAdapter['name'], INetworkAdapter['name']]
+}
+
+export interface IBridge {
+  toDescriptor(): IBridgeDescriptor
   deposit(amount: BigNumber, bridgedPair: BridgedPair): Promise<string>
   withdraw(amount: BigNumber, bridgedPair: BridgedPair): Promise<string>
+  getDepositNetwork(): INetworkAdapter
+  getWithdrawalNetwork(): INetworkAdapter
   getBalance(
     accountAddress: string,
     bridgedPair: BridgedPair,

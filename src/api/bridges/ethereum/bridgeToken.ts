@@ -17,9 +17,17 @@ export const bridgeToken: IBridgeTokenHandler = async (
       BigNumber.from(10).pow(8),
     )
     const web3 = new Web3(Web3.givenProvider)
-    const bridge = await new EthereumForceBridge(web3, provider, {
-      forceBridgeUrl: 'https://testnet.forcebridge.com/api/force-bridge/api/v1',
-    }).init()
+    const bridge = await new EthereumForceBridge(
+      'wtf',
+      'wtf',
+      ['wtf1', 'wtf2'],
+      web3,
+      provider,
+      {
+        forceBridgeUrl:
+          'https://testnet.forcebridge.com/api/force-bridge/api/v1',
+      },
+    ).init()
 
     const shadow = {
       address: tokenAddress,

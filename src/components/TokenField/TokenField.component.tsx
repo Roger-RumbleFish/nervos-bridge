@@ -8,7 +8,6 @@ import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils
 import TokenSelector from '@components/TokenSelector'
 import { IDisplayValue } from '@interfaces/data'
 import { Box, Button, Paper, Typography } from '@material-ui/core'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import { Skeleton } from '@material-ui/lab'
 import { lightGray } from '@styles/theme'
 
@@ -100,6 +99,7 @@ const TokenField: React.FC<ITokenFieldProps> = ({
             paddingX={{ xs: 1, md: 2 }}
           >
             <Button
+              disabled={isFetchingTokens}
               fullWidth
               onClick={() => {
                 onAmountChange?.(

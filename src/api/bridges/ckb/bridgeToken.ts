@@ -1,11 +1,10 @@
-import Web3 from 'web3'
-
-import { BigNumber } from '@ethersproject/bignumber'
-import { Networks } from '@utils/constants'
-
-import { registry as godwokenTokensRegistry } from '../../godwoken/registry'
+// import Web3 from 'web3'
+// import { BigNumber } from '@ethersproject/bignumber'
+// import { Networks } from '@utils/constants'
+// import { registry as godwokenTokensRegistry } from '../../godwoken/registry'
 import { IBridgeTokenHandler } from '../types'
-import { CkbBridge } from './bridge'
+
+// import { CkbBridge } from './bridge'
 
 export const bridgeToken: IBridgeTokenHandler = async (
   amount,
@@ -13,25 +12,36 @@ export const bridgeToken: IBridgeTokenHandler = async (
   ethereumAddress,
 ) => {
   try {
+    console.log('[bridges][ckb][bridge token test] amount', amount)
+    console.log('[bridges][ckb][bridge token test] amount', tokenAddress)
+    console.log('[bridges][ckb][bridge token test] amount', ethereumAddress)
+
     console.log('eth address', ethereumAddress)
-    const numberAmount = Number(amount.split('.')[0])
-    const web3provider = new Web3(Web3.givenProvider)
+    console.log('eth address', ethereumAddress)
+    // const numberAmount = Number(amount.split('.')[0])
+    // const web3provider = new Web3(Web3.givenProvider)
 
-    const bridge = await new CkbBridge(web3provider, {
-      ckbUrl: 'https://testnet.ckb.dev',
-      indexerUrl: 'https://testnet.ckb.dev/indexer',
-    }).init(godwokenTokensRegistry)
+    // const bridge = await new CkbBridge(
+    //   'wtff',
+    //   'wtff',
+    //   ['wtff1', 'wtff2'],
+    //   web3provider,
+    //   {
+    //     ckbUrl: 'https://testnet.ckb.dev',
+    //     indexerUrl: 'https://testnet.ckb.dev/indexer',
+    //   },
+    // ).init(godwokenTokensRegistry)
 
-    const bridgedPair = bridge.getBridgedPairByAddress(
-      tokenAddress,
-      Networks.CKB,
-    )
+    // const bridgedPair = bridge.getBridgedPairByAddress(
+    //   tokenAddress,
+    //   Networks.CKB,
+    // )
 
-    const bridgedAmount = BigNumber.from(numberAmount).mul(
-      BigNumber.from(10).pow(bridgedPair.decimals),
-    )
+    // const bridgedAmount = BigNumber.from(numberAmount).mul(
+    //   BigNumber.from(10).pow(bridgedPair.decimals),
+    // )
 
-    await bridge.deposit(bridgedAmount, bridgedPair)
+    // await bridge.deposit(bridgedAmount, bridgedPair)
   } catch (error) {
     console.error(error)
   }

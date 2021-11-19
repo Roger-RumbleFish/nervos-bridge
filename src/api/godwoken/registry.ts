@@ -17,7 +17,7 @@ export const registry: TokensRegistry = {
     [CanonicalTokenSymbol.DAI]: {
       address: '0x84c57202bCe3c784A1723F680dD38Cf6a2292d92',
       name: 'ckDai',
-      decimals: 8,
+      decimals: 18,
     },
     [CanonicalTokenSymbol.USDC]: {
       address: '0x50ce6b8abe7E6943750b55283a155bb6cB5acFaB',

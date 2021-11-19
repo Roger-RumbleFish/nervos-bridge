@@ -27,14 +27,11 @@ const Bridge: React.FC<IBridgeProps> = ({
   isFetchingTokens,
   isCalculating,
   disableButton,
-  network,
-  fee,
   onDepositRequest,
   onBaseTokenAmountChange,
   onBaseTokenChange,
   onQuoteTokenChange,
   onQuoteTokenAmountChange,
-  onNetworkChange,
 }) => {
   const isMobile = !useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
 

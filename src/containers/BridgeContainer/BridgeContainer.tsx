@@ -1,5 +1,7 @@
 import React, { useReducer, useState, useEffect, useContext } from 'react'
 
+import { BigNumber } from 'ethers'
+
 import {
   fetchTokens,
   bridgeToken,
@@ -24,11 +26,10 @@ const BridgeContainer: React.FC = () => {
 
   const [selectedTab, setSelectedTab] = useState('Deposit')
   const bridgeReducer = useReducer(reducer, initialState)
-  const { getProvider, config, bridge } = useContext(ConfigContext)
+  const { provider, config, bridge } = useContext(ConfigContext)
 
   console.log('[containers][bridge] bridge', bridge)
 
-  const provider = getProvider()
   console.log('[containers][bridge][provider] get provider', provider)
   const [value, setValue] = useState('100.00')
   const [quoteValue, setQuoteValue] = useState('100.00')
@@ -36,7 +37,7 @@ const BridgeContainer: React.FC = () => {
   const {
     setTokens,
     setTokensRequest,
-    setNetwork,
+    // setNetwork,
     setBaseToken,
     setQuoteToken,
     // calculate,
@@ -45,9 +46,9 @@ const BridgeContainer: React.FC = () => {
 
   const {
     isFetchingTokens,
-    isCalculating,
-    getNetwork,
-    getFee,
+    // isCalculating,
+    // getNetwork,
+    // getFee,
     getBaseToken,
     getBaseTokens,
     getExchangeResult,
@@ -55,7 +56,7 @@ const BridgeContainer: React.FC = () => {
     getQuoteTokens,
   } = BridgeSelectors(bridgeReducer)
 
-  const network = getNetwork()
+  // const network = getNetwork()
   // useEffect(() => {
   //   ;(async (): Promise<void> => {
   //     setTokensRequest()
@@ -67,10 +68,9 @@ const BridgeContainer: React.FC = () => {
 
   useEffect(() => {
     ;(async (): Promise<void> => {
-      console.log('Bridge Container: balances effect')
       setTokensRequest()
       if (provider && bridge) {
-        console.log('[bridge][container][balances] network', network)
+        // console.log('[bridge][container][balances] network', network)
         // const balancesF = await fetchBalances(network, provider)
         // console.log('[bridge][container][balances] balances', balancesF)
 
@@ -78,15 +78,41 @@ const BridgeContainer: React.FC = () => {
           selectedTab === 'Deposit'
             ? await bridge.getTokens()
             : await bridge.getShadowTokens()
+
         const accountAddress = await provider.getSigner().getAddress()
 
         const accountBoundTokens: AccountBoundToken[] = []
         for (let i = 0; i < tokens.length; i++) {
-          const shadow = {
-            address: tokens[i].shadow.address,
-            network: tokens[i].shadow.network,
+          console.log(
+            `[bridge][container][tokens] token ${tokens[i].symbol}`,
+            tokens[i],
+          )
+          let balance
+          if (selectedTab === 'Deposit') {
+            console.log(
+              `[bridge][container][tokens][address] token deposit ${tokens[i].symbol}`,
+              tokens[i].shadow.address,
+            )
+            balance = await bridge
+              .getDepositNetwork()
+              .getBalance(tokens[i].shadow.address, accountAddress)
+            console.log(
+              `[bridge][container][tokens] token deposit ${tokens[i].symbol}`,
+              balance,
+            )
+          } else {
+            console.log(
+              `[bridge][container][tokens][address] token withdraw ${tokens[i].symbol}`,
+              tokens[i].shadow.address,
+            )
+            balance = await bridge
+              .getWithdrawalNetwork()
+              .getBalance(tokens[i].address, accountAddress)
+            console.log(
+              `[bridge][container][tokens] token withdraw ${tokens[i].symbol}`,
+              balance,
+            )
           }
-          const balance = await bridge.getBalance(accountAddress, { shadow })
           console.log(
             `[bridge][container][balances] balance ${tokens[i].symbol}`,
             balance.toString(),
@@ -104,13 +130,13 @@ const BridgeContainer: React.FC = () => {
         setTokens(accountBoundTokens)
       }
     })()
-  }, [provider, network, bridge, selectedTab])
+  }, [provider, bridge, selectedTab])
 
-  const onNetworkChange = (newNetwork: string) => {
-    if (newNetwork !== network) {
-      setNetwork?.(newNetwork)
-    }
-  }
+  // const onNetworkChange = (newNetwork: string) => {
+  //   if (newNetwork !== network) {
+  //     setNetwork?.(newNetwork)
+  //   }
+  // }
 
   const onBaseTokenChange = async (token: Token) => {
     setBaseToken(token.symbol)
@@ -140,14 +166,14 @@ const BridgeContainer: React.FC = () => {
   console.log('[container][bridge][tokens] base tokens', baseTokens)
   console.log('[container][bridge][tokens] quote tokens', quoteTokens)
 
-  const fee = getFee()
+  // const fee = getFee()
 
   const exchangeResult = getExchangeResult()
   const isFetchingAllTokens = isFetchingTokens()
 
-  const calculating = isCalculating()
+  // const calculating = isCalculating()
 
-  const debounceValue = useDebounce(value, DEBOUNCE)
+  // const debounceValue = useDebounce(value, DEBOUNCE)
 
   // useEffect(() => {
   //   ;(async (): Promise<void> => {
@@ -175,33 +201,45 @@ const BridgeContainer: React.FC = () => {
   }, [exchangeResult?.value])
 
   const handleDepositRequest = async () => {
-    await bridgeToken(
-      value,
-      baseToken.decimals,
-      baseToken.address,
-      provider,
-      network,
-      config,
-    )
+    // await bridgeToken(
+    //   value,
+    //   baseToken.decimals,
+    //   baseToken.address,
+    //   provider,
+    //   network,
+    //   config,
+    // )
     // const bridgedPair = bridge.getBridgedPairByAddress(
     //   baseToken.address,
     //   Networks.CKB,
     // )
-
     // const bridgedAmount = BigNumber.from(value).mul(
     //   BigNumber.from(10).pow(bridgedPair.decimals),
     // )
     // await bridge.deposit(bridgedAmount, bridgedAmount)
   }
+
   const handleWithdrawRequest = async () => {
-    await withdrawToken(
-      value,
-      baseToken.decimals,
-      baseToken.address,
-      provider,
-      network,
-      config,
+    const numberAmount = BigNumber.from(Number(value.split('.')[0])).mul(
+      BigNumber.from(10).pow(8),
     )
+    // const shadow = {
+    //   address: quoteToken.address,
+    //   network: Networks.Ethereum,
+    // }
+    // const bridgedPair = {
+    //   shadow,
+    //   address: tokenAddress,
+    // }
+    // await bridge.withdraw(numberAmount, bridgedPair)
+    // await withdrawToken(
+    //   value,
+    //   baseToken.decimals,
+    //   baseToken.address,
+    //   provider,
+    //   network,
+    //   config,
+    // )
   }
 
   return (
@@ -221,7 +259,7 @@ const BridgeContainer: React.FC = () => {
           <Bridge
             disableButton={provider === null}
             isFetchingTokens={isFetchingAllTokens}
-            isCalculating={calculating}
+            isCalculating={false}
             title={selectedTab}
             description={messages.BRIDGE_DESCRIPTION}
             baseTokenAmount={value}
@@ -230,14 +268,11 @@ const BridgeContainer: React.FC = () => {
             quoteTokens={quoteTokens}
             selectedBaseToken={baseToken}
             selectedQuoteToken={quoteToken}
-            fee={fee}
-            network={network}
             onBaseTokenChange={onBaseTokenChange}
             onQuoteTokenChange={onQuoteTokenChange}
             onBaseTokenAmountChange={onBaseTokenAmountChange}
             onQuoteTokenAmountChange={onQuoteTokenAmountChange}
             onDepositRequest={handleDepositRequest}
-            onNetworkChange={onNetworkChange}
           />
           {selectedTab === 'Deposit' ? (
             <Box

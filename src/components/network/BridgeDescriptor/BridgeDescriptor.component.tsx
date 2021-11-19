@@ -1,5 +1,7 @@
 import React from 'react'
 
+import clsx from 'clsx'
+
 import { Box, Paper, Typography } from '@material-ui/core'
 import SyncAltIcon from '@material-ui/icons/SyncAlt'
 
@@ -8,14 +10,20 @@ import { IBridgeDescriptorItemProps } from './BridgeDescriptor.types'
 
 const BridgeDescriptor: React.FC<IBridgeDescriptorItemProps> = ({
   id,
+  networks,
+  selected,
   onClick,
-  sides,
 }) => {
   const classes = useStyles()
 
+  const [fromNetwork, toNetwork] = networks
+
   return (
     <Box width="100%">
-      <Paper variant="outlined" className={classes.hovered}>
+      <Paper
+        variant="outlined"
+        className={clsx(classes.item, { [classes.selected]: selected })}
+      >
         <Box
           onClick={() => onClick(id)}
           display="flex"
@@ -29,7 +37,7 @@ const BridgeDescriptor: React.FC<IBridgeDescriptorItemProps> = ({
             alignItems="center"
             marginRight={1}
           >
-            <Typography variant="body2">{sides[0].toUpperCase()}</Typography>
+            <Typography variant="body2">{fromNetwork.toUpperCase()}</Typography>
           </Box>
           <Box display="flex" alignItems="center" marginX={1}>
             <SyncAltIcon />
@@ -40,7 +48,7 @@ const BridgeDescriptor: React.FC<IBridgeDescriptorItemProps> = ({
             alignItems="center"
             marginLeft={1}
           >
-            <Typography variant="body2">{sides[1].toUpperCase()}</Typography>
+            <Typography variant="body2">{toNetwork.toUpperCase()}</Typography>
           </Box>
         </Box>
       </Paper>

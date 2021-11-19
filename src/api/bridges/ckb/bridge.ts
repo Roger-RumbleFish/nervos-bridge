@@ -3,7 +3,12 @@ import Web3 from 'web3'
 
 import { CanonicalTokenSymbol, TokensRegistry } from '@api/types'
 import { BigNumber } from '@ethersproject/bignumber'
-import { IBridge, BridgedPair, BridgedToken } from '@interfaces/data'
+import {
+  IBridge,
+  BridgedPair,
+  BridgedToken,
+  IBridgeDescriptor,
+} from '@interfaces/data'
 import PWCore, {
   Address,
   AddressType,
@@ -18,6 +23,7 @@ import PWCore, {
 } from '@lay2/pw-core'
 import { Networks } from '@utils/constants'
 
+import { INetworkAdapter } from '../network-adapter/types'
 import { registry } from './registry'
 
 interface CkbBridgeConfig {
@@ -29,22 +35,37 @@ const ZERO_LOCK_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 const IS_TESTNET = true
 
-const BRIDGE_ID = 'ckb'
-
 export class CkbBridge implements IBridge {
+  public id: string
+  public name: string
+
+  public fromNetwork: INetworkAdapter
+  public toNetwork: INetworkAdapter
+
   private _web3: Web3
   private _pwCore: PWCore
   private _web3CKBProvider: Provider
   private _indexerCollector: IndexerCollector
   private _addressTranslator: AddressTranslator
-  public id: string
 
   private _bridgePairRegistry: {
     [key in CanonicalTokenSymbol]?: BridgedPair
   } = {}
 
-  constructor(web3: Web3, config: CkbBridgeConfig) {
-    this.id = BRIDGE_ID
+  constructor(
+    id: string,
+    name: string,
+    fromNetwork: INetworkAdapter,
+    toNetwork: INetworkAdapter,
+    web3: Web3,
+    config: CkbBridgeConfig,
+  ) {
+    this.id = id
+    this.name = name
+
+    this.fromNetwork = fromNetwork
+    this.toNetwork = toNetwork
+
     this._web3 = web3
 
     const web3CKBProvider = new Web3ModalProvider(web3)
@@ -78,12 +99,28 @@ export class CkbBridge implements IBridge {
     return this
   }
 
+  toDescriptor(): IBridgeDescriptor {
+    return {
+      id: this.id,
+      name: this.name,
+      networks: [this.fromNetwork.name, this.toNetwork.name],
+    }
+  }
+
+  getDepositNetwork(): INetworkAdapter {
+    return this.fromNetwork
+  }
+
+  getWithdrawalNetwork(): INetworkAdapter {
+    return this.toNetwork
+  }
+
   // TODO REFACTOR
   _registerToken(
     registeredToken: CanonicalTokenSymbol,
     tokenAddressGodwoken: string,
     bridgedNetwork: Networks,
-  ) {
+  ): void {
     if (Object.keys(registry.tokens).includes(registeredToken)) {
       const tokenShadow = registry.tokens[registeredToken]
       this._bridgePairRegistry[registeredToken] = {
@@ -98,7 +135,7 @@ export class CkbBridge implements IBridge {
         },
       }
 
-      return this
+      return
     }
 
     throw Error(
@@ -146,49 +183,49 @@ export class CkbBridge implements IBridge {
     return bridgedPair.shadow.address === ZERO_LOCK_HASH
   }
 
-  async _getBalanceNative(ckbAddress: Address): Promise<BigNumber> {
-    const balance = await this._indexerCollector.getBalance(ckbAddress)
+  // async _getBalanceNative(ckbAddress: Address): Promise<BigNumber> {
+  //   const balance = await this._indexerCollector.getBalance(ckbAddress)
 
-    const balanceString: string = balance.toBigInt().toString()
+  //   const balanceString: string = balance.toBigInt().toString()
 
-    console.log('balance string', balanceString)
-    return BigNumber.from(balanceString)
-  }
+  //   console.log('balance string', balanceString)
+  //   return BigNumber.from(balanceString)
+  // }
 
-  async _getBalanceSUDT(
-    ckbAddress: Address,
-    sudtIssuerLockHash: string,
-  ): Promise<BigNumber> {
-    const sudt = new SUDT(sudtIssuerLockHash)
+  // async _getBalanceSUDT(
+  //   ckbAddress: Address,
+  //   sudtIssuerLockHash: string,
+  // ): Promise<BigNumber> {
+  //   const sudt = new SUDT(sudtIssuerLockHash)
 
-    const balance = await this._indexerCollector.getSUDTBalance(
-      sudt,
-      ckbAddress,
-    )
-    const balanceString: string = balance.toBigInt().toString()
+  //   const balance = await this._indexerCollector.getSUDTBalance(
+  //     sudt,
+  //     ckbAddress,
+  //   )
+  //   const balanceString: string = balance.toBigInt().toString()
 
-    return BigNumber.from(balanceString)
-  }
+  //   return BigNumber.from(balanceString)
+  // }
 
-  async getBalance(
-    ethereumAccountAddress: string,
-    bridgedPair: BridgedPair,
-  ): Promise<BigNumber> {
-    const ckbAddressString = this._addressTranslator.ethAddressToCkbAddress(
-      ethereumAccountAddress,
-      IS_TESTNET,
-    )
-    const ckbAddress = new Address(ckbAddressString, AddressType.ckb)
+  // async getBalance(
+  //   ethereumAccountAddress: string,
+  //   bridgedPair: BridgedPair,
+  // ): Promise<BigNumber> {
+  //   const ckbAddressString = this._addressTranslator.ethAddressToCkbAddress(
+  //     ethereumAccountAddress,
+  //     IS_TESTNET,
+  //   )
+  //   const ckbAddress = new Address(ckbAddressString, AddressType.ckb)
 
-    const { address: sudtIssuerLockHash } = bridgedPair.shadow
+  //   const { address: sudtIssuerLockHash } = bridgedPair.shadow
 
-    console.log('[bridge] get balance', bridgedPair)
-    if (!this._isNativeBridgePair(bridgedPair)) {
-      return this._getBalanceSUDT(ckbAddress, sudtIssuerLockHash)
-    }
+  //   console.log('[bridge] get balance', bridgedPair)
+  //   if (!this._isNativeBridgePair(bridgedPair)) {
+  //     return this._getBalanceSUDT(ckbAddress, sudtIssuerLockHash)
+  //   }
 
-    return this._getBalanceNative(ckbAddress)
-  }
+  //   return this._getBalanceNative(ckbAddress)
+  // }
 
   async _depositNative(
     amount: BigNumber,

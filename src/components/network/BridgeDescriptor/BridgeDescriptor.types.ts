@@ -1,7 +1,6 @@
-export interface IBridgeDescriptorItemProps {
-  id: string
-  sides: INetworksPair
+import { IBridgeDescriptor } from '@interfaces/data'
+
+export interface IBridgeDescriptorItemProps extends IBridgeDescriptor {
+  selected?: boolean
   onClick: (id: string) => void
 }
-
-export type INetworksPair = [string, string]

@@ -1,12 +1,16 @@
 import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(({ palette }) => ({
-  hovered: {
+  item: {
+    cursor: 'pointer',
     '&:hover': {
       background: palette.primary.main,
       color: palette.primary.contrastText,
     },
-    cursor: 'pointer',
+  },
+  selected: {
+    boxSizing: 'border-box',
+    border: `2px solid ${palette.primary.dark}`,
   },
 }))
 

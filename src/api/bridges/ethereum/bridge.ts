@@ -1,16 +1,23 @@
 import { providers } from 'ethers'
 import {
   AddressTranslator,
-  BridgeRPCHandler as ForceBridgeRPCHandler,
+  ForceBridgeRPCHandler,
   GenerateBridgeOutNervosTransactionPayload, //   GetConfigResponse,
 } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
 import { BigNumber } from '@ethersproject/bignumber'
-import { IBridge, BridgedPair, BridgedToken } from '@interfaces/data'
+import {
+  IBridge,
+  BridgedPair,
+  BridgedToken,
+  NetworkName,
+  IBridgeDescriptor,
+} from '@interfaces/data'
 import { Networks } from '@utils/constants'
 
 import { ERC20__factory } from '../../../factories/ERC20__factory'
+import { INetworkAdapter } from '../network-adapter/types'
 import { mapForceBridgeNetwork } from './utils'
 
 interface EthereumBridgeConfig {
@@ -19,9 +26,14 @@ interface EthereumBridgeConfig {
 
 const ETHEREUM_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-const BRIDGE_ID = 'ethereum'
 export class EthereumForceBridge implements IBridge {
   public id: string
+  public name: string
+  public networks: [NetworkName, NetworkName]
+
+  public fromNetwork: INetworkAdapter
+  public toNetwork: INetworkAdapter
+
   private _web3: Web3
   private _jsonRpcProvider: providers.JsonRpcProvider
   private _forceBridgeClient: ForceBridgeRPCHandler
@@ -29,11 +41,20 @@ export class EthereumForceBridge implements IBridge {
   private _addressTranslator: AddressTranslator
 
   constructor(
+    id: string,
+    name: string,
+    fromNetwork: INetworkAdapter,
+    toNetwork: INetworkAdapter,
     web3: Web3,
     provider: providers.JsonRpcProvider,
     config: EthereumBridgeConfig,
   ) {
-    this.id = BRIDGE_ID
+    this.id = id
+    this.name = name
+
+    this.fromNetwork = fromNetwork
+    this.toNetwork = toNetwork
+    this.networks = [fromNetwork.name, toNetwork.name]
 
     this._web3 = web3
 
@@ -51,6 +72,22 @@ export class EthereumForceBridge implements IBridge {
     this._forceBridgeAddress = bridgeConfig.xchains.Ethereum.contractAddress
 
     return this as IBridge
+  }
+
+  toDescriptor(): IBridgeDescriptor {
+    return {
+      id: this.id,
+      name: this.name,
+      networks: this.networks,
+    }
+  }
+
+  getDepositNetwork(): INetworkAdapter {
+    return this.fromNetwork
+  }
+
+  getWithdrawalNetwork(): INetworkAdapter {
+    return this.toNetwork
   }
 
   _isNativeBridgePair(bridgedPair: BridgedPair): boolean {
