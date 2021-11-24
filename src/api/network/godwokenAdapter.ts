@@ -1,9 +1,11 @@
 import { BigNumber, providers } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
+import { TokensRegistry } from '@api/types'
 import { NetworkName } from '@interfaces/data'
 
 import { ERC20__factory } from '../../factories/ERC20__factory'
+import { registry } from '../registry/godwokenRegistry'
 import { INetworkAdapter } from './types'
 
 const GODWOKEN_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -15,6 +17,8 @@ export class GodwokenNetwork implements INetworkAdapter {
   private provider: providers.JsonRpcProvider
   private addressTranslator: AddressTranslator
 
+  private supportedTokens: TokensRegistry
+
   constructor(
     id: string,
     name: string,
@@ -25,6 +29,8 @@ export class GodwokenNetwork implements INetworkAdapter {
     this.name = name
     this.provider = provider
     this.addressTranslator = addressTranslator
+
+    this.supportedTokens = registry
   }
 
   async _getBalanceNative(ethereumAddress: string): Promise<BigNumber> {
@@ -57,5 +63,9 @@ export class GodwokenNetwork implements INetworkAdapter {
     }
 
     return this._getBalanceNative(godwokenAddress)
+  }
+
+  getTokens(): TokensRegistry {
+    return this.supportedTokens
   }
 }

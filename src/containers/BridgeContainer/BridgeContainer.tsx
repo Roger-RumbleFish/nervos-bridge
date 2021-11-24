@@ -2,6 +2,7 @@ import React, { useReducer, useState, useEffect, useContext } from 'react'
 
 import { BigNumber } from 'ethers'
 
+import { CanonicalTokenSymbol } from '@api/types'
 import Bridge from '@components/Bridge'
 import Tabs from '@components/Tabs'
 import { AccountBoundToken, Token } from '@interfaces/data'
@@ -26,8 +27,6 @@ const BridgeContainer: React.FC = () => {
   const bridgeReducer = useReducer(reducer, initialState)
 
   const { provider, bridge } = useContext(ConfigContext)
-
-  console.log('[containers][bridge] bridge', bridge)
 
   const [value, setValue] = useState(DEFAULT_VALUE)
   const [quoteValue, setQuoteValue] = useState(DEFAULT_VALUE)
@@ -67,42 +66,66 @@ const BridgeContainer: React.FC = () => {
   useEffect(() => {
     ;(async (): Promise<void> => {
       setTokensRequest()
+
       if (provider && bridge) {
-        const tokens =
-          selectedTab === 'Deposit'
-            ? await bridge.getTokens()
-            : await bridge.getShadowTokens()
+        if (selectedTab === 'Deposit') {
+          const network = bridge.getDepositNetwork()
 
-        const accountAddress = await provider.getSigner().getAddress()
+          const tokens = network.getTokens()
+          const tokensSymbols = Object.keys(tokens) as CanonicalTokenSymbol[]
 
-        const accountBoundTokens: AccountBoundToken[] = []
-        for (let i = 0; i < tokens.length; i++) {
-          let balance
-          if (selectedTab === 'Deposit') {
-            const network = bridge.getDepositNetwork()
+          console.log('[container][bridge][effect] get tokens', tokens)
 
-            balance = await network.getBalance(
-              tokens[i].shadow.address,
-              accountAddress,
-            )
-          } else {
-            const network = bridge.getWithdrawalNetwork()
-            balance = await network.getBalance(
-              tokens[i].address,
-              accountAddress,
-            )
-          }
-          accountBoundTokens.push({
-            ...tokens[i],
-            balance: balance,
-          })
+          const accountAddress = await provider.getSigner().getAddress()
+
+          const accountBoundTokens: AccountBoundToken[] = await Promise.all(
+            tokensSymbols.map(async (tokenSymbol) => {
+              const token = tokens[tokenSymbol]
+
+              const balance = await network.getBalance(
+                token.address,
+                accountAddress,
+              )
+
+              console.log(
+                '[container][bridge][effect] token, balance',
+                token,
+                balance.toString(),
+              )
+              return {
+                ...token,
+                balance,
+              }
+            }),
+          )
+
+          setTokens(accountBoundTokens)
+        } else if (selectedTab === 'Withdraw') {
+          const network = bridge.getWithdrawalNetwork()
+
+          const tokens = network.getTokens()
+          const tokensSymbols = Object.keys(tokens) as CanonicalTokenSymbol[]
+
+          const accountAddress = await provider.getSigner().getAddress()
+
+          const accountBoundTokens: AccountBoundToken[] = await Promise.all(
+            tokensSymbols.map(async (tokenSymbol) => {
+              const token = tokens[tokenSymbol]
+
+              const balance = await network.getBalance(
+                token.address,
+                accountAddress,
+              )
+
+              return {
+                ...token,
+                balance,
+              }
+            }),
+          )
+
+          setTokens(accountBoundTokens)
         }
-        console.log(
-          '[bridge][container][balances] balances',
-          accountBoundTokens,
-        )
-
-        setTokens(accountBoundTokens)
       }
     })()
   }, [provider, bridge, selectedTab, setTokens, setTokensRequest])
@@ -196,14 +219,14 @@ const BridgeContainer: React.FC = () => {
   }
 
   const handleWithdrawRequest = async () => {
-    console.log('[bridge][withdraw]', baseToken.shadow.address)
+    console.log('[bridge][withdraw]', baseToken.address)
     const withdrawalAmount = BigNumber.from(Number(value.split('.')[0])).mul(
       BigNumber.from(10).pow(baseToken.decimals),
     )
 
     await bridge.withdraw(withdrawalAmount, {
       ...baseToken,
-      address: baseToken.shadow.address,
+      address: baseToken.address,
     })
   }
 

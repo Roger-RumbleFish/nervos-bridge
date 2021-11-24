@@ -28,13 +28,13 @@ export interface IBridgeDescriptor {
 }
 
 export interface IBridge {
+  id: string
+  name: string
   toDescriptor(): IBridgeDescriptor
   deposit(amount: BigNumber, token: Token): Promise<string>
   withdraw(amount: BigNumber, token: Token): Promise<string>
   getDepositNetwork(): INetworkAdapter
   getWithdrawalNetwork(): INetworkAdapter
-  getTokens(): Promise<BridgedToken[]>
-  getShadowTokens(): Promise<BridgedToken[]>
 }
 
 // REDEFINE
@@ -49,7 +49,6 @@ export interface IIcon {
 }
 // END REDEFINE
 
-// TO BE REMOVED
 export interface Token {
   address: string
   symbol: string
@@ -57,15 +56,10 @@ export interface Token {
   decimals: number
 }
 
-export type BridgedTokenShadow = {
-  address: string
-  network: Networks
-}
-
 export interface BridgedToken extends Token {
   id: string
   network: Networks
-  shadow: BridgedTokenShadow
+  shadow: Token
 }
 
 export interface TokenAmount {
@@ -74,7 +68,7 @@ export interface TokenAmount {
   amount: BigNumber
 }
 
-export interface AccountBoundToken extends BridgedToken {
+export interface AccountBoundToken extends Token {
   balance: BigNumber
 }
 

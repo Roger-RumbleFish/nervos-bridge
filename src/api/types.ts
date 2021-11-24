@@ -1,4 +1,4 @@
-import { Networks } from '@utils/constants'
+import { BridgedToken, Token } from '@interfaces/data'
 
 export enum CanonicalTokenSymbol {
   DAI = 'DAI',
@@ -11,13 +11,17 @@ export enum CanonicalTokenSymbol {
 
 export interface TokenDescriptor {
   address: string
-  name: string
+  symbol: string
   decimals: number
 }
 
-export interface TokensRegistry {
-  network: Networks
-  tokens: {
-    [key in CanonicalTokenSymbol]?: TokenDescriptor
-  }
+export type TokenDescriptorsRegistry = {
+  [key in CanonicalTokenSymbol]?: TokenDescriptor
+}
+
+export type BridgedTokensRegistry = {
+  [key in CanonicalTokenSymbol]?: BridgedToken
+}
+export type TokensRegistry = {
+  [key in CanonicalTokenSymbol]?: Token
 }

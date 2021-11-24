@@ -30,8 +30,8 @@ const getShadowToken = (
 ): AccountBoundToken => {
   return tokens.find(
     (token) =>
-      token.network === firstToken?.shadow?.network &&
-      token.address === firstToken?.shadow?.address,
+      token.network === firstToken?.network &&
+      token.address === firstToken?.address,
   )
 }
 

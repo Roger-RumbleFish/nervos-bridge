@@ -1,15 +1,9 @@
 import { AddressTranslator } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
-import { CanonicalTokenSymbol, TokensRegistry } from '@api/types'
+import { BridgedTokensRegistry, CanonicalTokenSymbol } from '@api/types'
 import { BigNumber } from '@ethersproject/bignumber'
-import {
-  IBridge,
-  BridgedPair,
-  BridgedToken,
-  IBridgeDescriptor,
-  Token,
-} from '@interfaces/data'
+import { IBridge, IBridgeDescriptor, Token } from '@interfaces/data'
 import PWCore, {
   IndexerCollector,
   Provider,
@@ -21,19 +15,9 @@ import PWCore, {
   AmountUnit,
   Address,
 } from '@lay2/pw-core'
-import { Networks } from '@utils/constants'
 
 import { INetworkAdapter } from '../../network/types'
-
-/**
- * TODO: Change
- */
-import { registry } from '../../registry/ckbRegistry'
-
-interface CkbBridgeConfig {
-  ckbUrl: string
-  indexerUrl: string
-}
+import { Godwoken } from './godwoken'
 
 const ZERO_LOCK_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -51,17 +35,19 @@ export class CkbBridge implements IBridge {
   private _indexerCollector: IndexerCollector
   private _addressTranslator: AddressTranslator
 
-  private _bridgePairRegistry: {
-    [key in CanonicalTokenSymbol]?: BridgedPair
-  } = {}
+  private registeredTokens: BridgedTokensRegistry
+  private godwoken: Godwoken
 
   constructor(
     id: string,
     name: string,
     fromNetwork: INetworkAdapter,
     toNetwork: INetworkAdapter,
+    addressTranslator: AddressTranslator,
     web3: Web3,
-    config: CkbBridgeConfig,
+    indexerCollector: IndexerCollector,
+    pwCoreClient: PWCore,
+    godwoken: Godwoken,
   ) {
     this.id = id
     this.name = name
@@ -74,29 +60,13 @@ export class CkbBridge implements IBridge {
     const web3CKBProvider = new Web3ModalProvider(web3)
     this._web3CKBProvider = web3CKBProvider
 
-    const indexerCollector = new IndexerCollector(config.indexerUrl)
     this._indexerCollector = indexerCollector
-
-    const pwCore = new PWCore(config.ckbUrl)
-    this._pwCore = pwCore
-
-    const addressTranslator = new AddressTranslator()
+    this._pwCore = pwCoreClient
     this._addressTranslator = addressTranslator
+    this.godwoken = godwoken
   }
 
-  async init(godwokenTokensRegistry: TokensRegistry): Promise<CkbBridge> {
-    Object.keys(godwokenTokensRegistry.tokens).forEach(
-      (cTokenSymbol: CanonicalTokenSymbol) => {
-        const bridgedNetwork = godwokenTokensRegistry.network
-        const registeredToken = godwokenTokensRegistry.tokens[cTokenSymbol]
-        this._registerToken(
-          cTokenSymbol,
-          registeredToken.address,
-          bridgedNetwork,
-        )
-      },
-    )
-
+  async init(): Promise<CkbBridge> {
     await this._pwCore.init(this._web3CKBProvider, this._indexerCollector)
 
     return this
@@ -140,8 +110,8 @@ export class CkbBridge implements IBridge {
     sudt: SUDT,
   ): Promise<string> {
     const options: SimpleSUDTBuilderOptions = {
-      feeRate: 1000,
-      // autoCalculateCapacity: true,
+      feeRate: 2000,
+      autoCalculateCapacity: true,
       minimumOutputCellCapacity: new Amount('400', AmountUnit.ckb),
     }
 
@@ -159,12 +129,13 @@ export class CkbBridge implements IBridge {
   async deposit(amount: BigNumber, token: Token): Promise<string> {
     const sudtIssuerLockHash = token.address
     const sudt = new SUDT(sudtIssuerLockHash)
+    console.log('[api][bridge][ckb] token', token)
     const depositAmount = new Amount(
-      amount.toString(),
+      amount.div(BigNumber.from(10).pow(token.decimals)).toString(),
       token.decimals ?? AmountUnit.ckb,
     )
-    // TODO: Did user address should be in scope of bridge instance???
     const [accountAddress] = await this._web3.eth.getAccounts()
+
     const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
       this._web3CKBProvider,
       accountAddress,
@@ -176,18 +147,18 @@ export class CkbBridge implements IBridge {
 
     return this._depositNative(depositAmount, depositAddress)
   }
-  
-  async signMessageEthereum(message: Hash, address: string): Promise<HexString> {
-    const result = await (window.ethereum as any).request({ method: 'eth_sign',
-      params: [address, message]
+
+  async signMessageEthereum(message: string, address: string): Promise<string> {
+    const result = await (window.ethereum as any).request({
+      method: 'eth_sign',
+      params: [address, message],
     })
-  
-    let v = Number.parseInt(result.slice(-2), 16);
-    
-    if (v >= 27)
-      v -= 27;
-  
-    return `0x${result.slice(2, -2)}${v.toString(16).padStart(2, '0')}`;
+
+    let v = Number.parseInt(result.slice(-2), 16)
+
+    if (v >= 27) v -= 27
+
+    return `0x${result.slice(2, -2)}${v.toString(16).padStart(2, '0')}`
   }
 
   async withdraw(amount: BigNumber, token: Token): Promise<string> {
@@ -196,125 +167,24 @@ export class CkbBridge implements IBridge {
     const sudtIssuerLockHash = token.address
     const sudt = new SUDT(sudtIssuerLockHash)
 
-    export async function signMessageEthereum(message: Hash, address: string): Promise<HexString> {
-  const result = await (window.ethereum as any).request({ method: 'eth_sign',
-    params: [address, message]
-  })
+    const ckbTokensRegistry = this.getDepositNetwork().getTokens()
+    const godwokenTokensRegistry = this.getWithdrawalNetwork().getTokens()
 
-  let v = Number.parseInt(result.slice(-2), 16);
-  
-  if (v >= 27)
-    v -= 27;
+    const [canonicalTokenSymbol] = Object.keys(godwokenTokensRegistry)
+      .map((tokenSymbol) => tokenSymbol as CanonicalTokenSymbol)
+      .filter(
+        (tokenSymbol) =>
+          godwokenTokensRegistry[tokenSymbol].address === token.address,
+      )
 
-  return `0x${result.slice(2, -2)}${v.toString(16).padStart(2, '0')}`;
-}
-    console.log('[bridge][ckb][withdraw] props', amount, sudtIssuerLockHash)
+    const ckbToken = ckbTokensRegistry[canonicalTokenSymbol]
+    console.log('[bridge][ckb][withdraw] props', amount, sudt.issuerLockHash)
     console.log('[bridge][ckb][withdraw] address', accountAddress)
-    console.log('[bridge][ckb][withdraw] NOT IMPLEMENTED')
+
+    console.log('[bridge][ckb][withdraw] godwoken', this.godwoken)
+
+    this.godwoken.withdraw(amount, ckbToken.address, accountAddress)
 
     return 'withdraw'
-  }
-
-  async getTokens(): Promise<BridgedToken[]> {
-    const bridgedPairs = this.getBridgedPairs()
-
-    return bridgedPairs.map(
-      (bridgedPair) =>
-        ({
-          address: bridgedPair.shadow.address,
-          decimals: bridgedPair.decimals,
-          id: bridgedPair.shadow.address,
-          name: bridgedPair.name,
-          symbol: bridgedPair.name,
-          network: Networks.NervosL2,
-          shadow: {
-            address: bridgedPair.shadow.address,
-            network: Networks.NervosL1,
-          },
-        } as BridgedToken),
-    )
-  }
-
-  async getShadowTokens(): Promise<BridgedToken[]> {
-    const bridgedPairs = this.getBridgedPairs()
-
-    return bridgedPairs.map(
-      (bridgedPair) =>
-        ({
-          address: bridgedPair.address,
-          decimals: bridgedPair.decimals,
-          id: bridgedPair.address,
-          name: bridgedPair.name,
-          symbol: bridgedPair.name,
-          network: Networks.NervosL2,
-          shadow: {
-            address: bridgedPair.address,
-            network: Networks.NervosL1,
-          },
-        } as BridgedToken),
-    )
-  }
-
-  // TODO REFACTOR
-  _registerToken(
-    registeredToken: CanonicalTokenSymbol,
-    tokenAddressGodwoken: string,
-    bridgedNetwork: Networks,
-  ): void {
-    if (Object.keys(registry.tokens).includes(registeredToken)) {
-      const tokenShadow = registry.tokens[registeredToken]
-      this._bridgePairRegistry[registeredToken] = {
-        address: tokenAddressGodwoken,
-        name: tokenShadow.name,
-        symbol: tokenShadow.name,
-        decimals: tokenShadow.decimals,
-        network: bridgedNetwork,
-        shadow: {
-          address: tokenShadow.address,
-          network: registry.network,
-        },
-      }
-
-      return
-    }
-
-    throw Error(
-      `${registeredToken} doesn't registered in CKB - Godwoken Bridge`,
-    )
-  }
-
-  getBridgedPairs(): BridgedPair[] {
-    return Object.values(this._bridgePairRegistry)
-  }
-
-  getBridgedPairByCanonSymbol(
-    canonSymbol: CanonicalTokenSymbol,
-  ): BridgedPair | undefined {
-    return this._bridgePairRegistry[canonSymbol]
-  }
-
-  getBridgedPairByAddress(
-    address: string,
-    network: Networks,
-  ): BridgedPair | undefined {
-    const anyRegisteredPair = this._bridgePairRegistry[
-      Object.keys(this._bridgePairRegistry)[0] as CanonicalTokenSymbol
-    ]
-    const baseNetwork = anyRegisteredPair.network
-    const shadowNetwork = anyRegisteredPair.shadow.network
-
-    if (network === baseNetwork) {
-      const bridgedPair = Object.values(this._bridgePairRegistry).find(
-        ({ address: baseAddress }) => baseAddress === address,
-      )
-      return bridgedPair
-    } else if (network === shadowNetwork) {
-      const bridgedPair = Object.values(this._bridgePairRegistry).find(
-        ({ shadow: { address: shadowAddress } }) => shadowAddress === address,
-      )
-      return bridgedPair
-    }
-
-    throw new Error(`Network ${network} is not correct`)
   }
 }

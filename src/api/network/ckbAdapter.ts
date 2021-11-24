@@ -2,6 +2,7 @@ import { BigNumber } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
+import { TokensRegistry } from '@api/types'
 import { NetworkName } from '@interfaces/data'
 import PWCore, {
   Address,
@@ -11,44 +12,42 @@ import PWCore, {
   Web3ModalProvider,
 } from '@lay2/pw-core'
 
+import { registry } from '../registry/ckbRegistry'
 import { INetworkAdapter } from './types'
 
 const ZERO_LOCK_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 const IS_TESTNET = true
 
-interface CkbRpcConfig {
-  ckbUrl: string
-  indexerUrl: string
-}
-
 export class CkbNetwork implements INetworkAdapter {
   public id: string
   public name: NetworkName
 
   private provider: Web3ModalProvider
+  private pwCore: PWCore
 
   private indexerCollector: IndexerCollector
-  private pwCore: PWCore
   private addressTranslator: AddressTranslator
+
+  private supportedTokens: TokensRegistry
 
   constructor(
     id: string,
     name: string,
-    config: CkbRpcConfig,
+    web3: Web3,
+    indexerCollector: IndexerCollector,
+    pwCoreClient: PWCore,
     addressTranslator: AddressTranslator,
   ) {
     this.id = id
     this.name = name
 
-    const web3 = new Web3(Web3.givenProvider)
-
     this.provider = new Web3ModalProvider(web3)
-    this.indexerCollector = new IndexerCollector(config.indexerUrl)
-
-    this.pwCore = new PWCore(config.ckbUrl)
-
+    this.indexerCollector = indexerCollector
+    this.pwCore = pwCoreClient
     this.addressTranslator = addressTranslator
+
+    this.supportedTokens = registry
   }
 
   async _getBalanceNative(ckbAddress: Address): Promise<BigNumber> {
@@ -86,5 +85,9 @@ export class CkbNetwork implements INetworkAdapter {
     }
 
     return this._getBalanceNative(ckbAddress)
+  }
+
+  getTokens(): TokensRegistry {
+    return this.supportedTokens
   }
 }

@@ -1,8 +1,4 @@
-import {
-  AccountBoundToken,
-  BridgedToken,
-  IDisplayValue,
-} from '@interfaces/data'
+import { AccountBoundToken, IDisplayValue } from '@interfaces/data'
 import {
   calculateAction,
   calculateRequestAction,
@@ -18,7 +14,7 @@ export const BridgeActions = (
   bridgeReducer: any,
 ): {
   setTokensRequest: () => void
-  setTokens: (tokens: BridgedToken[]) => void
+  setTokens: (tokens: AccountBoundToken[]) => void
   setBaseToken: (symbol: string) => void
   setQuoteToken: (symbol: string) => void
   setNetwork: (network: string) => void
