@@ -2,7 +2,7 @@ import { CanonicalTokenSymbol, TokensRegistry } from '@api/types'
 import { Networks } from '@utils/constants'
 
 export const registry: TokensRegistry = {
-  network: Networks.CKB,
+  network: Networks.Ethereum,
   tokens: {
     [CanonicalTokenSymbol.DAI]: {
       address: '0x7Af456bf0065aADAB2E6BEc6DaD3731899550b84',

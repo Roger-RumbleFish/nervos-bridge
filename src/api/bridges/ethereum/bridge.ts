@@ -1,38 +1,42 @@
 import { providers } from 'ethers'
 import {
   AddressTranslator,
-  ForceBridgeRPCHandler,
+  BridgeRPCHandler as ForceBridgeRPCHandler,
+  GenerateBridgeInTransactionPayload,
   GenerateBridgeOutNervosTransactionPayload, //   GetConfigResponse,
 } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
+import {
+  CanonicalTokenSymbol,
+  TokenDescriptor,
+  TokensRegistry,
+} from '@api/types'
 import { BigNumber } from '@ethersproject/bignumber'
 import {
   IBridge,
-  BridgedPair,
   BridgedToken,
   NetworkName,
   IBridgeDescriptor,
+  Token,
 } from '@interfaces/data'
 import { Networks } from '@utils/constants'
 
 import { ERC20__factory } from '../../../factories/ERC20__factory'
-import { INetworkAdapter } from '../network-adapter/types'
+import { INetworkAdapter } from '../../network/types'
 import { mapForceBridgeNetwork } from './utils'
 
 interface EthereumBridgeConfig {
   forceBridgeUrl: string
 }
 
-const ETHEREUM_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-
 export class EthereumForceBridge implements IBridge {
   public id: string
   public name: string
   public networks: [NetworkName, NetworkName]
 
-  public fromNetwork: INetworkAdapter
-  public toNetwork: INetworkAdapter
+  public depositNetwork: INetworkAdapter
+  public withdrawalNetwork: INetworkAdapter
 
   private _web3: Web3
   private _jsonRpcProvider: providers.JsonRpcProvider
@@ -40,11 +44,13 @@ export class EthereumForceBridge implements IBridge {
   private _forceBridgeAddress: string
   private _addressTranslator: AddressTranslator
 
+  private godwokenTokensRegistry: TokensRegistry
+
   constructor(
     id: string,
     name: string,
-    fromNetwork: INetworkAdapter,
-    toNetwork: INetworkAdapter,
+    depositNetwork: INetworkAdapter,
+    withdrawalNetwork: INetworkAdapter,
     web3: Web3,
     provider: providers.JsonRpcProvider,
     config: EthereumBridgeConfig,
@@ -52,9 +58,9 @@ export class EthereumForceBridge implements IBridge {
     this.id = id
     this.name = name
 
-    this.fromNetwork = fromNetwork
-    this.toNetwork = toNetwork
-    this.networks = [fromNetwork.name, toNetwork.name]
+    this.depositNetwork = depositNetwork
+    this.withdrawalNetwork = withdrawalNetwork
+    this.networks = [depositNetwork.name, withdrawalNetwork.name]
 
     this._web3 = web3
 
@@ -67,7 +73,9 @@ export class EthereumForceBridge implements IBridge {
     this._addressTranslator = addressTranslator
   }
 
-  async init(): Promise<IBridge> {
+  async init(godwokenTokensRegistry: TokensRegistry): Promise<IBridge> {
+    console.log(godwokenTokensRegistry)
+    this.godwokenTokensRegistry = godwokenTokensRegistry
     const bridgeConfig = await this._forceBridgeClient.getBridgeConfig()
     this._forceBridgeAddress = bridgeConfig.xchains.Ethereum.contractAddress
 
@@ -83,75 +91,19 @@ export class EthereumForceBridge implements IBridge {
   }
 
   getDepositNetwork(): INetworkAdapter {
-    return this.fromNetwork
+    return this.depositNetwork
   }
 
   getWithdrawalNetwork(): INetworkAdapter {
-    return this.toNetwork
+    return this.withdrawalNetwork
   }
 
-  _isNativeBridgePair(bridgedPair: BridgedPair): boolean {
-    return bridgedPair.shadow.address === ETHEREUM_ZERO_ADDRESS
-  }
-
-  async _getBalanceNative(ethereumAddress: string): Promise<BigNumber> {
-    console.log('[bridge][eth][rpc] json rpc provider', this._jsonRpcProvider)
-    const balance = await this._jsonRpcProvider.getBalance(ethereumAddress)
-
-    const balanceString: string = balance.toBigInt().toString()
-
-    console.log('balance string', balanceString)
-    return BigNumber.from(balanceString)
-  }
-
-  async _getBalanceERC20(
-    ethereumAccountAddress: string,
-    bridgedPair: BridgedPair,
-  ): Promise<BigNumber> {
-    const {
-      shadow: { address: erc20Address },
-    } = bridgedPair
-
+  async deposit(amount: BigNumber, token: Token): Promise<string> {
     const signer = this._jsonRpcProvider.getSigner()
+    const ethereumAccountAddress = await signer.getAddress()
 
-    const erc20Contract = ERC20__factory.connect(erc20Address, signer)
-
-    const balance = await erc20Contract.balanceOf(ethereumAccountAddress)
-
-    return balance
-  }
-
-  async getBalance(
-    ethereumAccountAddress: string,
-    bridgedPair: BridgedPair,
-  ): Promise<BigNumber> {
-    if (!this._isNativeBridgePair(bridgedPair)) {
-      return this._getBalanceERC20(ethereumAccountAddress, bridgedPair)
-    }
-
-    return this._getBalanceNative(ethereumAccountAddress)
-  }
-
-  // TODO: Implement deposit in native currency ETH?
-  async _depositNative(amount: BigNumber): Promise<string> {
-    const signer = this._jsonRpcProvider.getSigner()
-
-    console.log('deposit native signer', signer, amount.toString())
-    return 'no tx for now'
-  }
-
-  async _depositERC20(
-    amount: BigNumber,
-    bridgePair: BridgedPair,
-  ): Promise<string> {
-    const {
-      shadow: { address: erc20Address },
-    } = bridgePair
-
-    const signer = this._jsonRpcProvider.getSigner()
-    const ethereumAccountAddress = signer._address
-
-    const erc20Contract = ERC20__factory.connect(erc20Address, signer)
+    const tokenAddress = token.address
+    const erc20Contract = ERC20__factory.connect(tokenAddress, signer)
 
     const allowedAmount = await erc20Contract.allowance(
       ethereumAccountAddress,
@@ -164,18 +116,31 @@ export class EthereumForceBridge implements IBridge {
       await tx.wait()
     }
 
-    const recipient = await this._addressTranslator.getLayer2DepositAddress(
+    const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
       this._web3,
       ethereumAccountAddress,
     )
 
-    const payload = {
+    const ckbAddress = await this._addressTranslator.ethAddressToCkbAddress(
+      ethereumAccountAddress,
+    )
+    console.log(
+      '[bridge][ethereum][deposit] ethereum address',
+      ethereumAccountAddress,
+    )
+    console.log(
+      '[bridge][ethereum][deposit] deposit lock address',
+      depositAddress.addressString,
+    )
+    console.log('[bridge][ethereum][deposit] ckb address', ckbAddress)
+
+    const payload: GenerateBridgeInTransactionPayload = {
       asset: {
-        network: 'Nervos',
-        ident: erc20Address,
+        network: Networks.Ethereum,
+        ident: tokenAddress,
         amount: amount.toString(),
       },
-      recipient: recipient.addressString,
+      recipient: depositAddress.addressString,
       sender: ethereumAccountAddress,
     }
     const result = await this._forceBridgeClient.generateBridgeInNervosTransaction(
@@ -187,28 +152,19 @@ export class EthereumForceBridge implements IBridge {
     return transaction.hash
   }
 
-  async deposit(amount: BigNumber, bridgedPair: BridgedPair): Promise<string> {
-    if (!this._isNativeBridgePair(bridgedPair)) {
-      return this._depositERC20(amount, bridgedPair)
-    }
-
-    return this._depositNative(amount)
-  }
-
-  async withdraw(amount: BigNumber, bridgedPair: BridgedPair): Promise<string> {
-    const { address: ethereumErc20Address } = bridgedPair.shadow
-    console.log('[withdraw][token pair]', bridgedPair)
-
+  async withdraw(amount: BigNumber, token: Token): Promise<string> {
     const signer = this._jsonRpcProvider.getSigner()
-    const ethereumAccountAddress = signer._address
+    const ethereumAccountAddress = await signer.getAddress()
+    const tokenAddress = token.address
 
     const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
       this._web3,
       ethereumAccountAddress,
     )
+
     const payload: GenerateBridgeOutNervosTransactionPayload = {
       network: 'Ethereum',
-      asset: ethereumErc20Address,
+      asset: tokenAddress,
       recipient: ethereumAccountAddress,
       sender: depositAddress.addressString,
       amount: amount.toString(),
@@ -226,16 +182,14 @@ export class EthereumForceBridge implements IBridge {
   async getTokens(): Promise<BridgedToken[]> {
     const tokens = await this._forceBridgeClient.getAssetList()
     const ethTokens = tokens.filter(
-      (token) => token.info.shadow.network === Networks.Ethereum,
+      (token) => token.network === Networks.Ethereum,
     )
-    console.log('[bridge][ethereum] ethereum tokens', ethTokens)
-    const nervosL1Tokens = tokens.filter(
-      (token) => token.info.shadow.network === 'Nervos',
-    )
-    console.log('[bridge][ethereum] nervos L1 tokens', nervosL1Tokens)
 
-    return nervosL1Tokens.map((token) => ({
-      id: token.info.shadow.ident,
+    console.log('[bridge][ethereum] tokens', tokens)
+    console.log('[bridge][ethereum] tokens ethereum', ethTokens)
+
+    return ethTokens.map((token) => ({
+      id: token.ident,
       address: token.ident,
       name: token.info.symbol,
       symbol: token.info.symbol,
@@ -250,26 +204,40 @@ export class EthereumForceBridge implements IBridge {
 
   async getShadowTokens(): Promise<BridgedToken[]> {
     const tokens = await this._forceBridgeClient.getAssetList()
-    const ethTokens = tokens.filter(
-      (token) => token.info.shadow.network === Networks.Ethereum,
-    )
-    console.log('[bridge][ethereum] ethereum tokens', ethTokens)
-    const nervosL1Tokens = tokens.filter(
-      (token) => token.info.shadow.network === 'Nervos',
-    )
-    console.log('[bridge][ethereum] nervos L1 tokens', nervosL1Tokens)
+    const godwokenTokens = this.godwokenTokensRegistry.tokens
 
-    return ethTokens.map((token) => ({
-      id: token.info.shadow.ident,
-      address: token.info.shadow.ident,
-      name: token.info.symbol,
-      symbol: token.info.symbol,
-      decimals: token.info.decimals,
-      network: mapForceBridgeNetwork(token.info.shadow.network),
-      shadow: {
-        address: token.ident,
-        network: mapForceBridgeNetwork(token.network),
-      },
-    }))
+    const ethTokens = tokens.filter(
+      (token) => token.network === Networks.Ethereum,
+    )
+
+    const shadowTokens = Object.keys(godwokenTokens)
+      .map((tokenSymbol) => tokenSymbol as CanonicalTokenSymbol)
+      .filter((tokenSymbol) =>
+        ethTokens.map((ethToken) => ethToken.info.symbol).includes(tokenSymbol),
+      )
+      .map((tokenSymbol) => {
+        const token: TokenDescriptor = godwokenTokens[tokenSymbol]
+
+        const shadowToken = ethTokens.find(
+          (shadowToken) => shadowToken.info.symbol === tokenSymbol,
+        )
+
+        return {
+          id: token.address,
+          address: token.address,
+          name: token.name,
+          symbol: token.name,
+          decimals: token.decimals,
+          network: this.depositNetwork.name as Networks,
+          shadow: {
+            address: shadowToken.ident,
+            network: this.withdrawalNetwork.name as Networks,
+          },
+        }
+      })
+
+    console.log('[bridge][ethereum] shadow tokens', shadowTokens)
+
+    return shadowTokens
   }
 }

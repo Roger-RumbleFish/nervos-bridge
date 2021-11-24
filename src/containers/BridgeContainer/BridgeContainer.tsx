@@ -2,11 +2,6 @@ import React, { useReducer, useState, useEffect, useContext } from 'react'
 
 import { BigNumber } from 'ethers'
 
-import {
-  fetchTokens,
-  bridgeToken,
-  withdrawToken,
-} from '@api/bridges/__register'
 import Bridge from '@components/Bridge'
 import Tabs from '@components/Tabs'
 import { AccountBoundToken, Token } from '@interfaces/data'
@@ -19,20 +14,23 @@ import { BridgeActions } from './BridgeContainer.actions'
 import messages from './BridgeContainer.messages'
 import { BridgeSelectors } from './BridgeContainer.selectors'
 
+const DEFAULT_VALUE = '100.00'
+
 const BridgeContainer: React.FC = () => {
   const isMobile = !useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
 
   const DEBOUNCE = 400
 
   const [selectedTab, setSelectedTab] = useState('Deposit')
+
   const bridgeReducer = useReducer(reducer, initialState)
-  const { provider, config, bridge } = useContext(ConfigContext)
+
+  const { provider, bridge } = useContext(ConfigContext)
 
   console.log('[containers][bridge] bridge', bridge)
 
-  console.log('[containers][bridge][provider] get provider', provider)
-  const [value, setValue] = useState('100.00')
-  const [quoteValue, setQuoteValue] = useState('100.00')
+  const [value, setValue] = useState(DEFAULT_VALUE)
+  const [quoteValue, setQuoteValue] = useState(DEFAULT_VALUE)
 
   const {
     setTokens,
@@ -70,10 +68,6 @@ const BridgeContainer: React.FC = () => {
     ;(async (): Promise<void> => {
       setTokensRequest()
       if (provider && bridge) {
-        // console.log('[bridge][container][balances] network', network)
-        // const balancesF = await fetchBalances(network, provider)
-        // console.log('[bridge][container][balances] balances', balancesF)
-
         const tokens =
           selectedTab === 'Deposit'
             ? await bridge.getTokens()
@@ -83,40 +77,21 @@ const BridgeContainer: React.FC = () => {
 
         const accountBoundTokens: AccountBoundToken[] = []
         for (let i = 0; i < tokens.length; i++) {
-          console.log(
-            `[bridge][container][tokens] token ${tokens[i].symbol}`,
-            tokens[i],
-          )
           let balance
           if (selectedTab === 'Deposit') {
-            console.log(
-              `[bridge][container][tokens][address] token deposit ${tokens[i].symbol}`,
+            const network = bridge.getDepositNetwork()
+
+            balance = await network.getBalance(
               tokens[i].shadow.address,
-            )
-            balance = await bridge
-              .getDepositNetwork()
-              .getBalance(tokens[i].shadow.address, accountAddress)
-            console.log(
-              `[bridge][container][tokens] token deposit ${tokens[i].symbol}`,
-              balance,
+              accountAddress,
             )
           } else {
-            console.log(
-              `[bridge][container][tokens][address] token withdraw ${tokens[i].symbol}`,
-              tokens[i].shadow.address,
-            )
-            balance = await bridge
-              .getWithdrawalNetwork()
-              .getBalance(tokens[i].address, accountAddress)
-            console.log(
-              `[bridge][container][tokens] token withdraw ${tokens[i].symbol}`,
-              balance,
+            const network = bridge.getWithdrawalNetwork()
+            balance = await network.getBalance(
+              tokens[i].address,
+              accountAddress,
             )
           }
-          console.log(
-            `[bridge][container][balances] balance ${tokens[i].symbol}`,
-            balance.toString(),
-          )
           accountBoundTokens.push({
             ...tokens[i],
             balance: balance,
@@ -130,7 +105,7 @@ const BridgeContainer: React.FC = () => {
         setTokens(accountBoundTokens)
       }
     })()
-  }, [provider, bridge, selectedTab])
+  }, [provider, bridge, selectedTab, setTokens, setTokensRequest])
 
   // const onNetworkChange = (newNetwork: string) => {
   //   if (newNetwork !== network) {
@@ -194,11 +169,11 @@ const BridgeContainer: React.FC = () => {
   //   })()
   // }, [baseToken.address, debounceValue, calculate, network, provider])
 
-  useEffect(() => {
-    if (exchangeResult?.displayValue) {
-      setQuoteValue(exchangeResult?.displayValue)
-    }
-  }, [exchangeResult?.value])
+  // useEffect(() => {
+  //   if (exchangeResult?.displayValue) {
+  //     setQuoteValue(exchangeResult?.displayValue)
+  //   }
+  // }, [exchangeResult?.value])
 
   const handleDepositRequest = async () => {
     // await bridgeToken(
@@ -213,33 +188,23 @@ const BridgeContainer: React.FC = () => {
     //   baseToken.address,
     //   Networks.CKB,
     // )
-    // const bridgedAmount = BigNumber.from(value).mul(
-    //   BigNumber.from(10).pow(bridgedPair.decimals),
-    // )
-    // await bridge.deposit(bridgedAmount, bridgedAmount)
+    console.log('[bridge][deposit] deposit token', baseToken)
+    const depositAmount = BigNumber.from(Number(value.split('.')[0])).mul(
+      BigNumber.from(10).pow(baseToken.decimals),
+    )
+    await bridge.deposit(depositAmount, baseToken)
   }
 
   const handleWithdrawRequest = async () => {
-    const numberAmount = BigNumber.from(Number(value.split('.')[0])).mul(
-      BigNumber.from(10).pow(8),
+    console.log('[bridge][withdraw]', baseToken.shadow.address)
+    const withdrawalAmount = BigNumber.from(Number(value.split('.')[0])).mul(
+      BigNumber.from(10).pow(baseToken.decimals),
     )
-    // const shadow = {
-    //   address: quoteToken.address,
-    //   network: Networks.Ethereum,
-    // }
-    // const bridgedPair = {
-    //   shadow,
-    //   address: tokenAddress,
-    // }
-    // await bridge.withdraw(numberAmount, bridgedPair)
-    // await withdrawToken(
-    //   value,
-    //   baseToken.decimals,
-    //   baseToken.address,
-    //   provider,
-    //   network,
-    //   config,
-    // )
+
+    await bridge.withdraw(withdrawalAmount, {
+      ...baseToken,
+      address: baseToken.shadow.address,
+    })
   }
 
   return (
@@ -286,7 +251,7 @@ const BridgeContainer: React.FC = () => {
                 disabled={provider === null}
                 variant="contained"
                 color="primary"
-                onClick={handleWithdrawRequest}
+                onClick={handleDepositRequest}
               >
                 Deposit
               </Button>

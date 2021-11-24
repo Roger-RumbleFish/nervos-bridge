@@ -1,10 +1,12 @@
 import React from 'react'
 
+import { providers } from 'ethers'
+import { AddressTranslator } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
-import { CkbNetwork } from '@api/bridges/network-adapter/ckbAdapter'
-import { EthereumNetwork } from '@api/bridges/network-adapter/ethereumAdapter'
-import { GodwokenNetwork } from '@api/bridges/network-adapter/godwokenAdapter'
+import { CkbNetwork } from '@api/network/ckbAdapter'
+import { EthereumNetwork } from '@api/network/ethereumAdapter'
+import { GodwokenNetwork } from '@api/network/godwokenAdapter'
 import BridgeSelector from '@components/network/BridgeSelector'
 import { IBridge, IBridgeDescriptor } from '@interfaces/data'
 import { Box } from '@material-ui/core'
@@ -13,7 +15,7 @@ import { ConfigContext as BridgeConfigContext } from '@utils/hooks'
 
 import { CkbBridge } from './api/bridges/ckb/bridge'
 import { EthereumForceBridge } from './api/bridges/ethereum/bridge'
-import { registry as godwokenTokensRegistry } from './api/godwoken/registry'
+import { registry as godwokenTokensRegistry } from './api/registry/godwokenRegistry'
 import BridgeContainer from './containers/BridgeContainer/BridgeContainer'
 import { IBridgeContainerProps } from './containers/BridgeContainer/BridgeContainer.types'
 import { ThemeProvider } from './styles/theme'
@@ -28,6 +30,9 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
   React.useEffect(() => {
     async function initBridges() {
       const web3 = new Web3(Web3.givenProvider)
+      const accounts = await web3?.eth?.getAccounts()
+
+      console.log('[bridge][web3] account', accounts)
 
       const godwokenWeb3Url = 'https://godwoken-testnet-web3-rpc.ckbapp.dev'
       const providerConfig = {
@@ -42,16 +47,26 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         godwokenWeb3Url,
         providerConfig,
       )
+      const web3Provider = new providers.Web3Provider(httpPolyjuiceProvider)
+
+      const addressTranslator = new AddressTranslator()
+
       const godwokenNetwork = new GodwokenNetwork(
         'godwoken',
         'Godwoken',
-        httpPolyjuiceProvider,
+        web3Provider,
+        addressTranslator,
       )
 
-      const ckbNetwork = new CkbNetwork('ckb', 'CKB', {
-        ckbUrl: 'https://testnet.ckb.dev',
-        indexerUrl: 'https://testnet.ckb.dev/indexer',
-      })
+      const ckbNetwork = new CkbNetwork(
+        'ckb',
+        'CKB',
+        {
+          ckbUrl: 'https://testnet.ckb.dev',
+          indexerUrl: 'https://testnet.ckb.dev/indexer',
+        },
+        addressTranslator,
+      )
 
       const ethereumNetwork = new EthereumNetwork(
         'ethereum',
@@ -82,13 +97,15 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
           forceBridgeUrl:
             'https://testnet.forcebridge.com/api/force-bridge/api/v1',
         },
-      ).init()
+      ).init(godwokenTokensRegistry)
 
       setBridges([ckbBridge, ethBridge])
       selectBridge(ethBridge)
     }
 
-    initBridges()
+    if (provider) {
+      initBridges()
+    }
   }, [provider])
 
   const handleSelect = (bridgeId: IBridgeDescriptor['id']) => {

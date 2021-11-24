@@ -123,7 +123,7 @@ const TokenField: React.FC<ITokenFieldProps> = ({
                 >{`${messages.BALANCE}:`}</Typography>
 
                 {isFetchingTokens ? (
-                  <Skeleton width={150} />
+                  <Skeleton width={150} height={22} />
                 ) : (
                   <Typography color="textSecondary">
                     <b>
@@ -142,7 +142,7 @@ const TokenField: React.FC<ITokenFieldProps> = ({
           </Box>
           <Box width="100%" paddingY={0.5} paddingX={{ xs: 1, md: 2 }}>
             {isFetchingTokens ? (
-              <Skeleton width={150} />
+              <Skeleton width={150} height={32} />
             ) : (
               <TokenSelector
                 tokens={tokens}

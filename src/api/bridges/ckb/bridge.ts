@@ -8,10 +8,9 @@ import {
   BridgedPair,
   BridgedToken,
   IBridgeDescriptor,
+  Token,
 } from '@interfaces/data'
 import PWCore, {
-  Address,
-  AddressType,
   IndexerCollector,
   Provider,
   Web3ModalProvider,
@@ -20,11 +19,16 @@ import PWCore, {
   SimpleSUDTBuilderOptions,
   BuilderOption,
   AmountUnit,
+  Address,
 } from '@lay2/pw-core'
 import { Networks } from '@utils/constants'
 
-import { INetworkAdapter } from '../network-adapter/types'
-import { registry } from './registry'
+import { INetworkAdapter } from '../../network/types'
+
+/**
+ * TODO: Change
+ */
+import { registry } from '../../registry/ckbRegistry'
 
 interface CkbBridgeConfig {
   ckbUrl: string
@@ -33,7 +37,6 @@ interface CkbBridgeConfig {
 
 const ZERO_LOCK_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
-const IS_TESTNET = true
 
 export class CkbBridge implements IBridge {
   public id: string
@@ -115,6 +118,143 @@ export class CkbBridge implements IBridge {
     return this.toNetwork
   }
 
+  async _depositNative(
+    amount: Amount,
+    depositAdress: Address,
+  ): Promise<string> {
+    const options: BuilderOption = {
+      feeRate: 2000,
+    }
+
+    const depositNativeTx = await this._pwCore.send(
+      depositAdress,
+      amount,
+      options,
+    )
+    return depositNativeTx
+  }
+
+  async _depositSUDT(
+    amount: Amount,
+    depositAdress: Address,
+    sudt: SUDT,
+  ): Promise<string> {
+    const options: SimpleSUDTBuilderOptions = {
+      feeRate: 1000,
+      // autoCalculateCapacity: true,
+      minimumOutputCellCapacity: new Amount('400', AmountUnit.ckb),
+    }
+
+    const depositSUDTTxHash = await this._pwCore.sendSUDT(
+      sudt,
+      depositAdress,
+      amount,
+      true,
+      null,
+      options,
+    )
+    return depositSUDTTxHash
+  }
+
+  async deposit(amount: BigNumber, token: Token): Promise<string> {
+    const sudtIssuerLockHash = token.address
+    const sudt = new SUDT(sudtIssuerLockHash)
+    const depositAmount = new Amount(
+      amount.toString(),
+      token.decimals ?? AmountUnit.ckb,
+    )
+    // TODO: Did user address should be in scope of bridge instance???
+    const [accountAddress] = await this._web3.eth.getAccounts()
+    const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
+      this._web3CKBProvider,
+      accountAddress,
+    )
+
+    if (sudtIssuerLockHash !== ZERO_LOCK_HASH) {
+      return this._depositSUDT(depositAmount, depositAddress, sudt)
+    }
+
+    return this._depositNative(depositAmount, depositAddress)
+  }
+  
+  async signMessageEthereum(message: Hash, address: string): Promise<HexString> {
+    const result = await (window.ethereum as any).request({ method: 'eth_sign',
+      params: [address, message]
+    })
+  
+    let v = Number.parseInt(result.slice(-2), 16);
+    
+    if (v >= 27)
+      v -= 27;
+  
+    return `0x${result.slice(2, -2)}${v.toString(16).padStart(2, '0')}`;
+  }
+
+  async withdraw(amount: BigNumber, token: Token): Promise<string> {
+    const [accountAddress] = await this._web3.eth.getAccounts()
+
+    const sudtIssuerLockHash = token.address
+    const sudt = new SUDT(sudtIssuerLockHash)
+
+    export async function signMessageEthereum(message: Hash, address: string): Promise<HexString> {
+  const result = await (window.ethereum as any).request({ method: 'eth_sign',
+    params: [address, message]
+  })
+
+  let v = Number.parseInt(result.slice(-2), 16);
+  
+  if (v >= 27)
+    v -= 27;
+
+  return `0x${result.slice(2, -2)}${v.toString(16).padStart(2, '0')}`;
+}
+    console.log('[bridge][ckb][withdraw] props', amount, sudtIssuerLockHash)
+    console.log('[bridge][ckb][withdraw] address', accountAddress)
+    console.log('[bridge][ckb][withdraw] NOT IMPLEMENTED')
+
+    return 'withdraw'
+  }
+
+  async getTokens(): Promise<BridgedToken[]> {
+    const bridgedPairs = this.getBridgedPairs()
+
+    return bridgedPairs.map(
+      (bridgedPair) =>
+        ({
+          address: bridgedPair.shadow.address,
+          decimals: bridgedPair.decimals,
+          id: bridgedPair.shadow.address,
+          name: bridgedPair.name,
+          symbol: bridgedPair.name,
+          network: Networks.NervosL2,
+          shadow: {
+            address: bridgedPair.shadow.address,
+            network: Networks.NervosL1,
+          },
+        } as BridgedToken),
+    )
+  }
+
+  async getShadowTokens(): Promise<BridgedToken[]> {
+    const bridgedPairs = this.getBridgedPairs()
+
+    return bridgedPairs.map(
+      (bridgedPair) =>
+        ({
+          address: bridgedPair.address,
+          decimals: bridgedPair.decimals,
+          id: bridgedPair.address,
+          name: bridgedPair.name,
+          symbol: bridgedPair.name,
+          network: Networks.NervosL2,
+          shadow: {
+            address: bridgedPair.address,
+            network: Networks.NervosL1,
+          },
+        } as BridgedToken),
+    )
+  }
+
   // TODO REFACTOR
   _registerToken(
     registeredToken: CanonicalTokenSymbol,
@@ -176,172 +316,5 @@ export class CkbBridge implements IBridge {
     }
 
     throw new Error(`Network ${network} is not correct`)
-  }
-  // END TODO REFACTOR
-
-  _isNativeBridgePair(bridgedPair: BridgedPair): boolean {
-    return bridgedPair.shadow.address === ZERO_LOCK_HASH
-  }
-
-  // async _getBalanceNative(ckbAddress: Address): Promise<BigNumber> {
-  //   const balance = await this._indexerCollector.getBalance(ckbAddress)
-
-  //   const balanceString: string = balance.toBigInt().toString()
-
-  //   console.log('balance string', balanceString)
-  //   return BigNumber.from(balanceString)
-  // }
-
-  // async _getBalanceSUDT(
-  //   ckbAddress: Address,
-  //   sudtIssuerLockHash: string,
-  // ): Promise<BigNumber> {
-  //   const sudt = new SUDT(sudtIssuerLockHash)
-
-  //   const balance = await this._indexerCollector.getSUDTBalance(
-  //     sudt,
-  //     ckbAddress,
-  //   )
-  //   const balanceString: string = balance.toBigInt().toString()
-
-  //   return BigNumber.from(balanceString)
-  // }
-
-  // async getBalance(
-  //   ethereumAccountAddress: string,
-  //   bridgedPair: BridgedPair,
-  // ): Promise<BigNumber> {
-  //   const ckbAddressString = this._addressTranslator.ethAddressToCkbAddress(
-  //     ethereumAccountAddress,
-  //     IS_TESTNET,
-  //   )
-  //   const ckbAddress = new Address(ckbAddressString, AddressType.ckb)
-
-  //   const { address: sudtIssuerLockHash } = bridgedPair.shadow
-
-  //   console.log('[bridge] get balance', bridgedPair)
-  //   if (!this._isNativeBridgePair(bridgedPair)) {
-  //     return this._getBalanceSUDT(ckbAddress, sudtIssuerLockHash)
-  //   }
-
-  //   return this._getBalanceNative(ckbAddress)
-  // }
-
-  async _depositNative(
-    amount: BigNumber,
-    depositAdress: Address,
-  ): Promise<string> {
-    const ckbAmount = new Amount(
-      amount.div(BigNumber.from(10).pow(AmountUnit.ckb)).toString(),
-      AmountUnit.ckb,
-    )
-
-    const options: BuilderOption = {
-      feeRate: 2000,
-    }
-
-    const depositNativeTx = await this._pwCore.send(
-      depositAdress,
-      ckbAmount,
-      options,
-    )
-    return depositNativeTx
-  }
-
-  async _depositSUDT(
-    amount: BigNumber,
-    depositAdress: Address,
-    sudtIssuerLockHash: string,
-  ): Promise<string> {
-    const sudt = new SUDT(sudtIssuerLockHash)
-    const sudtAmount = new Amount(
-      amount
-        .div(BigNumber.from(10).pow(sudt.info?.decimals ?? AmountUnit.ckb))
-        .toString(),
-      sudt.info?.decimals,
-    )
-
-    const options: SimpleSUDTBuilderOptions = {
-      feeRate: 2000,
-      autoCalculateCapacity: true,
-      minimumOutputCellCapacity: new Amount('400', AmountUnit.ckb),
-    }
-
-    const depositSUDTTxHash = await this._pwCore.sendSUDT(
-      sudt,
-      depositAdress,
-      sudtAmount,
-      true,
-      undefined,
-      options,
-    )
-    return depositSUDTTxHash
-  }
-
-  async deposit(amount: BigNumber, bridgedPair: BridgedPair): Promise<string> {
-    const [ethereumAccountAddress] = await this._web3.eth.getAccounts()
-    const { address: sudtIssuerLockHash } = bridgedPair.shadow
-
-    console.log('[bridge][l1-l2] sudt issuer lock hash', sudtIssuerLockHash)
-
-    const layer2depositAddress = await this._addressTranslator.getLayer2DepositAddress(
-      this._web3CKBProvider,
-      ethereumAccountAddress,
-    )
-
-    if (!this._isNativeBridgePair(bridgedPair)) {
-      return this._depositSUDT(amount, layer2depositAddress, sudtIssuerLockHash)
-    }
-
-    return this._depositNative(amount, layer2depositAddress)
-  }
-
-  async withdraw(amount: BigNumber, bridgedPair: BridgedPair): Promise<string> {
-    const [ethereumAccountAddress] = await this._web3.eth.getAccounts()
-    const { address: sudtIssuerLockHash } = bridgedPair.shadow
-    console.log('amount', amount)
-    console.log('address', ethereumAccountAddress)
-    console.log('sudt issuer lock hash', sudtIssuerLockHash)
-    return 'withdraw'
-  }
-
-  async getTokens(): Promise<BridgedToken[]> {
-    const bridgedPairs = this.getBridgedPairs()
-
-    return bridgedPairs.map(
-      (bridgedPair) =>
-        ({
-          address: bridgedPair.shadow.address,
-          decimals: bridgedPair.decimals,
-          id: bridgedPair.shadow.address,
-          name: bridgedPair.name,
-          symbol: bridgedPair.name,
-          network: Networks.NervosL2,
-          shadow: {
-            address: bridgedPair.shadow.address,
-            network: Networks.NervosL1,
-          },
-        } as BridgedToken),
-    )
-  }
-
-  async getShadowTokens(): Promise<BridgedToken[]> {
-    const bridgedPairs = this.getBridgedPairs()
-
-    return bridgedPairs.map(
-      (bridgedPair) =>
-        ({
-          address: bridgedPair.shadow.address,
-          decimals: bridgedPair.decimals,
-          id: bridgedPair.shadow.address,
-          name: bridgedPair.name,
-          symbol: bridgedPair.name,
-          network: Networks.NervosL2,
-          shadow: {
-            address: bridgedPair.shadow.address,
-            network: Networks.NervosL1,
-          },
-        } as BridgedToken),
-    )
   }
 }

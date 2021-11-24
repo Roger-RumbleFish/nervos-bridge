@@ -2,7 +2,7 @@ import { BigNumber, providers } from 'ethers'
 
 import { NetworkName } from '@interfaces/data'
 
-import { ERC20__factory } from '../../../factories/ERC20__factory'
+import { ERC20__factory } from '../../factories/ERC20__factory'
 import { INetworkAdapter } from './types'
 
 const ETHEREUM_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -20,9 +20,7 @@ export class EthereumNetwork implements INetworkAdapter {
   }
 
   async _getBalanceNative(ethereumAddress: string): Promise<BigNumber> {
-    const balance = await this.provider.getBalance(ethereumAddress)
-
-    return balance
+    return this.provider.getBalance(ethereumAddress)
   }
 
   async _getBalanceERC20(

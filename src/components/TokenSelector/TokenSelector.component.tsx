@@ -2,8 +2,8 @@ import React from 'react'
 
 import { Box, InputAdornment, InputBase, Typography } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
-import { resolveTokenIcon } from '@utils/icons'
 
+// import { resolveTokenIcon } from '@utils/icons'
 import { useStyles } from './TokenSelector.styles'
 import { ITokenSelectorProps } from './TokenSelector.types'
 
@@ -31,9 +31,9 @@ const TokenSelector: React.FC<ITokenSelectorProps> = ({
       renderOption={(option) => {
         return (
           <Box display="flex" alignItems="center">
-            <Box display="flex" mr={3}>
+            {/* <Box display="flex" mr={3}>
               {resolveTokenIcon(option.symbol, 24)}
-            </Box>
+            </Box> */}
             <Typography> {option.symbol?.toUpperCase()}</Typography>
           </Box>
         )
@@ -61,15 +61,15 @@ const TokenSelector: React.FC<ITokenSelectorProps> = ({
               value: string
             }).value,
           }}
-          startAdornment={
-            <InputAdornment position="start">
-              <Box>
-                {selectedToken &&
-                  selectedToken.symbol &&
-                  resolveTokenIcon(selectedToken.symbol, 24)}
-              </Box>
-            </InputAdornment>
-          }
+          // startAdornment={
+          //   <InputAdornment position="start">
+          //     <Box>
+          //       {selectedToken &&
+          //         selectedToken.symbol &&
+          //         resolveTokenIcon(selectedToken.symbol, 24)}
+          //     </Box>
+          //   </InputAdornment>
+          // }
         />
       )}
     />

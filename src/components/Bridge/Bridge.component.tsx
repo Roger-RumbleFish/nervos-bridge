@@ -46,7 +46,7 @@ const Bridge: React.FC<IBridgeProps> = ({
         onTokenChange={onBaseTokenChange}
         onAmountChange={onBaseTokenAmountChange}
       />
-      {selectedBaseToken && (
+      {/* {selectedBaseToken && (
         <Box display="flex" justifyContent="space-between" marginTop={4}>
           <Box flexBasis="45%" width="100%">
             <SummaryCard
@@ -75,7 +75,7 @@ const Bridge: React.FC<IBridgeProps> = ({
             />
           </Box>
         </Box>
-      )}
+      )} */}
     </Box>
     /* <Box display="flex" alignItems="center" marginY={2}>
         <Typography>Fee</Typography>
