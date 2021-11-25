@@ -1,20 +1,14 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { AccountBoundToken } from '@interfaces/data'
 
 export interface IBridgeProps {
-  title: string
-  description: string
-  baseTokenAmount: string
-  quoteTokenAmount: string
+  value: BigNumber
+  externalValue: BigNumber
   baseTokens: AccountBoundToken[]
   selectedBaseToken: AccountBoundToken
-  quoteTokens: AccountBoundToken[]
-  selectedQuoteToken: AccountBoundToken
   isFetchingTokens?: boolean
   isCalculating?: boolean
-  disableButton?: boolean
   onBaseTokenChange?: (token: AccountBoundToken) => void
-  onQuoteTokenChange?: (token: AccountBoundToken) => void
-  onBaseTokenAmountChange?: (value: string) => void
-  onQuoteTokenAmountChange?: (value: string) => void
-  onDepositRequest?: () => void
+  onBaseTokenAmountChange?: (value: BigNumber) => void
+  onExternalTokenAmountChange?: (value: BigNumber) => void
 }

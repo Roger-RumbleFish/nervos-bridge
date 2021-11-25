@@ -9,3 +9,8 @@ export interface IBridgeContainerProps {
     supportedTokens?: string[]
   }
 }
+
+export enum BridgeAction {
+  Deposit = 'Deposit',
+  Withdraw = 'Withdraw',
+}

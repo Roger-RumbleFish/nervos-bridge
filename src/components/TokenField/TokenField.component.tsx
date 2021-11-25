@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import clsx from 'clsx'
 import { BigNumber } from 'ethers'
 
-import BigNumberInput from '@components/BigNumberInput'
+import BigNumberInput from '@components/BigNumberInput/BigNumberInput.new.component'
 import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils'
 import TokenSelector from '@components/TokenSelector'
 import { IDisplayValue } from '@interfaces/data'
@@ -17,29 +17,39 @@ import { ITokenFieldProps } from './TokenField.types'
 
 const TokenField: React.FC<ITokenFieldProps> = ({
   tokens,
-  amount,
+  value,
+  externalValue,
   selectedToken,
   disabled,
   readOnly,
   onAmountChange,
+  onExternalAmountChange,
   onTokenChange,
   inputLabel,
   isFetchingTokens,
   isFetchingAmount,
 }) => {
   const classes = useStyles()
-  const [stateValue, setStateValue] = useState(amount)
+  // const [stateValue, setStateValue] = useState(amount)
 
-  const valueChangeHandler = (value: IDisplayValue) => {
-    onAmountChange?.(value.displayValue)
+  console.log('[components][tokenfield] amount', externalValue.toString())
+
+  const valueChangeHandler = (value: BigNumber) => {
+    onAmountChange?.(value)
   }
 
-  useEffect(() => {
-    if (amount !== stateValue) {
-      setStateValue(amount)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount])
+  const externalValueChangeHandler = (value: BigNumber) => {
+    console.log(
+      '[components][tokenfield] value change handler',
+      value.toString(),
+    )
+    onExternalAmountChange?.(BigNumber.from(value.toString()))
+  }
+  // useEffect(() => {
+  //   if (amount !== stateValue) {
+  //     setStateValue(amount)
+  //   }
+  // }, [amount, stateValue])
 
   return (
     <Paper variant="outlined">
@@ -58,19 +68,21 @@ const TokenField: React.FC<ITokenFieldProps> = ({
           paddingY={0.5}
           width="100%"
         >
-          {!inputLabel || isFetchingTokens ? (
-            <Skeleton width={150} />
-          ) : (
-            <Typography color="textSecondary" variant="caption">
-              {inputLabel}
-            </Typography>
-          )}
+          {inputLabel &&
+            (isFetchingTokens ? (
+              <Skeleton width={150} />
+            ) : (
+              <Typography color="textSecondary" variant="caption">
+                {inputLabel}
+              </Typography>
+            ))}
 
           <BigNumberInput
             decimals={selectedToken?.decimals ?? 8}
             displayDecimals={2}
             onChange={valueChangeHandler}
-            value={stateValue}
+            externalValue={externalValue}
+            value={value}
             classes={{
               input: clsx(classes.inputText),
               disabled: clsx({
@@ -78,7 +90,6 @@ const TokenField: React.FC<ITokenFieldProps> = ({
                 [classes.disabledText]: readOnly,
               }),
             }}
-            isFetching={isFetchingAmount}
             disabled={disabled || readOnly}
           />
         </Box>
@@ -102,12 +113,13 @@ const TokenField: React.FC<ITokenFieldProps> = ({
               disabled={isFetchingTokens}
               fullWidth
               onClick={() => {
-                onAmountChange?.(
-                  getDisplayValue(
-                    selectedToken?.balance ?? BigNumber.from(0),
-                    2,
-                    selectedToken?.decimals ?? 2,
-                  ).displayValue,
+                console.log(
+                  '[components][tokenfield] all balance',
+                  selectedToken?.balance.toString(),
+                  selectedToken?.balance ?? BigNumber.from(0),
+                )
+                externalValueChangeHandler(
+                  selectedToken?.balance ?? BigNumber.from(0),
                 )
               }}
             >

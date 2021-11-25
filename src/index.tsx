@@ -9,6 +9,7 @@ import {
 import Web3 from 'web3'
 
 import { Godwoken } from '@api/bridges/ckb/godwoken'
+import { IBridgeConfig } from '@api/bridges/types'
 import { CkbNetwork } from '@api/network/ckbAdapter'
 import { EthereumNetwork } from '@api/network/ethereumAdapter'
 import { GodwokenNetwork } from '@api/network/godwokenAdapter'
@@ -21,7 +22,6 @@ import { ConfigContext as BridgeConfigContext } from '@utils/hooks'
 
 import { CkbBridge } from './api/bridges/ckb/bridge'
 import { EthereumForceBridge } from './api/bridges/ethereum/bridge'
-import { registry as godwokenTokensRegistry } from './api/registry/godwokenRegistry'
 import BridgeContainer from './containers/BridgeContainer/BridgeContainer'
 import { IBridgeContainerProps } from './containers/BridgeContainer/BridgeContainer.types'
 import { ThemeProvider } from './styles/theme'
@@ -33,6 +33,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
   const [bridges, setBridges] = React.useState<IBridge[]>([])
   const [selectedBridge, selectBridge] = React.useState<IBridge>(null)
 
+  console.log('[bridge][root] rerender')
   React.useEffect(() => {
     async function initBridges() {
       const web3 = new Web3(Web3.givenProvider)
@@ -93,6 +94,10 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         provider,
       )
 
+      const ckbBridgeConfig: IBridgeConfig = {
+        withdraw: true,
+        deposit: true,
+      }
       const ckbBridge = await new CkbBridge(
         'pw-lock',
         'PwLock',
@@ -103,8 +108,13 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         indexerCollector,
         pwCoreClient,
         godwoken,
+        ckbBridgeConfig,
       ).init()
 
+      const ethBridgeConfig: IBridgeConfig = {
+        withdraw: false,
+        deposit: true,
+      }
       const ethBridge = await new EthereumForceBridge(
         'force-bridge',
         'Force Bridge',
@@ -114,6 +124,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         forceBridgeClient,
         web3,
         provider,
+        ethBridgeConfig,
       ).init()
 
       setBridges([ckbBridge, ethBridge])
@@ -134,26 +145,26 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
 
   return (
     <ThemeProvider>
-      <BridgeConfigContext.Provider
+      {/* <BridgeConfigContext.Provider
         value={{
           config: config,
           provider: provider,
           bridge: selectedBridge,
         }}
-      >
-        <Box display="flex" flexDirection="column" marginX={4} marginY={2}>
-          <Box marginY={2}>
-            <BridgeSelector
-              bridgeDescriptors={bridges.map((bridge) => bridge.toDescriptor())}
-              onSelect={handleSelect}
-              selectedBridgeId={selectedBridge?.toDescriptor().id}
-            />
-          </Box>
-          <Box marginY={2}>
-            <BridgeContainer />
-          </Box>
+      > */}
+      <Box display="flex" flexDirection="column" marginX={4} marginY={2}>
+        <Box marginY={2}>
+          <BridgeSelector
+            bridgeDescriptors={bridges.map((bridge) => bridge.toDescriptor())}
+            onSelect={handleSelect}
+            selectedBridgeId={selectedBridge?.toDescriptor().id}
+          />
         </Box>
-      </BridgeConfigContext.Provider>
+        <Box marginY={2}>
+          <BridgeContainer provider={provider} bridge={selectedBridge} />
+        </Box>
+      </Box>
+      {/* </BridgeConfigContext.Provider> */}
     </ThemeProvider>
   )
 }

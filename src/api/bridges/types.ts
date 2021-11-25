@@ -10,3 +10,8 @@ export type IBridgeTokenHandler = (
   network?: string,
   config?: IConfigContext['config'],
 ) => Promise<void>
+
+export interface IBridgeConfig {
+  withdraw: boolean
+  deposit: boolean
+}

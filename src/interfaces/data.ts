@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 
+import { IBridgeConfig } from '@api/bridges/types'
 import { INetworkAdapter } from '@api/network/types'
 import { Networks } from '@utils/constants'
 
@@ -30,6 +31,7 @@ export interface IBridgeDescriptor {
 export interface IBridge {
   id: string
   name: string
+  config: IBridgeConfig
   toDescriptor(): IBridgeDescriptor
   deposit(amount: BigNumber, token: Token): Promise<string>
   withdraw(amount: BigNumber, token: Token): Promise<string>

@@ -1,3 +1,4 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { AccountBoundToken } from '@interfaces/data'
 
 export interface ITokenFieldProps {
@@ -8,8 +9,10 @@ export interface ITokenFieldProps {
   disabled?: boolean
   readOnly?: boolean
   inputLabel?: string
-  amount: string
+  value: BigNumber
+  externalValue: BigNumber
   maxAmount?: string
-  onAmountChange?: (amount: string) => void
+  onAmountChange?: (amount: BigNumber) => void
+  onExternalAmountChange?: (amount: BigNumber) => void
   onTokenChange?: (token: AccountBoundToken) => void
 }
