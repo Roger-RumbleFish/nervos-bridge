@@ -12,6 +12,7 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "target": "es2015",
+    "noEmit": true,
     "jsx": "react",
     "lib": ["dom", "esnext"],
     "baseUrl": "./",

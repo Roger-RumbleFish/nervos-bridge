@@ -1,5 +1,7 @@
 import React, { useState, ComponentProps } from 'react'
 
+import { BigNumber } from '@ethersproject/bignumber'
+import { AccountBoundToken } from '@interfaces/data'
 import { Story } from '@storybook/react/types-6-0'
 
 import Bridge from './Bridge.component'
@@ -30,24 +32,29 @@ const Template: Story<ComponentProps<typeof Bridge>> = (args) => {
 
 export const Basic = Template.bind({})
 
-const tokens = [
+const TOKEN_DECIMALS = 2
+
+const tokens: AccountBoundToken[] = [
   {
     address: '1',
-    decimals: 2,
+    decimals: TOKEN_DECIMALS,
     network: 'Ethereum',
     symbol: 'USDC',
+    balance: BigNumber.from(100).mul(BigNumber.from(10).pow(TOKEN_DECIMALS)),
   },
   {
     address: '2',
-    decimals: 2,
+    decimals: TOKEN_DECIMALS,
     network: 'Ethereum',
     symbol: 'USDT',
+    balance: BigNumber.from(80).mul(BigNumber.from(10).pow(TOKEN_DECIMALS)),
   },
   {
     address: '3',
-    decimals: 2,
+    decimals: TOKEN_DECIMALS,
     network: 'Ethereum',
     symbol: 'DAI',
+    balance: BigNumber.from(1300).mul(BigNumber.from(10).pow(TOKEN_DECIMALS)),
   },
 ]
 

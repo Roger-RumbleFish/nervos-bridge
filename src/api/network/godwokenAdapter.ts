@@ -73,7 +73,8 @@ export class GodwokenNetwork implements INetworkAdapter {
     message: string,
     address: string,
   ): Promise<string> {
-    const result = await (window.ethereum as any).request({
+    const ethereum = window?.ethereum as providers.ExternalProvider
+    const result = await ethereum.request({
       method: 'eth_sign',
       params: [address, message],
     })
