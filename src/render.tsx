@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom'
 import { providers } from 'ethers'
 
 import { Box, Button, Typography } from '@material-ui/core'
-import { PolyjuiceHttpProvider } from '@polyjuice-provider/web3'
 
 import Bridge from './index'
 
@@ -22,16 +21,14 @@ const Index = () => {
   const [loginRequired, setLoginRequired] = React.useState<boolean>(false)
 
   const connectAccount = async () => {
-    const ethereum = window?.ethereum
+    const ethereum = window?.ethereum as providers.ExternalProvider
     if (ethereum) {
       const accounts = await ethereum.request({
         method: EthereumActions.requestAccounts,
       })
       const account = accounts[0]
       if (accounts.length > 0) {
-        const web3EthereumProvider = new providers.Web3Provider(
-          window?.ethereum as providers.ExternalProvider,
-        )
+        const web3EthereumProvider = new providers.Web3Provider(ethereum)
 
         setProvider(web3EthereumProvider)
         setAccount(account)

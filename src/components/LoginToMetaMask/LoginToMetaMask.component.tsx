@@ -14,7 +14,7 @@ const LoginToMetaMask: React.FC<{
   afterLogin: (provider: providers.Web3Provider) => void
 }> = ({ afterLogin }) => {
   const onLoginRequest = async (): Promise<void> => {
-    const ethereum = window?.ethereum
+    const ethereum = window?.ethereum as providers.ExternalProvider
     if (ethereum) {
       await ethereum.request({
         method: EthereumActions.requestWallet,
