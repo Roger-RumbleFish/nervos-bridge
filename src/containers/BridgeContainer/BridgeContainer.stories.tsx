@@ -1,9 +1,7 @@
-import React, { ComponentProps, useState } from 'react'
+import React, { ComponentProps } from 'react'
 
 import { providers } from 'ethers'
 
-import LoginToMetaMask from '@components/LoginToMetaMask/LoginToMetaMask.component'
-import { Box, Typography } from '@material-ui/core'
 import { Story } from '@storybook/react/types-6-0'
 import { ConfigContext } from '@utils/hooks'
 
@@ -15,28 +13,29 @@ export default {
   component: BridgeContainer,
 }
 
-const Template: Story<ComponentProps<typeof BridgeContainer>> = () => {
-  const [provider, setProvider] = useState<providers.Web3Provider | null>(null)
-  const [accounts, setAccounts] = useState<string[]>([])
-  const afterLogin = async (provider: providers.Web3Provider) => {
-    setProvider(provider)
-    const acc = await provider?.listAccounts()
-    setAccounts(acc)
+const Template: Story<ComponentProps<typeof BridgeContainer>> = (
+  _,
+  { globals: { web3 } },
+) => {
+  if (!web3) {
+    return <b>Please connect to Metamask with addon</b>
   }
+  console.log('web3', web3)
+  const { provider } = web3
+  console.log('provider', provider)
+  const web3Provider = new providers.Web3Provider(provider)
 
   return (
-    <Box>
-      <LoginToMetaMask afterLogin={afterLogin} />
-      {provider === null && <Typography>PROVIDER IS NULL, LOG IN</Typography>}
+    <>
+      {!provider && <b>Please connect to Metamask with addon</b>}
       <ConfigContext.Provider
         value={{
-          provider: provider,
-          assetsBlacklist: ['eth'],
+          provider: web3Provider,
         }}
       >
         <BridgeContainer />
       </ConfigContext.Provider>
-    </Box>
+    </>
   )
 }
 

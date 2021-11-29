@@ -1,114 +1,164 @@
-import { BigNumber } from 'ethers'
+// import { BigNumber, providers } from 'ethers'
+// import { AddressTranslator } from 'nervos-godwoken-integration'
 
-import { IDisplayValue } from '@interfaces/data'
-import { Token } from '@state/types'
-import { ApiNetworks, Networks } from '@utils/constants'
-import { IConfigContext } from '@utils/hooks'
-import {
-  convertDecimalToIntegerDecimal,
-  convertIntegerDecimalToDecimal,
-  truncateDecimals,
-} from '@utils/stringOperations'
+// import { IDisplayValue, Token } from '@interfaces/data'
+// import { ApiNetworks, Networks } from '@utils/constants'
+// import { IConfigContext } from '@utils/hooks'
+// import {
+//   convertDecimalToIntegerDecimal,
+//   convertIntegerDecimalToDecimal,
+//   truncateDecimals,
+// } from '@utils/stringOperations'
 
-import { getBridgeRPCClient } from './client'
+// import { getBridgeRPCClient } from './client'
 
-export const calculateFee = async (
-  baseToken: Token,
-  quoteToken: Token,
-  amount: string,
-  network: string,
-  config?: IConfigContext['config'],
-): Promise<{
-  exchangeResult: IDisplayValue
-  percentageFee: string
-}> => {
-  try {
-    const bridgeRpcClient = getBridgeRPCClient(config?.rpcFaucetUrl)
-    const decimals = baseToken.decimals ?? 2
-    const value = convertDecimalToIntegerDecimal(amount, decimals)
+// const convertFeeToFeeModel = (
+//   value: BigNumber,
+//   fee: string,
+//   decimals: number,
+// ) => {
+//   const exchangeValue = value.sub(fee)
 
-    if (network === Networks.Ethereum) {
-      const payload = {
-        amount: value.toString(),
-        network: ApiNetworks.Ethereum,
-        xchainAssetIdent: baseToken.address,
-      }
+//   const exchangeResult: IDisplayValue = {
+//     value: exchangeValue,
+//     displayValue: truncateDecimals(
+//       convertIntegerDecimalToDecimal(exchangeValue, decimals),
+//       2,
+//     ),
+//     decimals: decimals,
+//   }
 
-      const nervosBridgeFee = await bridgeRpcClient.getBridgeInNervosBridgeFee(
-        payload,
-      )
+//   const percentageFee = convertIntegerDecimalToDecimal(
+//     BigNumber.from(fee).mul(100),
+//     decimals,
+//   )
 
-      const exchangeValue = value.sub(nervosBridgeFee.fee.amount)
+//   return {
+//     fee: exchangeResult,
+//     percentage: percentageFee,
+//   }
+// }
 
-      const exchangeResult: IDisplayValue = {
-        value: exchangeValue,
-        displayValue: truncateDecimals(
-          convertIntegerDecimalToDecimal(exchangeValue, decimals),
-          2,
-        ),
-        decimals: decimals,
-      }
+// export const calculateFee = async (
+//   provider: providers.Web3Provider,
+//   baseToken: Token,
+//   quoteToken: Token,
+//   amount: string,
+//   network: string,
+//   config?: IConfigContext['config'],
+// ): Promise<{
+//   fee: IDisplayValue
+//   percentage: string
+// }> => {
+//   try {
+//     const bridgeRpcClient = getBridgeRPCClient(config?.rpcBridgeUrl)
+//     const decimals = baseToken.decimals ?? 2
+//     const value = convertDecimalToIntegerDecimal(amount, decimals)
 
-      const percentageFee = convertIntegerDecimalToDecimal(
-        BigNumber.from(nervosBridgeFee.fee.amount).mul(100),
-        decimals,
-      )
+//     if (network === Networks.Ethereum) {
+//       const payload = {
+//         amount: value.toString(),
+//         network: ApiNetworks.Ethereum,
+//         xchainAssetIdent: baseToken.address,
+//       }
 
-      return {
-        exchangeResult,
-        percentageFee,
-      }
-    }
+//       const nervosBridgeFee = await bridgeRpcClient.getBridgeInNervosBridgeFee(
+//         payload,
+//       )
 
-    if (network === Networks.NervosL1) {
-      const tokensDecimalsDiff = baseToken.decimals - quoteToken.decimals
-      if (tokensDecimalsDiff < 0) {
-        value.div(10)
-      }
+//       const fee = nervosBridgeFee.fee.amount
+//       return convertFeeToFeeModel(value, fee, decimals)
+//     }
 
-      return {
-        exchangeResult: null,
-        percentageFee: '0.00',
-      }
-    }
+//     if (network === Networks.NervosL1) {
+//       const addressTranslator = new AddressTranslator(config?.addressTranslator)
+//       const accounts = await provider?.listAccounts()
 
-    if (network === Networks.NervosL2) {
-      const payload = {
-        amount: value.toString(),
-        network: ApiNetworks.Ethereum, // I dont know why it is the same network but w/e
-        xchainAssetIdent: quoteToken.address,
-      }
+//       if (!accounts || accounts.length === 0) {
+//         const tokensDecimalsDiff = baseToken.decimals - quoteToken.decimals
+//         let exchangeValue = value
 
-      const nervosBridgeFee = await bridgeRpcClient.getBridgeOutNervosBridgeFee(
-        payload,
-      )
+//         if (tokensDecimalsDiff < 0) {
+//           exchangeValue = value.div(10 * Math.abs(tokensDecimalsDiff))
+//         } else if (tokensDecimalsDiff > 0) {
+//           exchangeValue = value.mul(10 * Math.abs(tokensDecimalsDiff))
+//         }
 
-      const exchangeValue = value.sub(nervosBridgeFee.fee.amount)
+//         const exchangeResult: IDisplayValue = {
+//           value: exchangeValue,
+//           displayValue: truncateDecimals(
+//             convertIntegerDecimalToDecimal(exchangeValue, quoteToken.decimals),
+//             2,
+//           ),
+//           decimals: decimals,
+//         }
 
-      const exchangeResult: IDisplayValue = {
-        value: exchangeValue,
-        displayValue: truncateDecimals(
-          convertIntegerDecimalToDecimal(exchangeValue, decimals),
-          2,
-        ),
-        decimals: decimals,
-      }
+//         return {
+//           fee: exchangeResult,
+//           percentage: '0.00',
+//         }
+//       }
 
-      const percentageFee = convertIntegerDecimalToDecimal(
-        BigNumber.from(nervosBridgeFee.fee.amount).mul(100),
-        decimals,
-      )
-      return {
-        exchangeResult: exchangeResult,
-        percentageFee: percentageFee,
-      }
-    }
-  } catch (error) {
-    console.error(error)
-  }
+//       const fee = await addressTranslator.calculateLayer1ToLayer2Fee(
+//         provider as any,
+//         accounts[0],
+//         '0xc43009f083e70ae3fee342d59b8df9eec24d669c1c3a3151706d305f5362c37e',
+//         amount,
+//       )
+//       // 0x265566D4365d80152515E800ca39424300374A83
+//       console.log(
+//         fee.getFee(),
+//         provider as any,
+//         accounts[0],
+//         '0xc43009f083e70ae3fee342d59b8df9eec24d669c1c3a3151706d305f5362c37e',
+//         amount,
+//       )
 
-  return {
-    exchangeResult: null,
-    percentageFee: null,
-  }
-}
+//       const fee2 = fee.getFee().toHexString()
+//       console.log(fee2)
+
+//       return convertFeeToFeeModel(value, fee2, decimals)
+//     }
+
+//     if (network === Networks.NervosL2) {
+//       const payload = {
+//         amount: value.toString(),
+//         network: ApiNetworks.Ethereum, // I dont know why it is the same network but w/e
+//         xchainAssetIdent: quoteToken.address,
+//       }
+
+//       const nervosBridgeFee = await bridgeRpcClient.getBridgeOutNervosBridgeFee(
+//         payload,
+//       )
+
+//       const exchangeValue = value.sub(nervosBridgeFee.fee.amount)
+
+//       const exchangeResult: IDisplayValue = {
+//         value: exchangeValue,
+//         displayValue: truncateDecimals(
+//           convertIntegerDecimalToDecimal(exchangeValue, decimals),
+//           2,
+//         ),
+//         decimals: decimals,
+//       }
+
+//       const percentageFee = convertIntegerDecimalToDecimal(
+//         BigNumber.from(nervosBridgeFee.fee.amount).mul(100),
+//         decimals,
+//       )
+//       return {
+//         fee: exchangeResult,
+//         percentage: percentageFee,
+//       }
+//     }
+//   } catch (error) {
+//     console.error(error)
+//   }
+
+//   return {
+//     fee: null,
+//     percentage: null,
+//   }
+// }
+
+export const empty = 'NOT IMPLEMENTED'

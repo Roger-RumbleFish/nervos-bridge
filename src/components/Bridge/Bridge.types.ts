@@ -1,23 +1,20 @@
-import { Token } from '@state/types'
+import { AccountBoundToken } from '@interfaces/data'
 
 export interface IBridgeProps {
   title: string
   description: string
   baseTokenAmount: string
   quoteTokenAmount: string
-  baseTokens: Token[]
-  selectedBaseToken: Token
-  quoteTokens: Token[]
-  selectedQuoteToken: Token
+  baseTokens: AccountBoundToken[]
+  selectedBaseToken: AccountBoundToken
+  quoteTokens: AccountBoundToken[]
+  selectedQuoteToken: AccountBoundToken
   isFetchingTokens?: boolean
   isCalculating?: boolean
   disableButton?: boolean
-  network: string
-  fee?: string
-  onBaseTokenChange?: (token: Token) => void
-  onQuoteTokenChange?: (token: Token) => void
+  onBaseTokenChange?: (token: AccountBoundToken) => void
+  onQuoteTokenChange?: (token: AccountBoundToken) => void
   onBaseTokenAmountChange?: (value: string) => void
   onQuoteTokenAmountChange?: (value: string) => void
-  onBridgeRequest?: () => void
-  onNetworkChange?: (network: string) => void
+  onDepositRequest?: () => void
 }
