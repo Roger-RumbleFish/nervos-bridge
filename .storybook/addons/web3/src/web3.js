@@ -20,8 +20,6 @@ export const Web3 = () => {
   const [account, setAccount] = React.useState();
 
   const loginRequest = async () => {
-    console.log('Web3 use effect')
-    console.log('deep copy')
     const ethereum = window?.ethereum
 
     if (ethereum) {
@@ -34,10 +32,8 @@ export const Web3 = () => {
         method: EthereumActions.requestAccounts,
       })
 
-      console.log('addon web3', ethereum)
       setAccount(accounts[0])
 
-      console.log('accounts', accounts)
       updateGlobals({
         web3: {
           provider: ethereum,

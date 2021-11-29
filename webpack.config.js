@@ -18,14 +18,14 @@ module.exports = {
         commonjs2: 'react',
         amd: 'react',
       },
-      'react-dom': {
+      reactDom: {
         root: 'react-dom',
         commonjs: 'react-dom',
         commonjs2: 'react-dom',
         amd: 'react-dom',
       },
     },
-    /@material-ui\/core\/.*/,
+    // /@material-ui\/core\/.*/,
   ],
   output: {
     filename: 'index.js',
@@ -68,7 +68,7 @@ module.exports = {
     },
     extensions: ['.tsx', '.ts', '.js'],
     fallback: {
-      assert: require.resolve('assert/'),
+      assert: require.resolve('assert'),
       fs: false,
       crypto: false,
       http: require.resolve('http-browserify'),

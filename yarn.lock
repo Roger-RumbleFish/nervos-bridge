@@ -1198,6 +1198,16 @@
     immutable "^4.0.0-rc.12"
     js-xxhash "^1.0.4"
 
+"@ckb-lumos/base@^0.16.0":
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/@ckb-lumos/base/-/base-0.16.0.tgz#e235bf39840bdc08e29e2ccb875d7761c9cde7bf"
+  integrity sha512-tJMOh+xkY/mTCe5lTchweeHg33+dmeiBhgOW8zHAwalZTrHutduL7N0dPSjrYpjP/Midi9LF7g80wEjj9cTM4A==
+  dependencies:
+    blake2b "^2.1.3"
+    ckb-js-toolkit "^0.10.2"
+    immutable "^4.0.0-rc.12"
+    js-xxhash "^1.0.4"
+
 "@ckb-lumos/config-manager@^0.18.0-rc1":
   version "0.18.0-rc1"
   resolved "https://registry.yarnpkg.com/@ckb-lumos/config-manager/-/config-manager-0.18.0-rc1.tgz#146b052ea6f8cbf0403faffc0d0885a72360c993"
@@ -2164,13 +2174,13 @@
   resolved "https://registry.npmjs.org/@polka/url/-/url-1.0.0-next.15.tgz#6a9d143f7f4f49db2d782f9e1c8839a29b43ae23"
   integrity sha512-15spi3V28QdevleWBNXE4pIls3nFZmBbUGrW9IVPwiQczuSb9n76TCB4bsk8TSel+I1OkHEdPhu5QKMfY6rQHA==
 
-"@polyjuice-provider/base@0.0.1-rc15":
-  version "0.0.1-rc15"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/base/-/base-0.0.1-rc15.tgz#aab5fb40ad043a981c8aa32a17968f4344cf23ba"
-  integrity sha512-U9Zvc6/cw8WMvBSN2tJDuc+CiaG4LETo/D41A+aCNJAW0WOQGXdLQgOg+vvI+kmNm04oCnbqJETLJGp/RpP7LA==
+"@polyjuice-provider/base@0.0.1-rc9":
+  version "0.0.1-rc9"
+  resolved "https://registry.yarnpkg.com/@polyjuice-provider/base/-/base-0.0.1-rc9.tgz#c79a58a68bcac6ee05aec4a162159f5cb1692789"
+  integrity sha512-hxRkkEnKY3ZNl+TQp3+MPuyRj05RpKKJXu/W8zY3LMgIBucdPnJ6s1GYFLTp2ejNwLEVFYghK9NVoe3UQfkd+w==
   dependencies:
-    "@ckb-lumos/base" "0.18.0-rc1"
-    "@polyjuice-provider/godwoken" "0.0.1-rc15"
+    "@ckb-lumos/base" "^0.16.0"
+    "@polyjuice-provider/godwoken" "^0.0.1-rc9"
     buffer "^6.0.3"
     encoding "^0.1.13"
     eth-sig-util "^3.0.1"
@@ -2179,7 +2189,7 @@
     web3 "^1.3.4"
     xhr2-cookies "^1.1.0"
 
-"@polyjuice-provider/base@0.1.0":
+"@polyjuice-provider/base@0.1.0", "@polyjuice-provider/base@^0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@polyjuice-provider/base/-/base-0.1.0.tgz#4b42a543109638b97aa0fa12a8633a4b24057bb7"
   integrity sha512-/6tDH/6lLjlOjB86Iv/LfzG/uft8u0YB/+xeSAQ6xY8F6W49FeOMHLyhEensHmPlBSvbc7OKLBQN2Nr4fLZ88A==
@@ -2194,17 +2204,7 @@
     web3 "^1.3.4"
     xhr2-cookies "^1.1.0"
 
-"@polyjuice-provider/godwoken@0.0.1-rc15":
-  version "0.0.1-rc15"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/godwoken/-/godwoken-0.0.1-rc15.tgz#3de779696dcfa5590f88819f91589f3d4daa8912"
-  integrity sha512-SsjP20DXzIFbIVcVYelih6aVb+5ImZICoVz7gi5Ftee3mRPmfMSi6qpUnFDvR0nCfXK5z0nPXu+SpVeDR4uQjA==
-  dependencies:
-    "@ckb-lumos/base" "0.18.0-rc1"
-    ckb-js-toolkit "^0.9.3"
-    immutable "^4.0.0-rc.12"
-    keccak256 "^1.0.2"
-
-"@polyjuice-provider/godwoken@0.1.0":
+"@polyjuice-provider/godwoken@0.1.0", "@polyjuice-provider/godwoken@^0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@polyjuice-provider/godwoken/-/godwoken-0.1.0.tgz#f5b4790d86f7225eaeda1cfb99b1178de3fcbe9f"
   integrity sha512-crpjFfuPe2umjqh79L9QysEZGegdX2oC/jqGR8rSR6WCf1jjj1O5FlIGOVPheGhlos3Bvw8E8gf/y4lmc+UQcw==
@@ -2214,12 +2214,22 @@
     immutable "^4.0.0-rc.12"
     keccak256 "^1.0.2"
 
-"@polyjuice-provider/web3@0.0.1-rc15":
-  version "0.0.1-rc15"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/web3/-/web3-0.0.1-rc15.tgz#61b5106d0c479c0a76f07766cc66e6605ba9f9f2"
-  integrity sha512-Fnc3pdrf3izhMn9LVPLRcDpSbSCeM+0ueavmhtnKEI4AWhj6fOT0iJkz0KnB+3Z8r1NufMC30aFHPA6DCSBIUA==
+"@polyjuice-provider/godwoken@^0.0.1-rc9":
+  version "0.0.1-rc9"
+  resolved "https://registry.yarnpkg.com/@polyjuice-provider/godwoken/-/godwoken-0.0.1-rc9.tgz#6fb25d1c404e4f299522e5535058a593037fd697"
+  integrity sha512-owsR6E/EnwbGLUJEn6JcdwAQkN8WJZIqffmSZ9sUBvUL1DYJQL7cG6HcZHPTh53pqCdrYnW8NbZdn12FkL6mDQ==
   dependencies:
-    "@polyjuice-provider/base" "0.0.1-rc15"
+    "@ckb-lumos/base" "^0.16.0"
+    ckb-js-toolkit "^0.9.3"
+    immutable "^4.0.0-rc.12"
+    keccak256 "^1.0.2"
+
+"@polyjuice-provider/web3@^0.0.1-rc8":
+  version "0.0.1-rc9"
+  resolved "https://registry.yarnpkg.com/@polyjuice-provider/web3/-/web3-0.0.1-rc9.tgz#4715213d305e9cf26b8b3d7ea0e321e77c8a3bd4"
+  integrity sha512-TdzrK+4uacDKSm8UzRzMYZlxpezmHNUFb/RHbFfZjkZb8LNcgFUPl68hUVUmbAwbB5D4qh9wdOuL+BVjrZmjWg==
+  dependencies:
+    "@polyjuice-provider/base" "0.0.1-rc9"
     buffer "^6.0.3"
     encoding "^0.1.13"
     web3 "^1.4.0"
@@ -11409,16 +11419,16 @@ neo-async@^2.5.0, neo-async@^2.6.1, neo-async@^2.6.2:
   resolved "https://registry.npmjs.org/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
-nervos-godwoken-integration@^0.0.14:
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/nervos-godwoken-integration/-/nervos-godwoken-integration-0.0.14.tgz#22e769ae31e2f833a9e18c7250e2611b8fd32988"
-  integrity sha512-UADL+lrDcvNzeK+vtRjrqmCBDQHahMFGDBTsMIl6NsehDZnon0vDE3KQJuzeC3kSGZcC1Zp2bP2f5ITlWtdOaw==
+nervos-godwoken-integration@^0.0.15:
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/nervos-godwoken-integration/-/nervos-godwoken-integration-0.0.15.tgz#e50346040f3a107f1217f158c41cb1452bd2a877"
+  integrity sha512-VtIagqgA4YPD30DwQC4MGkKflQr5n+FN+U2flRJc8qYJq0fOafsBfGTi1UTy2NnKFMZrEYFb00ke05OKLWg5Qw==
   dependencies:
     "@ckb-lumos/base" "0.18.0-rc1"
     "@ckb-lumos/helpers" "0.18.0-rc1"
     "@lay2/pw-core" "0.4.0-alpha.12"
     "@nervosnetwork/ckb-types" "0.101.0"
-    "@polyjuice-provider/web3" "0.0.1-rc15"
+    "@polyjuice-provider/web3" "^0.1.0"
     ckb-js-toolkit "^0.10.2"
     ethers "^5.4.1"
     json-rpc-2.0 "^0.2.16"
@@ -12823,7 +12833,7 @@ react-docgen@^5.0.0:
 
 react-dom@^17.0.1:
   version "17.0.2"
-  resolved "https://registry.npmjs.org/react-dom/-/react-dom-17.0.2.tgz#ecffb6845e3ad8dbfcdc498f0d0a939736502c23"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-17.0.2.tgz#ecffb6845e3ad8dbfcdc498f0d0a939736502c23"
   integrity sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==
   dependencies:
     loose-envify "^1.1.0"
@@ -12962,7 +12972,7 @@ react-transition-group@^4.4.0:
 
 react@^17.0.1:
   version "17.0.2"
-  resolved "https://registry.npmjs.org/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
+  resolved "https://registry.yarnpkg.com/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
   integrity sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==
   dependencies:
     loose-envify "^1.1.0"
@@ -13521,7 +13531,7 @@ saxes@^5.0.1:
 
 scheduler@^0.20.2:
   version "0.20.2"
-  resolved "https://registry.npmjs.org/scheduler/-/scheduler-0.20.2.tgz#4baee39436e34aa93b4874bddcbf0fe8b8b50e91"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.20.2.tgz#4baee39436e34aa93b4874bddcbf0fe8b8b50e91"
   integrity sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==
   dependencies:
     loose-envify "^1.1.0"

@@ -1,7 +1,9 @@
 import { AddressTranslator } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
-import { BridgedTokensRegistry, CanonicalTokenSymbol } from '@api/types'
+import { BridgedTokensRegistry } from '@api/types'
+import { utils } from '@ckb-lumos/base'
+import { parseAddress } from '@ckb-lumos/helpers'
 import { BigNumber } from '@ethersproject/bignumber'
 import { IBridge, IBridgeDescriptor, Token } from '@interfaces/data'
 import PWCore, {
@@ -15,9 +17,17 @@ import PWCore, {
   AmountUnit,
   Address,
 } from '@lay2/pw-core'
+import {
+  Godwoken as GodwokenRpcHandler,
+  GodwokenUtils as GodwokenMessageUtils,
+  RawWithdrawalRequest,
+  Uint32,
+  WithdrawalRequest,
+} from '@polyjuice-provider/godwoken'
 
 import { INetworkAdapter } from '../../network/types'
-import { Godwoken } from './godwoken'
+
+// import { Godwoken } from './godwoken'
 
 const ZERO_LOCK_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -29,14 +39,14 @@ export class CkbBridge implements IBridge {
   public fromNetwork: INetworkAdapter
   public toNetwork: INetworkAdapter
 
-  private _web3: Web3
-  private _pwCore: PWCore
-  private _web3CKBProvider: Provider
-  private _indexerCollector: IndexerCollector
-  private _addressTranslator: AddressTranslator
+  private web3: Web3
+  private pwCore: PWCore
+  private web3CKBProvider: Provider
+  private indexerCollector: IndexerCollector
+  private addressTranslator: AddressTranslator
 
   private registeredTokens: BridgedTokensRegistry
-  private godwoken: Godwoken
+  private godwokenRpcHandler: GodwokenRpcHandler
 
   constructor(
     id: string,
@@ -47,7 +57,7 @@ export class CkbBridge implements IBridge {
     web3: Web3,
     indexerCollector: IndexerCollector,
     pwCoreClient: PWCore,
-    godwoken: Godwoken,
+    godwokenRpcHandler: GodwokenRpcHandler,
   ) {
     this.id = id
     this.name = name
@@ -55,19 +65,19 @@ export class CkbBridge implements IBridge {
     this.fromNetwork = fromNetwork
     this.toNetwork = toNetwork
 
-    this._web3 = web3
+    this.web3 = web3
 
     const web3CKBProvider = new Web3ModalProvider(web3)
-    this._web3CKBProvider = web3CKBProvider
+    this.web3CKBProvider = web3CKBProvider
 
-    this._indexerCollector = indexerCollector
-    this._pwCore = pwCoreClient
-    this._addressTranslator = addressTranslator
-    this.godwoken = godwoken
+    this.indexerCollector = indexerCollector
+    this.pwCore = pwCoreClient
+    this.addressTranslator = addressTranslator
+    this.godwokenRpcHandler = godwokenRpcHandler
   }
 
   async init(): Promise<CkbBridge> {
-    await this._pwCore.init(this._web3CKBProvider, this._indexerCollector)
+    await this.pwCore.init(this.web3CKBProvider, this.indexerCollector)
 
     return this
   }
@@ -96,7 +106,7 @@ export class CkbBridge implements IBridge {
       feeRate: 2000,
     }
 
-    const depositNativeTx = await this._pwCore.send(
+    const depositNativeTx = await this.pwCore.send(
       depositAdress,
       amount,
       options,
@@ -115,7 +125,7 @@ export class CkbBridge implements IBridge {
       minimumOutputCellCapacity: new Amount('400', AmountUnit.ckb),
     }
 
-    const depositSUDTTxHash = await this._pwCore.sendSUDT(
+    const depositSUDTTxHash = await this.pwCore.sendSUDT(
       sudt,
       depositAdress,
       amount,
@@ -129,15 +139,14 @@ export class CkbBridge implements IBridge {
   async deposit(amount: BigNumber, token: Token): Promise<string> {
     const sudtIssuerLockHash = token.address
     const sudt = new SUDT(sudtIssuerLockHash)
-    console.log('[api][bridge][ckb] token', token)
     const depositAmount = new Amount(
       amount.div(BigNumber.from(10).pow(token.decimals)).toString(),
       token.decimals ?? AmountUnit.ckb,
     )
-    const [accountAddress] = await this._web3.eth.getAccounts()
+    const [accountAddress] = await this.web3.eth.getAccounts()
 
-    const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
-      this._web3CKBProvider,
+    const depositAddress = await this.addressTranslator.getLayer2DepositAddress(
+      this.web3CKBProvider,
       accountAddress,
     )
 
@@ -148,42 +157,70 @@ export class CkbBridge implements IBridge {
     return this._depositNative(depositAmount, depositAddress)
   }
 
-  async signMessageEthereum(message: string, address: string): Promise<string> {
-    const result = await (window.ethereum as any).request({
-      method: 'eth_sign',
-      params: [address, message],
-    })
-
-    let v = Number.parseInt(result.slice(-2), 16)
-
-    if (v >= 27) v -= 27
-
-    return `0x${result.slice(2, -2)}${v.toString(16).padStart(2, '0')}`
-  }
-
   async withdraw(amount: BigNumber, token: Token): Promise<string> {
-    const [accountAddress] = await this._web3.eth.getAccounts()
+    const [accountAddress] = await this.web3.eth.getAccounts()
 
     const sudtIssuerLockHash = token.address
-    const sudt = new SUDT(sudtIssuerLockHash)
+    // const sudt = new SUDT(sudtIssuerLockHash)
 
-    const ckbTokensRegistry = this.getDepositNetwork().getTokens()
-    const godwokenTokensRegistry = this.getWithdrawalNetwork().getTokens()
+    // const ckbTokensRegistry = this.getDepositNetwork().getTokens()
+    // const godwokenTokensRegistry = this.getWithdrawalNetwork().getTokens()
 
-    const [canonicalTokenSymbol] = Object.keys(godwokenTokensRegistry)
-      .map((tokenSymbol) => tokenSymbol as CanonicalTokenSymbol)
-      .filter(
-        (tokenSymbol) =>
-          godwokenTokensRegistry[tokenSymbol].address === token.address,
-      )
+    // const [canonicalTokenSymbol] = Object.keys(godwokenTokensRegistry)
+    //   .map((tokenSymbol) => tokenSymbol as CanonicalTokenSymbol)
+    //   .filter(
+    //     (tokenSymbol) =>
+    //       godwokenTokensRegistry[tokenSymbol].address === token.address,
+    //   )
 
-    const ckbToken = ckbTokensRegistry[canonicalTokenSymbol]
-    console.log('[bridge][ckb][withdraw] props', amount, sudt.issuerLockHash)
-    console.log('[bridge][ckb][withdraw] address', accountAddress)
+    // const ckbToken = ckbTokensRegistry[canonicalTokenSymbol]
 
-    console.log('[bridge][ckb][withdraw] godwoken', this.godwoken)
+    const ckbAddress = this.addressTranslator.ethAddressToCkbAddress(
+      accountAddress,
+    )
+    const l2EthLockHash = this.addressTranslator.getLayer2EthLockHash(
+      accountAddress,
+    )
 
-    this.godwoken.withdraw(amount, ckbToken.address, accountAddress)
+    const accountId = await this.godwokenRpcHandler.getAccountIdByScriptHash(
+      l2EthLockHash,
+    )
+    // const l2LockHash = await this.godwokenRpcHandler.getScriptHash(accountId)
+    const depositTransactionNonce: Uint32 = await this.godwokenRpcHandler.getNonce(
+      accountId,
+    )
+
+    const lock = parseAddress(ckbAddress)
+    const accountLock = utils.computeScriptHash(lock)
+
+    const HARDCODED_CAPACITY = BigNumber.from(0).mul(BigNumber.from(10).pow(8))
+
+    const rawWithdrawalRequest: RawWithdrawalRequest = GodwokenMessageUtils.createRawWithdrawalRequest(
+      depositTransactionNonce,
+      amount.toBigInt(),
+      HARDCODED_CAPACITY.toBigInt(),
+      sudtIssuerLockHash,
+      l2EthLockHash,
+      BigInt(0),
+      BigInt(100 * 10 ** 8),
+      accountLock,
+      '0x' + '0'.repeat(64),
+    )
+    const godwokenUtils = new GodwokenMessageUtils(
+      '0x4cc2e6526204ae6a2e8fcf12f7ad472f41a1606d5b9624beebd215d780809f6a',
+    )
+    const message = godwokenUtils.generateWithdrawalMessageToSign(
+      rawWithdrawalRequest,
+    )
+
+    const signature = await this.toNetwork.sign(message)
+
+    const withdrawalRequest: WithdrawalRequest = {
+      raw: rawWithdrawalRequest,
+      signature: signature,
+    }
+
+    await this.godwokenRpcHandler.submitWithdrawalRequest(withdrawalRequest)
 
     return 'withdraw'
   }

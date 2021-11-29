@@ -3,25 +3,23 @@ import React from 'react'
 import { providers } from 'ethers'
 import {
   AddressTranslator,
-  ForceBridgeRPCHandler,
-  Godwoken as GodwokenRpcHandler,
+  BridgeRPCHandler as ForceBridgeRPCHandler,
 } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
-import { Godwoken } from '@api/bridges/ckb/godwoken'
 import { CkbNetwork } from '@api/network/ckbAdapter'
 import { EthereumNetwork } from '@api/network/ethereumAdapter'
 import { GodwokenNetwork } from '@api/network/godwokenAdapter'
-import BridgeSelector from '@components/network/BridgeSelector'
+import BridgeSelector from '@components/bridge/BridgeSelector'
 import { IBridge, IBridgeDescriptor } from '@interfaces/data'
 import PWCore, { IndexerCollector } from '@lay2/pw-core'
 import { Box } from '@material-ui/core'
+import { Godwoken as GodwokenRpcHandler } from '@polyjuice-provider/godwoken'
 import PolyjuiceHttpProvider from '@polyjuice-provider/web3'
 import { ConfigContext as BridgeConfigContext } from '@utils/hooks'
 
 import { CkbBridge } from './api/bridges/ckb/bridge'
 import { EthereumForceBridge } from './api/bridges/ethereum/bridge'
-import { registry as godwokenTokensRegistry } from './api/registry/godwokenRegistry'
 import BridgeContainer from './containers/BridgeContainer/BridgeContainer'
 import { IBridgeContainerProps } from './containers/BridgeContainer/BridgeContainer.types'
 import { ThemeProvider } from './styles/theme'
@@ -50,7 +48,9 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         godwokenWeb3Url,
         providerConfig,
       )
-      const web3Polyjuice = new providers.Web3Provider(httpPolyjuiceProvider)
+      const web3PolyjuiceProvider = new providers.Web3Provider(
+        httpPolyjuiceProvider,
+      )
 
       const addressTranslator = new AddressTranslator()
 
@@ -65,16 +65,11 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
       const godwokenRpcHandler = new GodwokenRpcHandler(
         'https://godwoken-testnet-web3-rpc.ckbapp.dev',
       )
-      const godwoken = new Godwoken(
-        provider,
-        addressTranslator,
-        godwokenRpcHandler,
-      )
 
       const godwokenNetwork = new GodwokenNetwork(
         'godwoken',
         'Godwoken',
-        web3Polyjuice,
+        web3PolyjuiceProvider,
         addressTranslator,
       )
 
@@ -102,7 +97,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         web3,
         indexerCollector,
         pwCoreClient,
-        godwoken,
+        godwokenRpcHandler,
       ).init()
 
       const ethBridge = await new EthereumForceBridge(

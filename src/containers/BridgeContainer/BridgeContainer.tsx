@@ -4,7 +4,7 @@ import { BigNumber } from 'ethers'
 
 import { CanonicalTokenSymbol } from '@api/types'
 import Bridge from '@components/Bridge'
-import Tabs from '@components/Tabs'
+import Toggle from '@components/Toggle'
 import { AccountBoundToken, Token } from '@interfaces/data'
 import { Button, Paper, Theme, useMediaQuery } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
@@ -53,16 +53,6 @@ const BridgeContainer: React.FC = () => {
     getQuoteTokens,
   } = BridgeSelectors(bridgeReducer)
 
-  // const network = getNetwork()
-  // useEffect(() => {
-  //   ;(async (): Promise<void> => {
-  //     setTokensRequest()
-  //     const tokens = await fetchTokens(assetsWhitelist)
-  //     console.log('Bridge Container: tokens', tokens)
-  //     setTokens(tokens)
-  //   })()
-  // }, [])
-
   useEffect(() => {
     ;(async (): Promise<void> => {
       setTokensRequest()
@@ -73,8 +63,6 @@ const BridgeContainer: React.FC = () => {
 
           const tokens = network.getTokens()
           const tokensSymbols = Object.keys(tokens) as CanonicalTokenSymbol[]
-
-          console.log('[container][bridge][effect] get tokens', tokens)
 
           const accountAddress = await provider.getSigner().getAddress()
 
@@ -87,11 +75,6 @@ const BridgeContainer: React.FC = () => {
                 accountAddress,
               )
 
-              console.log(
-                '[container][bridge][effect] token, balance',
-                token,
-                balance.toString(),
-              )
               return {
                 ...token,
                 balance,
@@ -155,14 +138,8 @@ const BridgeContainer: React.FC = () => {
   const baseToken = getBaseToken()
   const quoteToken = getQuoteToken()
 
-  console.log('[container][bridge][tokens] base token', baseToken)
-  console.log('[container][bridge][tokens] quote token', quoteToken)
-
   const baseTokens = getBaseTokens()
   const quoteTokens = getQuoteTokens()
-
-  console.log('[container][bridge][tokens] base tokens', baseTokens)
-  console.log('[container][bridge][tokens] quote tokens', quoteTokens)
 
   // const fee = getFee()
 
@@ -199,19 +176,6 @@ const BridgeContainer: React.FC = () => {
   // }, [exchangeResult?.value])
 
   const handleDepositRequest = async () => {
-    // await bridgeToken(
-    //   value,
-    //   baseToken.decimals,
-    //   baseToken.address,
-    //   provider,
-    //   network,
-    //   config,
-    // )
-    // const bridgedPair = bridge.getBridgedPairByAddress(
-    //   baseToken.address,
-    //   Networks.CKB,
-    // )
-    console.log('[bridge][deposit] deposit token', baseToken)
     const depositAmount = BigNumber.from(Number(value.split('.')[0])).mul(
       BigNumber.from(10).pow(baseToken.decimals),
     )
@@ -219,7 +183,6 @@ const BridgeContainer: React.FC = () => {
   }
 
   const handleWithdrawRequest = async () => {
-    console.log('[bridge][withdraw]', baseToken.address)
     const withdrawalAmount = BigNumber.from(Number(value.split('.')[0])).mul(
       BigNumber.from(10).pow(baseToken.decimals),
     )
@@ -230,16 +193,16 @@ const BridgeContainer: React.FC = () => {
     })
   }
 
+  const BRIDGE_OPTIONS = [
+    { id: 'Deposit', name: 'Deposit' },
+    { id: 'Withdraw', name: 'Withdraw' },
+  ]
   return (
     <>
-      <Box marginY={1}>
-        <Tabs<string>
-          items={[
-            { label: 'Deposit', value: 'Deposit' },
-            { label: 'Withdraw', value: 'Withdraw' },
-          ]}
-          selectedValue={selectedTab}
-          onChange={(val) => setSelectedTab(val)}
+      <Box marginBottom={2}>
+        <Toggle
+          toggles={BRIDGE_OPTIONS}
+          onToggleChange={(val) => setSelectedTab(val)}
         />
       </Box>
       <Paper variant="outlined">

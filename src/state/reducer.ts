@@ -48,12 +48,10 @@ export const reducer = (
     case BRIDGE_ACTIONS.SET_BASE_TOKEN: {
       const setBaseTokenAction = action as ISetBaseTokenAction
       const baseTokenSymbol = setBaseTokenAction.payload
-      console.log('[state][reducer] state tokens', state.tokens)
       const baseToken = state.tokens.find(
         (token) => token.symbol === baseTokenSymbol,
       )
 
-      console.log('[state][reducer] base token', baseToken)
       return {
         ...state,
         baseToken: baseToken,

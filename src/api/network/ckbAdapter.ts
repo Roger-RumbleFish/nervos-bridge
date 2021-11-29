@@ -90,4 +90,17 @@ export class CkbNetwork implements INetworkAdapter {
   getTokens(): TokensRegistry {
     return this.supportedTokens
   }
+
+  async getSignerAddress(): Promise<string> {
+    const ethSignerAddress = this.provider.address.addressString
+    const ckbSignerAddress = this.addressTranslator.ethAddressToCkbAddress(
+      ethSignerAddress,
+    )
+
+    return ckbSignerAddress
+  }
+
+  async sign(_message: string): Promise<string> {
+    return ''
+  }
 }

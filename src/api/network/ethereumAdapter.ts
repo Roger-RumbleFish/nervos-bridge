@@ -1,7 +1,7 @@
 import { BigNumber, providers } from 'ethers'
 
 import { TokensRegistry } from '@api/types'
-import { NetworkName, Token } from '@interfaces/data'
+import { NetworkName } from '@interfaces/data'
 
 import { ERC20__factory } from '../../factories/ERC20__factory'
 import { registry } from '../registry/etherumRegistry'
@@ -51,11 +51,18 @@ export class EthereumNetwork implements INetworkAdapter {
     return this._getBalanceNative(accountAddress)
   }
 
-  async registerToken(token: Token): Promise<void> {
-    console.log('[network][ethereum] register token', token)
-  }
-
   getTokens(): TokensRegistry {
     return this.supportedTokens
+  }
+
+  async getSignerAddress(): Promise<string> {
+    const signer = this.provider.getSigner()
+    const signerAddress = await signer.getAddress()
+
+    return signerAddress
+  }
+
+  async sign(_message: string): Promise<string> {
+    return ''
   }
 }

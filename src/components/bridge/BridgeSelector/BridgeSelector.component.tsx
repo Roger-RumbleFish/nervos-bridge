@@ -1,6 +1,6 @@
 import React from 'react'
 
-import BridgeDescriptor from '@components/network/BridgeDescriptor'
+import BridgeDescriptor from '@components/bridge/BridgeDescriptor'
 import { Box, Button, Paper, Typography } from '@material-ui/core'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'

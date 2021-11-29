@@ -1,20 +1,15 @@
 import { providers } from 'ethers'
 import {
   AddressTranslator,
-  ForceBridgeRPCHandler,
+  BridgeRPCHandler as ForceBridgeRPCHandler,
   GenerateBridgeInTransactionPayload,
   GenerateBridgeOutNervosTransactionPayload,
 } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
-// import {
-// CanonicalTokenSymbol,
-// TokenDescriptor,
-// TokensRegistry,
-// } from '@api/types'
 import { BigNumber } from '@ethersproject/bignumber'
 import {
-  IBridge, // BridgedToken,
+  IBridge,
   NetworkName,
   IBridgeDescriptor,
   Token,
@@ -87,6 +82,7 @@ export class EthereumForceBridge implements IBridge {
   }
 
   async deposit(amount: BigNumber, token: Token): Promise<string> {
+    // TODO: Move signer logic to network layer
     const signer = this._jsonRpcProvider.getSigner()
     const ethereumAccountAddress = await signer.getAddress()
 
@@ -128,6 +124,7 @@ export class EthereumForceBridge implements IBridge {
   }
 
   async withdraw(amount: BigNumber, token: Token): Promise<string> {
+    // TODO: Move signer logic to network layer
     const signer = this._jsonRpcProvider.getSigner()
     const ethereumAccountAddress = await signer.getAddress()
     const tokenAddress = token.address

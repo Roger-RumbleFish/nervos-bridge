@@ -3,7 +3,7 @@ import React from 'react'
 import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils'
 import SummaryCard from '@components/SummaryCard'
 import TokenField from '@components/TokenField'
-import NetworkSelector from '@components/network/BridgeSelector'
+import NetworkSelector from '@components/bridge/BridgeSelector'
 import {
   Button,
   CircularProgress,

@@ -68,4 +68,33 @@ export class GodwokenNetwork implements INetworkAdapter {
   getTokens(): TokensRegistry {
     return this.supportedTokens
   }
+
+  async _signMessageEthereum(
+    message: string,
+    address: string,
+  ): Promise<string> {
+    const result = await (window.ethereum as any).request({
+      method: 'eth_sign',
+      params: [address, message],
+    })
+
+    let v = Number.parseInt(result.slice(-2), 16)
+
+    if (v >= 27) v -= 27
+
+    return `0x${result.slice(2, -2)}${v.toString(16).padStart(2, '0')}`
+  }
+
+  async getSignerAddress(): Promise<string> {
+    const signer = this.provider.getSigner()
+    const signerAddress = await signer.getAddress()
+
+    return signerAddress
+  }
+
+  async sign(message: string): Promise<string> {
+    const signerAddress = await this.getSignerAddress()
+
+    return this._signMessageEthereum(message, signerAddress)
+  }
 }

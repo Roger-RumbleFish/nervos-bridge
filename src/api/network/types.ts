@@ -8,4 +8,6 @@ export interface INetworkAdapter {
   name: NetworkName
   getBalance(tokenAddress: string, accountAddress: string): Promise<BigNumber>
   getTokens(): TokensRegistry
+  getSignerAddress(): Promise<string>
+  sign(message: string): Promise<string>
 }

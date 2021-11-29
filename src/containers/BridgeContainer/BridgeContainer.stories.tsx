@@ -17,9 +17,12 @@ const Template: Story<ComponentProps<typeof BridgeContainer>> = (
   _,
   { globals: { web3 } },
 ) => {
+  if (!web3) {
+    return <b>Please connect to Metamask with addon</b>
+  }
+  console.log('web3', web3)
   const { provider } = web3
-  console.log('container web3 ethereum', provider)
-
+  console.log('provider', provider)
   const web3Provider = new providers.Web3Provider(provider)
 
   return (
@@ -27,8 +30,7 @@ const Template: Story<ComponentProps<typeof BridgeContainer>> = (
       {!provider && <b>Please connect to Metamask with addon</b>}
       <ConfigContext.Provider
         value={{
-          getProvider: () => web3Provider,
-          assetsWhitelist: ['usdt', 'usdc', 'dai'],
+          provider: web3Provider,
         }}
       >
         <BridgeContainer />
