@@ -4,15 +4,17 @@ import { BigNumber } from 'ethers'
 
 import { CanonicalTokenSymbol } from '@api/types'
 import Bridge from '@components/Bridge'
+import ErrorLabel from '@components/ErrorLabel'
 import Toggle from '@components/Toggle'
-import { AccountBoundToken, Token } from '@interfaces/data'
+import { AccountBoundToken, Token, BridgeFeature } from '@interfaces/data'
 import { Button, Paper, Theme, useMediaQuery } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
 import { initialState, reducer } from '@state/reducer'
-import { ConfigContext, useDebounce } from '@utils/hooks'
+import { ConfigContext } from '@utils/hooks'
 
 import { BridgeActions } from './BridgeContainer.actions'
-import messages from './BridgeContainer.messages'
+import { BRIDGE_FEATURES_LABELS } from './BridgeContainer.constants'
+import { messages, errorMessages } from './BridgeContainer.messages'
 import { BridgeSelectors } from './BridgeContainer.selectors'
 
 const DEFAULT_VALUE = '100.00'
@@ -20,9 +22,9 @@ const DEFAULT_VALUE = '100.00'
 const BridgeContainer: React.FC = () => {
   const isMobile = !useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
 
-  const DEBOUNCE = 400
+  // const DEBOUNCE = 400
 
-  const [selectedTab, setSelectedTab] = useState('Deposit')
+  const [selectedFeature, setSelectedFeature] = useState<BridgeFeature>(BridgeFeature.Deposit)
 
   const bridgeReducer = useReducer(reducer, initialState)
 
@@ -34,7 +36,6 @@ const BridgeContainer: React.FC = () => {
   const {
     setTokens,
     setTokensRequest,
-    // setNetwork,
     setBaseToken,
     setQuoteToken,
     // calculate,
@@ -42,13 +43,12 @@ const BridgeContainer: React.FC = () => {
   } = BridgeActions(bridgeReducer)
 
   const {
-    isFetchingTokens,
+    isFetchingTokens: isFetchingTokensSelector,
     // isCalculating,
-    // getNetwork,
     // getFee,
     getBaseToken,
     getBaseTokens,
-    getExchangeResult,
+    // getExchangeResult,
     getQuoteToken,
     getQuoteTokens,
   } = BridgeSelectors(bridgeReducer)
@@ -58,7 +58,7 @@ const BridgeContainer: React.FC = () => {
       setTokensRequest()
 
       if (provider && bridge) {
-        if (selectedTab === 'Deposit') {
+        if (selectedFeature === BridgeFeature.Deposit) {
           const network = bridge.getDepositNetwork()
 
           const tokens = network.getTokens()
@@ -83,7 +83,7 @@ const BridgeContainer: React.FC = () => {
           )
 
           setTokens(accountBoundTokens)
-        } else if (selectedTab === 'Withdraw') {
+        } else if (selectedFeature === BridgeFeature.Withdraw) {
           const network = bridge.getWithdrawalNetwork()
 
           const tokens = network.getTokens()
@@ -111,13 +111,7 @@ const BridgeContainer: React.FC = () => {
         }
       }
     })()
-  }, [provider, bridge, selectedTab, setTokens, setTokensRequest])
-
-  // const onNetworkChange = (newNetwork: string) => {
-  //   if (newNetwork !== network) {
-  //     setNetwork?.(newNetwork)
-  //   }
-  // }
+  }, [provider, bridge, selectedFeature, setTokens, setTokensRequest])
 
   const onBaseTokenChange = async (token: Token) => {
     setBaseToken(token.symbol)
@@ -143,8 +137,8 @@ const BridgeContainer: React.FC = () => {
 
   // const fee = getFee()
 
-  const exchangeResult = getExchangeResult()
-  const isFetchingAllTokens = isFetchingTokens()
+  // const exchangeResult = getExchangeResult()
+  const isFetchingTokens = isFetchingTokensSelector()
 
   // const calculating = isCalculating()
 
@@ -176,16 +170,18 @@ const BridgeContainer: React.FC = () => {
   // }, [exchangeResult?.value])
 
   const handleDepositRequest = async () => {
-    const depositAmount = BigNumber.from(Number(value.split('.')[0])).mul(
-      BigNumber.from(10).pow(baseToken.decimals),
-    )
+    const DISPLAY_DECIMALS = 2
+    const depositAmount = BigNumber.from(
+      Number(Number(value.split('.').join(''))),
+    ).mul(BigNumber.from(10).pow(baseToken.decimals - DISPLAY_DECIMALS))
     await bridge.deposit(depositAmount, baseToken)
   }
 
   const handleWithdrawRequest = async () => {
-    const withdrawalAmount = BigNumber.from(Number(value.split('.')[0])).mul(
-      BigNumber.from(10).pow(baseToken.decimals),
-    )
+    const DISPLAY_DECIMALS = 2
+    const withdrawalAmount = BigNumber.from(
+      Number(value.split('.').join('')),
+    ).mul(BigNumber.from(10).pow(baseToken.decimals - DISPLAY_DECIMALS))
 
     await bridge.withdraw(withdrawalAmount, {
       ...baseToken,
@@ -193,25 +189,35 @@ const BridgeContainer: React.FC = () => {
     })
   }
 
-  const BRIDGE_OPTIONS = [
-    { id: 'Deposit', name: 'Deposit' },
-    { id: 'Withdraw', name: 'Withdraw' },
+  const bridgeFeatureToggles = [
+    {
+      name: BRIDGE_FEATURES_LABELS[BridgeFeature.Deposit],
+      id: BridgeFeature.Deposit,
+    },
+    {
+      name: BRIDGE_FEATURES_LABELS[BridgeFeature.Withdraw],
+      id: BridgeFeature.Withdraw,
+    },
   ]
+
+  
   return (
     <>
       <Box marginBottom={2}>
         <Toggle
-          toggles={BRIDGE_OPTIONS}
-          onToggleChange={(val) => setSelectedTab(val)}
+          toggles={bridgeFeatureToggles}
+          onToggleChange={(bridgeFeature: BridgeFeature) =>
+            setSelectedFeature(bridgeFeature)
+          }
         />
       </Box>
       <Paper variant="outlined">
         <Box marginY={4} marginX={4}>
           <Bridge
             disableButton={provider === null}
-            isFetchingTokens={isFetchingAllTokens}
+            isFetchingTokens={isFetchingTokens}
             isCalculating={false}
-            title={selectedTab}
+            title={BRIDGE_FEATURES_LABELS[selectedFeature as BridgeFeature]}
             description={messages.BRIDGE_DESCRIPTION}
             baseTokenAmount={value}
             quoteTokenAmount={quoteValue}
@@ -225,39 +231,71 @@ const BridgeContainer: React.FC = () => {
             onQuoteTokenAmountChange={onQuoteTokenAmountChange}
             onDepositRequest={handleDepositRequest}
           />
-          {selectedTab === 'Deposit' ? (
+          {selectedFeature === BridgeFeature.Deposit ? (
             <Box
               marginTop={4}
               width="100%"
               display="flex"
-              justifyContent="flex-end"
+              flexDirection="column"
+              alignItems="flex-end"
             >
               <Button
                 style={{ width: isMobile ? '100%' : 'auto', minWidth: '160px' }}
-                disabled={provider === null}
+                disabled={
+                  provider === null ||
+                  isFetchingTokens ||
+                  !bridge?.features[BridgeFeature.Deposit]
+                }
                 variant="contained"
                 color="primary"
                 onClick={handleDepositRequest}
               >
-                Deposit
+                {messages.DEPOSIT_LABEL}
               </Button>
+              {bridge && !bridge.features[BridgeFeature.Deposit] && (
+                <Box width="100%">
+                  <ErrorLabel
+                    message={errorMessages.transactionNotSupportedTemplate(
+                      BridgeFeature.Deposit,
+                      bridge.getDepositNetwork().name,
+                      bridge.getWithdrawalNetwork().name,
+                    )}
+                  />
+                </Box>
+              )}
             </Box>
           ) : (
             <Box
               marginTop={4}
               width="100%"
               display="flex"
-              justifyContent="flex-end"
+              flexDirection="column"
+              alignItems="flex-end"
             >
               <Button
                 style={{ width: isMobile ? '100%' : 'auto', minWidth: '160px' }}
-                disabled={provider === null}
+                disabled={
+                  provider === null ||
+                  isFetchingTokens ||
+                  !bridge?.features[BridgeFeature.Withdraw]
+                }
                 variant="contained"
                 color="primary"
                 onClick={handleWithdrawRequest}
               >
-                Withdraw
+                {messages.WITHDRAW_LABEL}
               </Button>
+              {bridge && !bridge.features[BridgeFeature.Withdraw] && (
+                <Box width="100%">
+                  <ErrorLabel
+                    message={errorMessages.transactionNotSupportedTemplate(
+                      BridgeFeature.Withdraw,
+                      bridge.getWithdrawalNetwork().name,
+                      bridge.getDepositNetwork().name,
+                    )}
+                  />
+                </Box>
+              )}
             </Box>
           )}
         </Box>

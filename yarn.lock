@@ -1198,16 +1198,6 @@
     immutable "^4.0.0-rc.12"
     js-xxhash "^1.0.4"
 
-"@ckb-lumos/base@^0.16.0":
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/@ckb-lumos/base/-/base-0.16.0.tgz#e235bf39840bdc08e29e2ccb875d7761c9cde7bf"
-  integrity sha512-tJMOh+xkY/mTCe5lTchweeHg33+dmeiBhgOW8zHAwalZTrHutduL7N0dPSjrYpjP/Midi9LF7g80wEjj9cTM4A==
-  dependencies:
-    blake2b "^2.1.3"
-    ckb-js-toolkit "^0.10.2"
-    immutable "^4.0.0-rc.12"
-    js-xxhash "^1.0.4"
-
 "@ckb-lumos/config-manager@^0.18.0-rc1":
   version "0.18.0-rc1"
   resolved "https://registry.yarnpkg.com/@ckb-lumos/config-manager/-/config-manager-0.18.0-rc1.tgz#146b052ea6f8cbf0403faffc0d0885a72360c993"
@@ -2174,22 +2164,7 @@
   resolved "https://registry.npmjs.org/@polka/url/-/url-1.0.0-next.15.tgz#6a9d143f7f4f49db2d782f9e1c8839a29b43ae23"
   integrity sha512-15spi3V28QdevleWBNXE4pIls3nFZmBbUGrW9IVPwiQczuSb9n76TCB4bsk8TSel+I1OkHEdPhu5QKMfY6rQHA==
 
-"@polyjuice-provider/base@0.0.1-rc9":
-  version "0.0.1-rc9"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/base/-/base-0.0.1-rc9.tgz#c79a58a68bcac6ee05aec4a162159f5cb1692789"
-  integrity sha512-hxRkkEnKY3ZNl+TQp3+MPuyRj05RpKKJXu/W8zY3LMgIBucdPnJ6s1GYFLTp2ejNwLEVFYghK9NVoe3UQfkd+w==
-  dependencies:
-    "@ckb-lumos/base" "^0.16.0"
-    "@polyjuice-provider/godwoken" "^0.0.1-rc9"
-    buffer "^6.0.3"
-    encoding "^0.1.13"
-    eth-sig-util "^3.0.1"
-    jayson "^3.4.4"
-    keccak256 "^1.0.2"
-    web3 "^1.3.4"
-    xhr2-cookies "^1.1.0"
-
-"@polyjuice-provider/base@0.1.0", "@polyjuice-provider/base@^0.1.0":
+"@polyjuice-provider/base@0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@polyjuice-provider/base/-/base-0.1.0.tgz#4b42a543109638b97aa0fa12a8633a4b24057bb7"
   integrity sha512-/6tDH/6lLjlOjB86Iv/LfzG/uft8u0YB/+xeSAQ6xY8F6W49FeOMHLyhEensHmPlBSvbc7OKLBQN2Nr4fLZ88A==
@@ -2204,7 +2179,22 @@
     web3 "^1.3.4"
     xhr2-cookies "^1.1.0"
 
-"@polyjuice-provider/godwoken@0.1.0", "@polyjuice-provider/godwoken@^0.1.0":
+"@polyjuice-provider/base@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@polyjuice-provider/base/-/base-0.1.1.tgz#049407b60c3abc492beb4a6b7b5bf2efa5975a3a"
+  integrity sha512-kUyUnIF9sznSQc4EeA+95QEu1Fsw9pUPl0k2R/MRS6Zo6693DHhFd0z1bGS7pbrRXlAlE9ihcIrw/9QvA6OFPA==
+  dependencies:
+    "@ckb-lumos/base" "0.18.0-rc1"
+    "@polyjuice-provider/godwoken" "0.1.1"
+    buffer "^6.0.3"
+    encoding "^0.1.13"
+    eth-sig-util "^3.0.1"
+    jayson "^3.4.4"
+    keccak256 "^1.0.2"
+    web3 "^1.3.4"
+    xhr2-cookies "^1.1.0"
+
+"@polyjuice-provider/godwoken@0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@polyjuice-provider/godwoken/-/godwoken-0.1.0.tgz#f5b4790d86f7225eaeda1cfb99b1178de3fcbe9f"
   integrity sha512-crpjFfuPe2umjqh79L9QysEZGegdX2oC/jqGR8rSR6WCf1jjj1O5FlIGOVPheGhlos3Bvw8E8gf/y4lmc+UQcw==
@@ -2214,22 +2204,22 @@
     immutable "^4.0.0-rc.12"
     keccak256 "^1.0.2"
 
-"@polyjuice-provider/godwoken@^0.0.1-rc9":
-  version "0.0.1-rc9"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/godwoken/-/godwoken-0.0.1-rc9.tgz#6fb25d1c404e4f299522e5535058a593037fd697"
-  integrity sha512-owsR6E/EnwbGLUJEn6JcdwAQkN8WJZIqffmSZ9sUBvUL1DYJQL7cG6HcZHPTh53pqCdrYnW8NbZdn12FkL6mDQ==
+"@polyjuice-provider/godwoken@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@polyjuice-provider/godwoken/-/godwoken-0.1.1.tgz#fd15d830d4ded736eff83612f1212b3e3f3ba427"
+  integrity sha512-NveubKMvD8tdPoEtLPQow9Y8XZSaZdZV//Aoku6v/MYZTb3l+HCnapFZNUAt0uGdXOB94MzNAPCpiTNgBlF5NQ==
   dependencies:
-    "@ckb-lumos/base" "^0.16.0"
+    "@ckb-lumos/base" "0.18.0-rc1"
     ckb-js-toolkit "^0.9.3"
     immutable "^4.0.0-rc.12"
     keccak256 "^1.0.2"
 
-"@polyjuice-provider/web3@^0.0.1-rc8":
-  version "0.0.1-rc9"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/web3/-/web3-0.0.1-rc9.tgz#4715213d305e9cf26b8b3d7ea0e321e77c8a3bd4"
-  integrity sha512-TdzrK+4uacDKSm8UzRzMYZlxpezmHNUFb/RHbFfZjkZb8LNcgFUPl68hUVUmbAwbB5D4qh9wdOuL+BVjrZmjWg==
+"@polyjuice-provider/web3@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@polyjuice-provider/web3/-/web3-0.1.1.tgz#fadaf9db6d7f80047b4d4da9afa04337827fa090"
+  integrity sha512-dlKdJIXeq/ZvdantPdoDIV1IXFFkMbUO/+nEDv8TzzGysU6jaZzxEfA1CXg/qBm7R2rHQBCMZFAHfcmAwaUUNQ==
   dependencies:
-    "@polyjuice-provider/base" "0.0.1-rc9"
+    "@polyjuice-provider/base" "0.1.1"
     buffer "^6.0.3"
     encoding "^0.1.13"
     web3 "^1.4.0"

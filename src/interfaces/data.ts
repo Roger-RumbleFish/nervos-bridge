@@ -30,11 +30,22 @@ export interface IBridgeDescriptor {
 export interface IBridge {
   id: string
   name: string
+  features: IBridgeFeaturesToggle
   toDescriptor(): IBridgeDescriptor
   deposit(amount: BigNumber, token: Token): Promise<string>
   withdraw(amount: BigNumber, token: Token): Promise<string>
   getDepositNetwork(): INetworkAdapter
   getWithdrawalNetwork(): INetworkAdapter
+}
+
+export enum BridgeFeature {
+  Deposit = 'Deposit',
+  Withdraw = 'Withdraw',
+}
+
+export interface IBridgeFeaturesToggle {
+  [BridgeFeature.Deposit]: boolean
+  [BridgeFeature.Withdraw]: boolean
 }
 
 // REDEFINE
