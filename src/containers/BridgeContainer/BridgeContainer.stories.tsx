@@ -20,9 +20,7 @@ const Template: Story<ComponentProps<typeof BridgeContainer>> = (
   if (!web3) {
     return <b>Please connect to Metamask with addon</b>
   }
-  console.log('web3', web3)
   const { provider } = web3
-  console.log('provider', provider)
   const web3Provider = new providers.Web3Provider(provider)
 
   return (
