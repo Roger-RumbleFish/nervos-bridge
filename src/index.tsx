@@ -12,7 +12,7 @@ import { EthereumNetwork } from '@api/network/ethereumAdapter'
 import { GodwokenNetwork } from '@api/network/godwokenAdapter'
 import BridgeSelector from '@components/bridge/BridgeSelector'
 import { IBridge, IBridgeDescriptor } from '@interfaces/data'
-import PWCore, { IndexerCollector } from '@lay2/pw-core'
+import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
 import { Box } from '@material-ui/core'
 import { Godwoken as GodwokenRpcHandler } from '@polyjuice-provider/godwoken'
 import PolyjuiceHttpProvider from '@polyjuice-provider/web3'
@@ -54,10 +54,14 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
 
       const addressTranslator = new AddressTranslator()
 
+      const web3CKBProvider = new Web3ModalProvider(web3)
       const indexerCollector = new IndexerCollector(
         'https://testnet.ckb.dev/indexer',
       )
-      const pwCoreClient = new PWCore('https://testnet.ckb.dev')
+      const pwCoreClient = await new PWCore('https://testnet.ckb.dev').init(
+        web3CKBProvider,
+        indexerCollector,
+      )
 
       const forceBridgeClient = new ForceBridgeRPCHandler(
         'https://testnet.forcebridge.com/api/force-bridge/api/v1',
@@ -94,11 +98,10 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         ckbNetwork,
         godwokenNetwork,
         addressTranslator,
-        web3,
-        indexerCollector,
+        web3CKBProvider,
         pwCoreClient,
         godwokenRpcHandler,
-      ).init()
+      )
 
       const ethBridge = await new EthereumForceBridge(
         'force-bridge',
