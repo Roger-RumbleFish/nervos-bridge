@@ -2164,21 +2164,6 @@
   resolved "https://registry.npmjs.org/@polka/url/-/url-1.0.0-next.15.tgz#6a9d143f7f4f49db2d782f9e1c8839a29b43ae23"
   integrity sha512-15spi3V28QdevleWBNXE4pIls3nFZmBbUGrW9IVPwiQczuSb9n76TCB4bsk8TSel+I1OkHEdPhu5QKMfY6rQHA==
 
-"@polyjuice-provider/base@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/base/-/base-0.1.0.tgz#4b42a543109638b97aa0fa12a8633a4b24057bb7"
-  integrity sha512-/6tDH/6lLjlOjB86Iv/LfzG/uft8u0YB/+xeSAQ6xY8F6W49FeOMHLyhEensHmPlBSvbc7OKLBQN2Nr4fLZ88A==
-  dependencies:
-    "@ckb-lumos/base" "0.18.0-rc1"
-    "@polyjuice-provider/godwoken" "0.1.0"
-    buffer "^6.0.3"
-    encoding "^0.1.13"
-    eth-sig-util "^3.0.1"
-    jayson "^3.4.4"
-    keccak256 "^1.0.2"
-    web3 "^1.3.4"
-    xhr2-cookies "^1.1.0"
-
 "@polyjuice-provider/base@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@polyjuice-provider/base/-/base-0.1.1.tgz#049407b60c3abc492beb4a6b7b5bf2efa5975a3a"
@@ -2194,16 +2179,6 @@
     web3 "^1.3.4"
     xhr2-cookies "^1.1.0"
 
-"@polyjuice-provider/godwoken@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/godwoken/-/godwoken-0.1.0.tgz#f5b4790d86f7225eaeda1cfb99b1178de3fcbe9f"
-  integrity sha512-crpjFfuPe2umjqh79L9QysEZGegdX2oC/jqGR8rSR6WCf1jjj1O5FlIGOVPheGhlos3Bvw8E8gf/y4lmc+UQcw==
-  dependencies:
-    "@ckb-lumos/base" "0.18.0-rc1"
-    ckb-js-toolkit "^0.9.3"
-    immutable "^4.0.0-rc.12"
-    keccak256 "^1.0.2"
-
 "@polyjuice-provider/godwoken@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@polyjuice-provider/godwoken/-/godwoken-0.1.1.tgz#fd15d830d4ded736eff83612f1212b3e3f3ba427"
@@ -2214,24 +2189,12 @@
     immutable "^4.0.0-rc.12"
     keccak256 "^1.0.2"
 
-"@polyjuice-provider/web3@0.1.1":
+"@polyjuice-provider/web3@0.1.1", "@polyjuice-provider/web3@^0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@polyjuice-provider/web3/-/web3-0.1.1.tgz#fadaf9db6d7f80047b4d4da9afa04337827fa090"
   integrity sha512-dlKdJIXeq/ZvdantPdoDIV1IXFFkMbUO/+nEDv8TzzGysU6jaZzxEfA1CXg/qBm7R2rHQBCMZFAHfcmAwaUUNQ==
   dependencies:
     "@polyjuice-provider/base" "0.1.1"
-    buffer "^6.0.3"
-    encoding "^0.1.13"
-    web3 "^1.4.0"
-    web3-providers-ws "^1.5.2"
-    xhr2-cookies "^1.1.0"
-
-"@polyjuice-provider/web3@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/web3/-/web3-0.1.0.tgz#b73eaa61e295140aebf12bc315f8f6c96f7df780"
-  integrity sha512-RZKRmQpMSbANvPl/ihURdcGafWaB+Qh6+hUuede6vXqp+r1IpLCphkv/t5Z5tOp9yK9fGtB8Kg2HCGskvANOMA==
-  dependencies:
-    "@polyjuice-provider/base" "0.1.0"
     buffer "^6.0.3"
     encoding "^0.1.13"
     web3 "^1.4.0"
@@ -11409,16 +11372,16 @@ neo-async@^2.5.0, neo-async@^2.6.1, neo-async@^2.6.2:
   resolved "https://registry.npmjs.org/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
-nervos-godwoken-integration@^0.0.15:
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/nervos-godwoken-integration/-/nervos-godwoken-integration-0.0.15.tgz#e50346040f3a107f1217f158c41cb1452bd2a877"
-  integrity sha512-VtIagqgA4YPD30DwQC4MGkKflQr5n+FN+U2flRJc8qYJq0fOafsBfGTi1UTy2NnKFMZrEYFb00ke05OKLWg5Qw==
+nervos-godwoken-integration@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/nervos-godwoken-integration/-/nervos-godwoken-integration-0.1.0.tgz#7b467df2b7bc526ac2ef90b4b6874f62ce878b6b"
+  integrity sha512-dypeO5O5NcI0utEYunfh5TRKxLCj0tp0k1c6hgCl5APL4AmrTnwx06XCzlSEC/VF/JGPDYC9p7mjPuPdAMfTwA==
   dependencies:
     "@ckb-lumos/base" "0.18.0-rc1"
     "@ckb-lumos/helpers" "0.18.0-rc1"
     "@lay2/pw-core" "0.4.0-alpha.12"
     "@nervosnetwork/ckb-types" "0.101.0"
-    "@polyjuice-provider/web3" "^0.1.0"
+    "@polyjuice-provider/web3" "^0.1.1"
     ckb-js-toolkit "^0.10.2"
     ethers "^5.4.1"
     json-rpc-2.0 "^0.2.16"

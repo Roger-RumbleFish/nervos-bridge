@@ -1,9 +1,10 @@
-import { Token } from '@interfaces/data'
+import { AccountBoundToken } from '@interfaces/data'
 
 export interface ITokenSelectorProps {
-  tokens: Token[]
-  selectedToken: Token
+  tokens: AccountBoundToken[]
+  selectedToken: AccountBoundToken
+  loading?: boolean
   disabled?: boolean
   readOnly?: boolean
-  onTokenChange?: (token: Token) => void
+  onTokenChange?: (token: AccountBoundToken) => void
 }

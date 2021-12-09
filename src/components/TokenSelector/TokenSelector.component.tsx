@@ -1,9 +1,11 @@
 import React from 'react'
 
-import { Box, InputAdornment, InputBase, Typography } from '@material-ui/core'
+import { BigNumber } from 'ethers'
+
+import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils'
+import { Box, InputBase, Typography } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
 
-// import { resolveTokenIcon } from '@utils/icons'
 import { useStyles } from './TokenSelector.styles'
 import { ITokenSelectorProps } from './TokenSelector.types'
 
@@ -17,12 +19,16 @@ const TokenSelector: React.FC<ITokenSelectorProps> = ({
 
   return (
     <Autocomplete
+      fullWidth
       disableClearable
       value={selectedToken}
       options={tokens}
       getOptionLabel={(option) => option.symbol}
+      classes={{
+        root: classes.root,
+        popupIndicator: classes.popupIcon,
+      }}
       disabled={disabled}
-      fullWidth
       onChange={(_event, token, reason) => {
         if (token && typeof token !== 'string' && reason === 'select-option') {
           onTokenChange?.(token)
@@ -30,11 +36,26 @@ const TokenSelector: React.FC<ITokenSelectorProps> = ({
       }}
       renderOption={(option) => {
         return (
-          <Box display="flex" alignItems="center">
-            {/* <Box display="flex" mr={3}>
-              {resolveTokenIcon(option.symbol, 24)}
-            </Box> */}
-            <Typography> {option.symbol?.toUpperCase()}</Typography>
+          <Box
+            width="100%"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Typography component="div">
+              {option.symbol?.toUpperCase()}
+            </Typography>
+            <Typography variant="caption" component="div">
+              <b>
+                {
+                  getDisplayValue(
+                    option.balance ?? BigNumber.from(0),
+                    2,
+                    option.decimals ?? 2,
+                  ).displayValue
+                }
+              </b>
+            </Typography>
           </Box>
         )
       }}
@@ -61,15 +82,6 @@ const TokenSelector: React.FC<ITokenSelectorProps> = ({
               value: string
             }).value,
           }}
-          // startAdornment={
-          //   <InputAdornment position="start">
-          //     <Box>
-          //       {selectedToken &&
-          //         selectedToken.symbol &&
-          //         resolveTokenIcon(selectedToken.symbol, 24)}
-          //     </Box>
-          //   </InputAdornment>
-          // }
         />
       )}
     />

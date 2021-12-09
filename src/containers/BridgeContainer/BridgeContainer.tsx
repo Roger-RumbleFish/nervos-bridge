@@ -24,7 +24,9 @@ const BridgeContainer: React.FC = () => {
 
   // const DEBOUNCE = 400
 
-  const [selectedFeature, setSelectedFeature] = useState<BridgeFeature>(BridgeFeature.Deposit)
+  const [selectedFeature, setSelectedFeature] = useState<BridgeFeature>(
+    BridgeFeature.Deposit,
+  )
 
   const bridgeReducer = useReducer(reducer, initialState)
 
@@ -170,18 +172,26 @@ const BridgeContainer: React.FC = () => {
   // }, [exchangeResult?.value])
 
   const handleDepositRequest = async () => {
-    const DISPLAY_DECIMALS = 2
-    const depositAmount = BigNumber.from(
-      Number(Number(value.split('.').join(''))),
-    ).mul(BigNumber.from(10).pow(baseToken.decimals - DISPLAY_DECIMALS))
+    const [wholePart, decimalPart] = value.split('.')
+
+    const amountString = [wholePart, decimalPart].join('')
+    const decimalPrecision = decimalPart?.length ?? 0
+
+    const depositAmount = BigNumber.from(amountString).mul(
+      BigNumber.from(10).pow(baseToken.decimals - decimalPrecision),
+    )
     await bridge.deposit(depositAmount, baseToken)
   }
 
   const handleWithdrawRequest = async () => {
-    const DISPLAY_DECIMALS = 2
-    const withdrawalAmount = BigNumber.from(
-      Number(value.split('.').join('')),
-    ).mul(BigNumber.from(10).pow(baseToken.decimals - DISPLAY_DECIMALS))
+    const [wholePart, decimalPart] = value.split('.')
+
+    const amountString = [wholePart, decimalPart].join('')
+    const decimalPrecision = decimalPart?.length ?? 0
+
+    const withdrawalAmount = BigNumber.from(amountString).mul(
+      BigNumber.from(10).pow(baseToken.decimals - decimalPrecision),
+    )
 
     await bridge.withdraw(withdrawalAmount, {
       ...baseToken,
@@ -200,7 +210,6 @@ const BridgeContainer: React.FC = () => {
     },
   ]
 
-  
   return (
     <>
       <Box marginBottom={2}>
