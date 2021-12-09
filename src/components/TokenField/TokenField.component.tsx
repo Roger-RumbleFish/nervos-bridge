@@ -96,35 +96,35 @@ const TokenField: React.FC<ITokenFieldProps> = ({
             width="100%"
             paddingY={0.5}
             borderBottom={{ md: `1px solid ${lightGray}` }}
-            paddingX={{ xs: 1, md: 2 }}
+            paddingX={1}
           >
-            <Button
-              disabled={isFetchingTokens}
-              fullWidth
-              onClick={() => {
-                onAmountChange?.(
-                  getDisplayValue(
-                    selectedToken?.balance ?? BigNumber.from(0),
-                    2,
-                    selectedToken?.decimals ?? 2,
-                  ).displayValue,
-                )
-              }}
-            >
-              <Box
-                width="100%"
-                display="flex"
-                flexDirection="column"
-                alignItems="flex-start"
+            {isFetchingTokens ? (
+              <Skeleton width="100%" height={22} />
+            ) : (
+              <Button
+                disabled={isFetchingTokens}
+                fullWidth
+                onClick={() => {
+                  onAmountChange?.(
+                    getDisplayValue(
+                      selectedToken?.balance ?? BigNumber.from(0),
+                      2,
+                      selectedToken?.decimals ?? 2,
+                    ).displayValue,
+                  )
+                }}
               >
-                <Typography
-                  variant="caption"
-                  color="textSecondary"
-                >{`${messages.BALANCE}:`}</Typography>
+                <Box
+                  width="100%"
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start"
+                >
+                  <Typography
+                    variant="caption"
+                    color="textSecondary"
+                  >{`${messages.BALANCE}:`}</Typography>
 
-                {isFetchingTokens ? (
-                  <Skeleton width={150} height={22} />
-                ) : (
                   <Typography color="textSecondary">
                     <b>
                       {
@@ -136,15 +136,16 @@ const TokenField: React.FC<ITokenFieldProps> = ({
                       }
                     </b>
                   </Typography>
-                )}
-              </Box>
-            </Button>
+                </Box>
+              </Button>
+            )}
           </Box>
-          <Box width="100%" paddingY={0.5} paddingX={{ xs: 1, md: 2 }}>
+          <Box width="100%" paddingY={0.5} paddingX={1}>
             {isFetchingTokens ? (
-              <Skeleton width={150} height={32} />
+              <Skeleton width="100%" height={32} />
             ) : (
               <TokenSelector
+                loading={isFetchingAmount}
                 tokens={tokens}
                 selectedToken={selectedToken}
                 onTokenChange={onTokenChange}

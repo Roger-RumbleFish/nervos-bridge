@@ -52,9 +52,8 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         httpPolyjuiceProvider,
       )
 
-      const addressTranslator = new AddressTranslator()
-
       const web3CKBProvider = new Web3ModalProvider(web3)
+
       const indexerCollector = new IndexerCollector(
         'https://testnet.ckb.dev/indexer',
       )
@@ -62,6 +61,9 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         web3CKBProvider,
         indexerCollector,
       )
+
+      const addressTranslator = new AddressTranslator()
+      await addressTranslator.init(pwCoreClient, PWCore.chainId)
 
       const forceBridgeClient = new ForceBridgeRPCHandler(
         'https://testnet.forcebridge.com/api/force-bridge/api/v1',

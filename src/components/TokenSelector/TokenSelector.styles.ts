@@ -1,17 +1,22 @@
-import { makeStyles } from '@material-ui/core/styles'
+import { alpha, makeStyles } from '@material-ui/core/styles'
 import { textDisabled } from '@styles/theme'
 
 export const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
+  root: {
+    padding: spacing(0, 1),
+    '&:hover': {
+      background: alpha(palette.text.primary, 0.04),
+      borderRadius: spacing(0.5),
+    },
+  },
   tokenIcon: {
     marginRight: spacing(3),
   },
-
-  arrowIcon: {
-    '& .MuiSvgIcon-root': {
-      fill: palette.primary.main,
+  popupIcon: {
+    '&:hover': {
+      background: 'none',
     },
   },
-
   inputText: {
     fontWeight: 700,
     textOverflow: 'ellipsis',
@@ -26,21 +31,11 @@ export const useStyles = makeStyles(({ spacing, palette, breakpoints }) => ({
       lineHeight: '34px',
     },
   },
-
   disabledText: {
     color: textDisabled,
   },
-
   autocompleteText: {
     color: palette.text.secondary,
     width: 300,
-  },
-
-  availableButton: {
-    color: textDisabled,
-    cursor: 'pointer',
-    fontSize: 12,
-    border: `1px solid ${textDisabled}`,
-    borderRadius: 8,
   },
 }))

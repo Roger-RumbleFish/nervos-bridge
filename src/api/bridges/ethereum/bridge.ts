@@ -103,7 +103,6 @@ export class EthereumForceBridge implements IBridge {
       }
 
       const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
-        this._web3,
         ethereumAccountAddress,
       )
 
@@ -136,7 +135,6 @@ export class EthereumForceBridge implements IBridge {
       const tokenAddress = token.address
 
       const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
-        this._web3,
         ethereumAccountAddress,
       )
 

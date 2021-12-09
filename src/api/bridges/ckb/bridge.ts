@@ -135,12 +135,9 @@ export class CkbBridge implements IBridge {
       const sudtIssuerLockHash = token.address
       const sudt = new SUDT(sudtIssuerLockHash)
 
-      const depositAmount = new Amount(
-        amount.div(BigNumber.from(10).pow(token.decimals)).toString(),
-        token.decimals ?? AmountUnit.ckb,
-      )
+      const depositAmount = new Amount(amount.toString(), AmountUnit.shannon)
+
       const depositAddress = await this.addressTranslator.getLayer2DepositAddress(
-        this.web3CKBProvider,
         accountAddressString,
       )
 

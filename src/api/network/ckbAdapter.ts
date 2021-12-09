@@ -17,7 +17,6 @@ import { INetworkAdapter } from './types'
 
 const ZERO_LOCK_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
-const IS_TESTNET = true
 
 export class CkbNetwork implements INetworkAdapter {
   public id: string
@@ -76,7 +75,6 @@ export class CkbNetwork implements INetworkAdapter {
   ): Promise<BigNumber> {
     const ckbAddressString = this.addressTranslator.ethAddressToCkbAddress(
       accountAddress,
-      IS_TESTNET,
     )
     const ckbAddress = new Address(ckbAddressString, AddressType.ckb)
 
