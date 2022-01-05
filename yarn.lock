@@ -11372,10 +11372,10 @@ neo-async@^2.5.0, neo-async@^2.6.1, neo-async@^2.6.2:
   resolved "https://registry.npmjs.org/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
-nervos-godwoken-integration@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/nervos-godwoken-integration/-/nervos-godwoken-integration-0.1.0.tgz#7b467df2b7bc526ac2ef90b4b6874f62ce878b6b"
-  integrity sha512-dypeO5O5NcI0utEYunfh5TRKxLCj0tp0k1c6hgCl5APL4AmrTnwx06XCzlSEC/VF/JGPDYC9p7mjPuPdAMfTwA==
+nervos-godwoken-integration@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/nervos-godwoken-integration/-/nervos-godwoken-integration-0.1.1.tgz#bae92c3573fdfb6852cd3b57e93bf830fc58b379"
+  integrity sha512-lSVwa7THYN1O51qWmF1q08R21oCvPZtaWtLVlK2Qrt0MjhOqP2FQxrk428sy2FcNSyHaeQBPQ1T/KCA1jprKrg==
   dependencies:
     "@ckb-lumos/base" "0.18.0-rc1"
     "@ckb-lumos/helpers" "0.18.0-rc1"
