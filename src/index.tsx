@@ -63,7 +63,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
       )
 
       const addressTranslator = new AddressTranslator()
-      await addressTranslator.init(pwCoreClient, PWCore.chainId)
+      await addressTranslator.init(pwCoreClient, PWCore.config, PWCore.chainId)
 
       const forceBridgeClient = new ForceBridgeRPCHandler(
         'https://testnet.forcebridge.com/api/force-bridge/api/v1',
