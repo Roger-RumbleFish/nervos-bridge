@@ -23,6 +23,9 @@
       "@components/*": [
         "./src/components/*"
       ],
+      "@containers/*": [
+        "./src/containers/*"
+      ],
       "@interfaces/*": [
         "./src/interfaces/*"
       ],
@@ -37,7 +40,6 @@
       ],
     },
   },
-
   "include": [
     "src/**/*",
     "setup-tests.ts" ],

@@ -31,7 +31,7 @@ const TokenField: React.FC<ITokenFieldProps> = ({
   const [stateValue, setStateValue] = useState(amount)
 
   const valueChangeHandler = (value: IDisplayValue) => {
-    onAmountChange?.(value.displayValue)
+    onAmountChange?.(value)
   }
 
   useEffect(() => {
@@ -110,7 +110,7 @@ const TokenField: React.FC<ITokenFieldProps> = ({
                       selectedToken?.balance ?? BigNumber.from(0),
                       2,
                       selectedToken?.decimals ?? 2,
-                    ).displayValue,
+                    ),
                   )
                 }}
               >
