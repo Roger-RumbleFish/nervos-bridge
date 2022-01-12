@@ -2,7 +2,7 @@ const path = require('path')
 const webpack = require('webpack')
 
 module.exports = {
-  entry: './src/index.tsx',
+  entry: './src/index.ts',
   mode: 'production',
   plugins: [
     new webpack.ProvidePlugin({
@@ -61,6 +61,7 @@ module.exports = {
     alias: {
       '@api': path.resolve(__dirname, 'src/api/'),
       '@components': path.resolve(__dirname, 'src/components/'),
+      '@containers': path.resolve(__dirname, 'src/containers/'),
       '@interfaces': path.resolve(__dirname, 'src/interfaces/'),
       '@state': path.resolve(__dirname, 'src/state/'),
       '@styles': path.resolve(__dirname, 'src/styles/'),

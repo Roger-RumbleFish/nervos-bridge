@@ -1,4 +1,4 @@
-import { AccountBoundToken } from '@interfaces/data'
+import { AccountBoundToken, IDisplayValue } from '@interfaces/data'
 
 export interface ITokenFieldProps {
   tokens: AccountBoundToken[]
@@ -10,6 +10,6 @@ export interface ITokenFieldProps {
   inputLabel?: string
   amount: string
   maxAmount?: string
-  onAmountChange?: (amount: string) => void
+  onAmountChange?: (amount: IDisplayValue) => void
   onTokenChange?: (token: AccountBoundToken) => void
 }

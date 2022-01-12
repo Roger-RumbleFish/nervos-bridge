@@ -5,7 +5,7 @@ import { providers } from 'ethers'
 
 import { Box, Button, Typography } from '@material-ui/core'
 
-import Bridge from './index'
+import Bridge from './component'
 
 export enum EthereumActions {
   requestAccounts = 'eth_accounts',

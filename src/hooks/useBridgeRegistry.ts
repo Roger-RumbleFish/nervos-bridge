@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 
 import { providers } from 'ethers'
 import {
@@ -7,31 +7,29 @@ import {
 } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
+import { CkbBridge } from '@api/bridges/ckb/bridge'
+import { EthereumForceBridge } from '@api/bridges/ethereum/bridge'
 import { CkbNetwork } from '@api/network/ckbAdapter'
 import { EthereumNetwork } from '@api/network/ethereumAdapter'
 import { GodwokenNetwork } from '@api/network/godwokenAdapter'
-import BridgeSelector from '@components/bridge/BridgeSelector'
-import { IBridge, IBridgeDescriptor } from '@interfaces/data'
+import { IBridge } from '@interfaces/data'
 import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
-import { Box } from '@material-ui/core'
 import { Godwoken as GodwokenRpcHandler } from '@polyjuice-provider/godwoken'
 import PolyjuiceHttpProvider from '@polyjuice-provider/web3'
-import { ConfigContext as BridgeConfigContext } from '@utils/hooks'
 
-import { CkbBridge } from './api/bridges/ckb/bridge'
-import { EthereumForceBridge } from './api/bridges/ethereum/bridge'
-import BridgeContainer from './containers/BridgeContainer/BridgeContainer'
-import { IBridgeContainerProps } from './containers/BridgeContainer/BridgeContainer.types'
-import { ThemeProvider } from './styles/theme'
-
-export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
+export const useBridgeRegistry = ({
   provider,
-  config,
-}) => {
-  const [bridges, setBridges] = React.useState<IBridge[]>([])
-  const [selectedBridge, selectBridge] = React.useState<IBridge>(null)
+}: {
+  provider: providers.JsonRpcProvider
+}): {
+  bridges: IBridge[]
+  selectedBridge: IBridge | null
+  selectBridge: (bridge: IBridge) => void
+} => {
+  const [bridges, setBridges] = useState<IBridge[]>([])
+  const [selectedBridge, selectBridge] = useState<IBridge>(null)
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function initBridges() {
       const web3 = new Web3(Web3.givenProvider)
 
@@ -125,37 +123,9 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
     }
   }, [provider])
 
-  const handleSelect = (bridgeId: IBridgeDescriptor['id']) => {
-    const bridge = bridges.find(
-      (bridge) => bridge.toDescriptor().id === bridgeId,
-    )
-    selectBridge(bridge)
+  return {
+    bridges,
+    selectedBridge,
+    selectBridge,
   }
-
-  return (
-    <ThemeProvider>
-      <BridgeConfigContext.Provider
-        value={{
-          config: config,
-          provider: provider,
-          bridge: selectedBridge,
-        }}
-      >
-        <Box display="flex" flexDirection="column" marginX={4} marginY={2}>
-          <Box marginY={2}>
-            <BridgeSelector
-              bridgeDescriptors={bridges.map((bridge) => bridge.toDescriptor())}
-              onSelect={handleSelect}
-              selectedBridgeId={selectedBridge?.toDescriptor().id}
-            />
-          </Box>
-          <Box marginY={2}>
-            <BridgeContainer />
-          </Box>
-        </Box>
-      </BridgeConfigContext.Provider>
-    </ThemeProvider>
-  )
 }
-
-export default BridgeComponent

@@ -19,6 +19,9 @@
       "@components/*": [
         "./src/components/*"
       ],
+      "@containers/*": [
+        "./src/containers/*"
+      ],
       "@interfaces/*": [
         "./src/interfaces/*"
       ],
