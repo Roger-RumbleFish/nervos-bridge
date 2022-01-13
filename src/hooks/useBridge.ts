@@ -39,6 +39,10 @@ export const useBridge = ({
   const [value, setValue] = useState(DEFAULT_VALUE)
 
   useEffect(() => {
+    function cleanTokens() {
+      setTokens([])
+    }
+
     async function fetchTokens(): Promise<void> {
       const network = bridge.getDepositNetwork()
       const tokensRegistry = network.getTokens()
@@ -57,12 +61,6 @@ export const useBridge = ({
             const balance = await network.getBalance(
               token.address,
               accountAddress,
-            )
-
-            console.log(
-              '[nervos-bridge][bridge] token symbol balance',
-              tokenSymbol,
-              balance.toString(),
             )
             return {
               ...token,
@@ -99,7 +97,10 @@ export const useBridge = ({
         setTokens(accountBoundTokens)
       }
     }
+
+
     if (provider && bridge) {
+      cleanTokens()
       fetchTokens()
     }
   }, [provider, bridge, selectedFeature, setTokens])
