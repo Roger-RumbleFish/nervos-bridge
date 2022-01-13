@@ -1,6 +1,7 @@
 const path = require('path')
 const webpack = require('webpack')
 
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
@@ -46,15 +47,7 @@ module.exports = {
     ],
   },
   resolve: {
-    alias: {
-      '@api': path.resolve(__dirname, 'src/api/'),
-      '@components': path.resolve(__dirname, 'src/components/'),
-      '@containers': path.resolve(__dirname, 'src/containers/'),
-      '@interfaces': path.resolve(__dirname, 'src/interfaces/'),
-      '@state': path.resolve(__dirname, 'src/state/'),
-      '@styles': path.resolve(__dirname, 'src/styles/'),
-      '@utils': path.resolve(__dirname, 'src/utils/'),
-    },
+    plugins: [new TsconfigPathsPlugin({configFile: 'tsconfig.json'})],
     extensions: ['.tsx', '.ts', '.js'],
     fallback: {
       assert: require.resolve('assert/'),
