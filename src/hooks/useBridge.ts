@@ -98,7 +98,6 @@ export const useBridge = ({
       }
     }
 
-
     if (provider && bridge) {
       cleanTokens()
       fetchTokens()
