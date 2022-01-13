@@ -4,43 +4,47 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "module": "esnext",
     "moduleResolution": "node",
     "jsx": "react",
     "resolveJsonModule": true,
     "declaration": true,
-    "target": "ES2021",
+    "module": "commonjs",
+    "target": "es5",
+    "lib": [ "es2015", "dom" ],
     "outDir": "dist",
-    "rootDir": "src",
+    "baseUrl": "./",
     "paths": {
       "@api/*": [
-        "./src/api/*"
+        "src/api/*"
       ],
       "@components/*": [
-        "./src/components/*"
+        "src/components/*"
       ],
       "@containers/*": [
-        "./src/containers/*"
+        "src/containers/*"
       ],
       "@interfaces/*": [
-        "./src/interfaces/*"
+        "src/interfaces/*"
       ],
       "@state/*": [
-        "./src/state/*"
+        "src/state/*"
       ],
       "@styles/*": [
-        "./src/styles/*"
+        "src/styles/*"
       ],
       "@utils/*": [
-        "./src/utils/*"
+        "src/utils/*"
       ],
     },
+    "plugins": [
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+    ],
     "types": [
-      "@nervosnetwork/ckb-types"
+      "@nervosnetwork/ckb-types",
     ],
   },
   "include": [
-    "src"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
