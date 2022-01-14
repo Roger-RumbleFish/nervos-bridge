@@ -104,7 +104,7 @@ export const useBridge = ({
 
   useEffect(() => {
     cleanTokens()
-  }, [selectedFeature])
+  }, [bridge, selectedFeature])
 
   useEffect(() => {
     function setDefaultToken(token: AccountBoundToken) {
