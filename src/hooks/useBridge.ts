@@ -38,10 +38,9 @@ export const useBridge = ({
   )
   const [value, setValue] = useState(DEFAULT_VALUE)
 
+  const cleanTokens = () => setTokens([])
+  
   useEffect(() => {
-    function cleanTokens() {
-      setTokens([])
-    }
 
     async function fetchTokens(): Promise<void> {
       const network = bridge.getDepositNetwork()
@@ -99,10 +98,13 @@ export const useBridge = ({
     }
 
     if (provider && bridge) {
-      cleanTokens()
       fetchTokens()
     }
   }, [provider, bridge, selectedFeature, setTokens])
+
+  useEffect(() => {
+    cleanTokens()
+  }, [selectedFeature])
 
   useEffect(() => {
     function setDefaultToken(token: AccountBoundToken) {
