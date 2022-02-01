@@ -17,7 +17,7 @@ import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
 import { Godwoken as GodwokenRpcHandler } from '@polyjuice-provider/godwoken'
 import PolyjuiceHttpProvider from '@polyjuice-provider/web3'
 
-import Config from '../../config.json'
+import Config from '../config'
 
 export const useBridgeRegistry = ({
   provider,
