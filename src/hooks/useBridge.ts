@@ -39,9 +39,8 @@ export const useBridge = ({
   const [value, setValue] = useState(DEFAULT_VALUE)
 
   const cleanTokens = () => setTokens([])
-  
-  useEffect(() => {
 
+  useEffect(() => {
     async function fetchTokens(): Promise<void> {
       const network = bridge.getDepositNetwork()
       const tokensRegistry = network.getTokens()

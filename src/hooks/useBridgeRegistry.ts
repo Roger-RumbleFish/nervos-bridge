@@ -7,8 +7,6 @@ import {
 } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
-import Config from "../../config.json";
-
 import { CkbBridge } from '@api/bridges/ckb/bridge'
 import { EthereumForceBridge } from '@api/bridges/ethereum/bridge'
 import { CkbNetwork } from '@api/network/ckbAdapter'
@@ -18,6 +16,8 @@ import { IBridge } from '@interfaces/data'
 import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
 import { Godwoken as GodwokenRpcHandler } from '@polyjuice-provider/godwoken'
 import PolyjuiceHttpProvider from '@polyjuice-provider/web3'
+
+import Config from '../../config.json'
 
 export const useBridgeRegistry = ({
   provider,
@@ -51,9 +51,7 @@ export const useBridgeRegistry = ({
 
       const web3CKBProvider = new Web3ModalProvider(web3)
 
-      const indexerCollector = new IndexerCollector(
-        Config.nervos.indexer.url,
-      )
+      const indexerCollector = new IndexerCollector(Config.nervos.indexer.url)
       const pwCoreClient = await new PWCore(Config.nervos.ckb.url).init(
         web3CKBProvider,
         indexerCollector,
@@ -78,7 +76,9 @@ export const useBridgeRegistry = ({
       const forceBridgeClient = new ForceBridgeRPCHandler(
         Config.nervos.forceBridgeUrl,
       )
-      const godwokenRpcHandler = new GodwokenRpcHandler(Config.nervos.godwoken.rpcUrl)
+      const godwokenRpcHandler = new GodwokenRpcHandler(
+        Config.nervos.godwoken.rpcUrl,
+      )
 
       const godwokenNetwork = new GodwokenNetwork(
         'godwoken',
