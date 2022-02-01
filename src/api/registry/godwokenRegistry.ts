@@ -3,31 +3,31 @@ import { Networks } from '@utils/constants'
 
 export const registry: TokensRegistry = {
   [CanonicalTokenSymbol.CKB]: {
-    address: '0x0000000000000000000000000000000000000000',
+    address: '0x9D9599c41383D7009C2093319d576AA6F89A4449',
     symbol: 'CKB',
     decimals: 8,
     network: Networks.Godwoken,
   },
   [CanonicalTokenSymbol.dCKB]: {
-    address: '0xd64488E7E97242F3cd18627458907c0f1455d946',
+    address: '0x53A1964a163f64Da59eFE6A802e35b5529d078E2',
     symbol: 'dCKB',
     decimals: 8,
     network: Networks.Godwoken,
   },
   [CanonicalTokenSymbol.DAI]: {
-    address: '0x84c57202bCe3c784A1723F680dD38Cf6a2292d92',
+    address: '0x128BEc17A6D527cdA1Fab65958F0D7bda17e4Aef',
     symbol: 'ckDai',
     decimals: 18,
     network: Networks.Godwoken,
   },
   [CanonicalTokenSymbol.USDC]: {
-    address: '0x50ce6b8abe7E6943750b55283a155bb6cB5acFaB',
+    address: '0xC3b946c53E2e62200515d284249f2a91d9DF7954',
     symbol: 'ckUSDC',
     decimals: 6,
     network: Networks.Godwoken,
   },
   [CanonicalTokenSymbol.USDT]: {
-    address: '0xD92dd1f7b17990B3EefB0104E9e4dC7B54e74e10',
+    address: '0x07a388453944bB54BE709AE505F14aEb5d5cbB2C',
     symbol: 'ckUSDT',
     decimals: 6,
     network: Networks.Godwoken,
