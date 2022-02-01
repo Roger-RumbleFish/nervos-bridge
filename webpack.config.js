@@ -60,7 +60,7 @@ module.exports = {
     ],
   },
   resolve: {
-    plugins: [new TsconfigPathsPlugin({configFile: 'tsconfig.build.json'})],
+    plugins: [new TsconfigPathsPlugin({ configFile: 'tsconfig.build.json' })],
     extensions: ['.tsx', '.ts', '.js'],
     fallback: {
       assert: require.resolve('assert'),
