@@ -19,5 +19,3 @@ yarn-error.log
 .yarnrc
 .npmrc
 .env
-
-config.json

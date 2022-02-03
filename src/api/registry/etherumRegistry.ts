@@ -4,25 +4,25 @@ import { Networks } from '@utils/constants'
 export const registry: TokensRegistry = {
   [CanonicalTokenSymbol.ETH]: {
     address: '0x0000000000000000000000000000000000000000',
-    symbol: 'ETH',
+    symbol: 'eth|ETH',
     decimals: 18,
     network: Networks.Ethereum,
   },
   [CanonicalTokenSymbol.DAI]: {
-    address: '0x7Af456bf0065aADAB2E6BEc6DaD3731899550b84',
-    symbol: 'DAI',
+    address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    symbol: 'eth|DAI',
     decimals: 18,
     network: Networks.Ethereum,
   },
   [CanonicalTokenSymbol.USDC]: {
-    address: '0x265566D4365d80152515E800ca39424300374A83',
-    symbol: 'USDC',
+    address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    symbol: 'eth|USDC',
     decimals: 6,
     network: Networks.Ethereum,
   },
   [CanonicalTokenSymbol.USDT]: {
-    address: '0x74a3dbd5831f45CD0F3002Bb87a59B7C15b1B5E6',
-    symbol: 'USDT',
+    address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    symbol: 'eth|USDT',
     decimals: 6,
     network: Networks.Ethereum,
   },

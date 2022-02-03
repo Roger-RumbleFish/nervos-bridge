@@ -11,29 +11,29 @@ export const registry: TokensRegistry = {
   },
   [CanonicalTokenSymbol.dCKB]: {
     address:
-      '0xc43009f083e70ae3fee342d59b8df9eec24d669c1c3a3151706d305f5362c37e',
-    symbol: 'dCKB',
+      '0xe5451c05231e1df43e4b199b5d12dbed820dfbea2769943bb593f874526eeb55',
+    symbol: 'ckb|dCKB',
     decimals: 8,
     network: Networks.CKB,
   },
   [CanonicalTokenSymbol.DAI]: {
     address:
-      '0xcb8c7b352d88142993bae0f6a1cfc0ec0deac41e3377a2f7038ff6b103548353',
-    symbol: 'ckDai',
+      '0xdd97fe4f673ed231af188855f4ca8b1034153c8d4e40f5b4fae2afd5d3f53ccc',
+    symbol: 'ckb|Dai',
     decimals: 18,
     network: Networks.CKB,
   },
   [CanonicalTokenSymbol.USDC]: {
     address:
-      '0x5497b6d3d55443d573420ca8e413ee1be8553c6f7a8a6e36bf036bf71f0e3c39',
-    symbol: 'ckUSDC',
+      '0x5c4ac961a2428137f27271cf2af205e5c55156d26d9ac285ed3170e8c4cc1501',
+    symbol: 'ckb|USDC',
     decimals: 6,
     network: Networks.CKB,
   },
   [CanonicalTokenSymbol.USDT]: {
     address:
-      '0xf0a746d4d8df5c18826e11030c659ded11e7218b854f86e6bbdc2af726ad1ec3',
-    symbol: 'ckUSDT',
+      '0x1b89ae72b96c4f02fa7667ab46febcedf9b495737752176303ddd215d66a615a',
+    symbol: 'ckb|USDT',
     decimals: 6,
     network: Networks.CKB,
   },

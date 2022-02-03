@@ -17,6 +17,8 @@ import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
 import { Godwoken as GodwokenRpcHandler } from '@polyjuice-provider/godwoken'
 import PolyjuiceHttpProvider from '@polyjuice-provider/web3'
 
+import Config from '../config'
+
 export const useBridgeRegistry = ({
   provider,
 }: {
@@ -33,17 +35,14 @@ export const useBridgeRegistry = ({
     async function initBridges() {
       const web3 = new Web3(Web3.givenProvider)
 
-      const godwokenWeb3Url = 'https://godwoken-testnet-web3-rpc.ckbapp.dev'
       const providerConfig = {
-        rollupTypeHash:
-          '0x4cc2e6526204ae6a2e8fcf12f7ad472f41a1606d5b9624beebd215d780809f6a',
-        ethAccountLockCodeHash:
-          '0xdeec13a7b8e100579541384ccaf4b5223733e4a5483c3aec95ddc4c1d5ea5b22',
-        web3Url: godwokenWeb3Url,
+        rollupTypeHash: Config.nervos.rollupTypeHash,
+        ethAccountLockCodeHash: Config.nervos.ethAccountLockCodeHash,
+        web3Url: Config.nervos.godwoken.rpcUrl,
       }
 
       const httpPolyjuiceProvider = new PolyjuiceHttpProvider(
-        godwokenWeb3Url,
+        Config.nervos.godwoken.rpcUrl,
         providerConfig,
       )
       const web3PolyjuiceProvider = new providers.Web3Provider(
@@ -52,22 +51,33 @@ export const useBridgeRegistry = ({
 
       const web3CKBProvider = new Web3ModalProvider(web3)
 
-      const indexerCollector = new IndexerCollector(
-        'https://testnet.ckb.dev/indexer',
-      )
-      const pwCoreClient = await new PWCore('https://testnet.ckb.dev').init(
+      const indexerCollector = new IndexerCollector(Config.nervos.indexer.url)
+      const pwCoreClient = await new PWCore(Config.nervos.ckb.url).init(
         web3CKBProvider,
         indexerCollector,
       )
 
-      const addressTranslator = new AddressTranslator()
+      const addressTranslator = new AddressTranslator({
+        CKB_URL: Config.nervos.ckb.url,
+        RPC_URL: Config.nervos.godwoken.rpcUrl,
+        INDEXER_URL: Config.nervos.indexer.url,
+        deposit_lock_script_type_hash: Config.nervos.depositLockScriptTypeHash,
+        eth_account_lock_script_type_hash: Config.nervos.ethAccountLockCodeHash,
+        rollup_type_script: {
+          code_hash: Config.nervos.rollupTypeScript.codeHash,
+          hash_type: Config.nervos.rollupTypeScript.hashType,
+          args: Config.nervos.rollupTypeScript.args,
+        },
+        rollup_type_hash: Config.nervos.rollupTypeHash,
+        portal_wallet_lock_hash: Config.nervos.portalWalletLockHash,
+      })
       await addressTranslator.init(pwCoreClient, PWCore.config, PWCore.chainId)
 
       const forceBridgeClient = new ForceBridgeRPCHandler(
-        'https://testnet.forcebridge.com/api/force-bridge/api/v1',
+        Config.nervos.forceBridgeUrl,
       )
       const godwokenRpcHandler = new GodwokenRpcHandler(
-        'https://godwoken-testnet-web3-rpc.ckbapp.dev',
+        Config.nervos.godwoken.rpcUrl,
       )
 
       const godwokenNetwork = new GodwokenNetwork(
