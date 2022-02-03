@@ -94,7 +94,7 @@ export const useBridgeRegistry = ({
 
       const ckbBridge = await new CkbBridge(
         'pw-lock',
-        'PwLock',
+        'Godwoken Bridge',
         ckbNetwork,
         godwokenNetwork,
         addressTranslator,
