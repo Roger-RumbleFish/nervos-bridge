@@ -12,17 +12,33 @@ import { EthereumForceBridge } from '@api/bridges/ethereum/bridge'
 import { CkbNetwork } from '@api/network/ckbAdapter'
 import { EthereumNetwork } from '@api/network/ethereumAdapter'
 import { GodwokenNetwork } from '@api/network/godwokenAdapter'
-import { IBridge } from '@interfaces/data'
+import { Network, IBridge } from '@interfaces/data'
 import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
 import { Godwoken as GodwokenRpcHandler } from '@polyjuice-provider/godwoken'
 import PolyjuiceHttpProvider from '@polyjuice-provider/web3'
 
-import Config from '../config'
-
 export const useBridgeRegistry = ({
+  network,
   provider,
+  addressTranslator,
+  config,
 }: {
+  network: Network
   provider: providers.JsonRpcProvider
+  addressTranslator: AddressTranslator
+  config: {
+    godwokenRpcUrl: string
+    ethAccountLockCodeHash: string
+    depositLockScriptTypeHash: string
+    rollupTypeHash: string
+    ckbRpcUrl: string
+    ckbIndexerUrl: string
+    bridge: {
+      forceBridge: {
+        url: string
+      }
+    }
+  }
 }): {
   bridges: IBridge[]
   selectedBridge: IBridge | null
@@ -36,13 +52,13 @@ export const useBridgeRegistry = ({
       const web3 = new Web3(Web3.givenProvider)
 
       const providerConfig = {
-        rollupTypeHash: Config.nervos.rollupTypeHash,
-        ethAccountLockCodeHash: Config.nervos.ethAccountLockCodeHash,
-        web3Url: Config.nervos.godwoken.rpcUrl,
+        rollupTypeHash: config.rollupTypeHash,
+        ethAccountLockCodeHash: config.ethAccountLockCodeHash,
+        web3Url: config.godwokenRpcUrl,
       }
 
       const httpPolyjuiceProvider = new PolyjuiceHttpProvider(
-        Config.nervos.godwoken.rpcUrl,
+        config.godwokenRpcUrl,
         providerConfig,
       )
       const web3PolyjuiceProvider = new providers.Web3Provider(
@@ -51,36 +67,21 @@ export const useBridgeRegistry = ({
 
       const web3CKBProvider = new Web3ModalProvider(web3)
 
-      const indexerCollector = new IndexerCollector(Config.nervos.indexer.url)
-      const pwCoreClient = await new PWCore(Config.nervos.ckb.url).init(
+      const indexerCollector = new IndexerCollector(config.ckbIndexerUrl)
+      const pwCoreClient = await new PWCore(config.ckbRpcUrl).init(
         web3CKBProvider,
         indexerCollector,
       )
 
-      const addressTranslator = new AddressTranslator({
-        CKB_URL: Config.nervos.ckb.url,
-        RPC_URL: Config.nervos.godwoken.rpcUrl,
-        INDEXER_URL: Config.nervos.indexer.url,
-        deposit_lock_script_type_hash: Config.nervos.depositLockScriptTypeHash,
-        eth_account_lock_script_type_hash: Config.nervos.ethAccountLockCodeHash,
-        rollup_type_script: {
-          code_hash: Config.nervos.rollupTypeScript.codeHash,
-          hash_type: Config.nervos.rollupTypeScript.hashType,
-          args: Config.nervos.rollupTypeScript.args,
-        },
-        rollup_type_hash: Config.nervos.rollupTypeHash,
-        portal_wallet_lock_hash: Config.nervos.portalWalletLockHash,
-      })
+      const forceBridgeClient = new ForceBridgeRPCHandler(
+        config.bridge.forceBridge.url,
+      )
+      const godwokenRpcHandler = new GodwokenRpcHandler(config.godwokenRpcUrl)
+
       await addressTranslator.init(pwCoreClient, PWCore.config, PWCore.chainId)
 
-      const forceBridgeClient = new ForceBridgeRPCHandler(
-        Config.nervos.forceBridgeUrl,
-      )
-      const godwokenRpcHandler = new GodwokenRpcHandler(
-        Config.nervos.godwoken.rpcUrl,
-      )
-
       const godwokenNetwork = new GodwokenNetwork(
+        network,
         'godwoken',
         'Godwoken',
         web3PolyjuiceProvider,
@@ -88,6 +89,7 @@ export const useBridgeRegistry = ({
       )
 
       const ckbNetwork = new CkbNetwork(
+        network,
         'ckb',
         'CKB',
         web3,
@@ -97,6 +99,7 @@ export const useBridgeRegistry = ({
       )
 
       const ethereumNetwork = new EthereumNetwork(
+        network,
         'ethereum',
         'Ethereum',
         provider,
@@ -128,10 +131,10 @@ export const useBridgeRegistry = ({
       selectBridge(ethBridge)
     }
 
-    if (provider) {
+    if (provider && addressTranslator) {
       initBridges()
     }
-  }, [provider])
+  }, [provider, addressTranslator])
 
   return {
     bridges,

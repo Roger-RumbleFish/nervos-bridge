@@ -3,7 +3,7 @@ import { AddressTranslator } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
 import { TokensRegistry } from '@api/types'
-import { NetworkName } from '@interfaces/data'
+import { NetworkName, Network } from '@interfaces/data'
 import PWCore, {
   Address,
   AddressType,
@@ -12,7 +12,7 @@ import PWCore, {
   Web3ModalProvider,
 } from '@lay2/pw-core'
 
-import { registry } from '../registry/ckbRegistry'
+import { registry } from '../registry/ckb'
 import { INetworkAdapter } from './types'
 
 const ZERO_LOCK_HASH =
@@ -31,6 +31,7 @@ export class CkbNetwork implements INetworkAdapter {
   private supportedTokens: TokensRegistry
 
   constructor(
+    network: Network,
     id: string,
     name: string,
     web3: Web3,
@@ -46,7 +47,7 @@ export class CkbNetwork implements INetworkAdapter {
     this.pwCore = pwCoreClient
     this.addressTranslator = addressTranslator
 
-    this.supportedTokens = registry
+    this.supportedTokens = registry(network)
   }
 
   async _getBalanceNative(ckbAddress: Address): Promise<BigNumber> {

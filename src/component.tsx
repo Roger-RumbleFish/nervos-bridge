@@ -1,10 +1,13 @@
 import React from 'react'
 
+import { AddressTranslator } from 'nervos-godwoken-integration'
+
 import BridgeSelector from '@components/bridge/BridgeSelector'
-import { IBridgeDescriptor } from '@interfaces/data'
+import { IBridgeDescriptor, Network } from '@interfaces/data'
 import { Box } from '@material-ui/core'
 import { ConfigContext as BridgeConfigContext } from '@utils/hooks'
 
+import Config from './config'
 import BridgeContainer from './containers/BridgeContainer/BridgeContainer'
 import { IBridgeContainerProps } from './containers/BridgeContainer/BridgeContainer.types'
 import { useBridgeRegistry } from './hooks/useBridgeRegistry'
@@ -14,8 +17,35 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
   provider,
   config,
 }) => {
+  const addressTranslator = new AddressTranslator({
+    CKB_URL: Config.nervos.ckb.url,
+    RPC_URL: Config.nervos.godwoken.rpcUrl,
+    INDEXER_URL: Config.nervos.indexer.url,
+    deposit_lock_script_type_hash: Config.nervos.depositLockScriptTypeHash,
+    eth_account_lock_script_type_hash: Config.nervos.ethAccountLockCodeHash,
+    rollup_type_script: {
+      code_hash: Config.nervos.rollupTypeScript.codeHash,
+      hash_type: Config.nervos.rollupTypeScript.hashType,
+      args: Config.nervos.rollupTypeScript.args,
+    },
+    rollup_type_hash: Config.nervos.rollupTypeHash,
+    portal_wallet_lock_hash: Config.nervos.portalWalletLockHash,
+  })
   const { bridges, selectedBridge, selectBridge } = useBridgeRegistry({
+    network: Network.Testnet,
     provider,
+    addressTranslator,
+    config: {
+      godwokenRpcUrl: Config.nervos.godwoken.rpcUrl,
+      ckbRpcUrl: Config.nervos.ckb.url,
+      ckbIndexerUrl: Config.nervos.indexer.url,
+      depositLockScriptTypeHash: Config.nervos.depositLockScriptTypeHash,
+      ethAccountLockCodeHash: Config.nervos.ethAccountLockCodeHash,
+      rollupTypeHash: Config.nervos.rollupTypeHash,
+      bridge: {
+        forceBridge: { url: Config.nervos.forceBridgeUrl },
+      },
+    },
   })
 
   const handleSelect = (bridgeId: IBridgeDescriptor['id']) => {

@@ -1,10 +1,10 @@
 import { BigNumber, providers } from 'ethers'
 
 import { TokensRegistry } from '@api/types'
-import { NetworkName } from '@interfaces/data'
+import { NetworkName, Network } from '@interfaces/data'
 
 import { ERC20__factory } from '../../factories/ERC20__factory'
-import { registry } from '../registry/etherumRegistry'
+import { registry } from '../registry/ethereum'
 import { INetworkAdapter } from './types'
 
 const ETHEREUM_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -17,12 +17,17 @@ export class EthereumNetwork implements INetworkAdapter {
 
   private supportedTokens: TokensRegistry
 
-  constructor(id: string, name: string, provider: providers.JsonRpcProvider) {
+  constructor(
+    network: Network,
+    id: string,
+    name: string,
+    provider: providers.JsonRpcProvider,
+  ) {
     this.id = id
     this.name = name
     this.provider = provider
 
-    this.supportedTokens = registry
+    this.supportedTokens = registry(network)
   }
 
   async _getBalanceNative(ethereumAddress: string): Promise<BigNumber> {
