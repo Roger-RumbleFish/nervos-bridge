@@ -3,6 +3,11 @@ import { BigNumber } from 'ethers'
 import { INetworkAdapter } from '@api/network/types'
 import { Networks } from '@utils/constants'
 
+export enum Network {
+  Mainnet,
+  Testnet,
+}
+
 export type BridgedPairShadow = {
   address?: string
   network: Networks

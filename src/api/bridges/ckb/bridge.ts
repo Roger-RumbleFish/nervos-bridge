@@ -1,7 +1,5 @@
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
-import { utils } from '@ckb-lumos/base'
-import { parseAddress } from '@ckb-lumos/helpers'
 import { BigNumber } from '@ethersproject/bignumber'
 import {
   BridgeFeature,
@@ -172,8 +170,9 @@ export class CkbBridge implements IBridge {
         accountId,
       )
 
-      const lock = parseAddress(ckbAddress)
-      const accountLock = utils.computeScriptHash(lock)
+      const accountLock = this.addressTranslator.ckbAddressToLockScriptHash(
+        ckbAddress,
+      )
 
       const HARDCODED_CAPACITY = BigNumber.from(0).mul(
         BigNumber.from(10).pow(8),
