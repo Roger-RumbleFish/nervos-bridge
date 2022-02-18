@@ -2,10 +2,12 @@ import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom'
 
 import { providers } from 'ethers'
+import { AddressTranslator } from 'nervos-godwoken-integration'
 
 import { Box, Button, Typography } from '@material-ui/core'
 
 import Bridge from './component'
+import Config from './config'
 
 export enum EthereumActions {
   requestAccounts = 'eth_accounts',
@@ -19,6 +21,10 @@ const Index = () => {
   )
   const [account, setAccount] = React.useState<string | null>(null)
   const [loginRequired, setLoginRequired] = React.useState<boolean>(false)
+  const [
+    addressTranslator,
+    setAddressTranslator,
+  ] = React.useState<AddressTranslator | null>(null)
 
   const connectAccount = async () => {
     const ethereum = window?.ethereum as providers.ExternalProvider
@@ -55,6 +61,25 @@ const Index = () => {
     connectAccount()
   }, [])
 
+  useEffect(() => {
+    const addressTranslator = new AddressTranslator({
+      CKB_URL: Config.nervos.ckb.url,
+      RPC_URL: Config.nervos.godwoken.rpcUrl,
+      INDEXER_URL: Config.nervos.indexer.url,
+      deposit_lock_script_type_hash: Config.nervos.depositLockScriptTypeHash,
+      eth_account_lock_script_type_hash: Config.nervos.ethAccountLockCodeHash,
+      rollup_type_script: {
+        code_hash: Config.nervos.rollupTypeScript.codeHash,
+        hash_type: Config.nervos.rollupTypeScript.hashType,
+        args: Config.nervos.rollupTypeScript.args,
+      },
+      rollup_type_hash: Config.nervos.rollupTypeHash,
+      portal_wallet_lock_hash: Config.nervos.portalWalletLockHash,
+    })
+
+    setAddressTranslator(addressTranslator)
+  }, [provider])
+
   return (
     <>
       <Box margin={2}>
@@ -69,7 +94,7 @@ const Index = () => {
           </Typography>
         )}
       </Box>
-      <Bridge provider={provider} />
+      <Bridge provider={provider} addressTranslator={addressTranslator} />
     </>
   )
 }
