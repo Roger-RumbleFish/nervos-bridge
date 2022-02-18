@@ -14,23 +14,24 @@ import { useBridgeRegistry } from './hooks/useBridgeRegistry'
 import { ThemeProvider } from './styles/theme'
 
 export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
+  network,
   provider,
   config,
   addressTranslator,
 }) => {
   const { bridges, selectedBridge, selectBridge } = useBridgeRegistry({
-    network: Network.Testnet,
+    network: network ?? Network.Testnet,
     provider,
     addressTranslator,
     config: {
-      godwokenRpcUrl: Config.nervos.godwoken.rpcUrl,
-      ckbRpcUrl: Config.nervos.ckb.url,
-      ckbIndexerUrl: Config.nervos.indexer.url,
-      depositLockScriptTypeHash: Config.nervos.depositLockScriptTypeHash,
-      ethAccountLockCodeHash: Config.nervos.ethAccountLockCodeHash,
-      rollupTypeHash: Config.nervos.rollupTypeHash,
+      godwokenRpcUrl: config ? config.godwokenRpcUrl : Config.nervos.godwoken.rpcUrl,
+      ckbRpcUrl: config ? config.ckbRpcUrl : Config.nervos.ckb.url,
+      ckbIndexerUrl: config ? config.ckbIndexerUrl : Config.nervos.indexer.url,
+      depositLockScriptTypeHash: config ? config.depositLockScriptTypeHash : Config.nervos.depositLockScriptTypeHash,
+      ethAccountLockCodeHash: config ? config.ethAccountLockCodeHash : Config.nervos.ethAccountLockCodeHash,
+      rollupTypeHash: config ? config.rollupTypeHash : Config.nervos.rollupTypeHash,
       bridge: {
-        forceBridge: { url: Config.nervos.forceBridgeUrl },
+        forceBridge: { url: config ? config.bridge.forceBridge.url : Config.nervos.forceBridgeUrl },
       },
     },
   })
