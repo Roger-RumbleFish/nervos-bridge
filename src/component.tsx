@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { AddressTranslator } from 'nervos-godwoken-integration'
+import { useBridge } from 'src'
 
 import BridgeSelector from '@components/bridge/BridgeSelector'
 import { IBridgeDescriptor, Network } from '@interfaces/data'
@@ -16,21 +16,8 @@ import { ThemeProvider } from './styles/theme'
 export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
   provider,
   config,
+  addressTranslator,
 }) => {
-  const addressTranslator = new AddressTranslator({
-    CKB_URL: Config.nervos.ckb.url,
-    RPC_URL: Config.nervos.godwoken.rpcUrl,
-    INDEXER_URL: Config.nervos.indexer.url,
-    deposit_lock_script_type_hash: Config.nervos.depositLockScriptTypeHash,
-    eth_account_lock_script_type_hash: Config.nervos.ethAccountLockCodeHash,
-    rollup_type_script: {
-      code_hash: Config.nervos.rollupTypeScript.codeHash,
-      hash_type: Config.nervos.rollupTypeScript.hashType,
-      args: Config.nervos.rollupTypeScript.args,
-    },
-    rollup_type_hash: Config.nervos.rollupTypeHash,
-    portal_wallet_lock_hash: Config.nervos.portalWalletLockHash,
-  })
   const { bridges, selectedBridge, selectBridge } = useBridgeRegistry({
     network: Network.Testnet,
     provider,
@@ -47,6 +34,18 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
       },
     },
   })
+
+  const {
+    tokens,
+    token,
+    setToken,
+    setValue,
+    value,
+    deposit,
+    withdraw,
+    selectedFeature,
+    setSelectedFeature,
+  } = useBridge({ bridge: selectedBridge, provider })
 
   const handleSelect = (bridgeId: IBridgeDescriptor['id']) => {
     const bridge = bridges.find(
@@ -73,7 +72,19 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
             />
           </Box>
           <Box marginY={2}>
-            <BridgeContainer />
+            <BridgeContainer
+              provider={provider}
+              bridge={selectedBridge}
+              tokens={tokens}
+              token={token}
+              setToken={setToken}
+              setValue={setValue}
+              value={value}
+              deposit={deposit}
+              withdraw={withdraw}
+              selectedFeature={selectedFeature}
+              setSelectedFeature={setSelectedFeature}
+            />
           </Box>
         </Box>
       </BridgeConfigContext.Provider>

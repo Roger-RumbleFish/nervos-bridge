@@ -1,34 +1,34 @@
 export default {
   nervos: {
     ckb: {
-      url: 'https://rpc.ckb.tools/',
+      url: 'https://testnet.ckb.dev',
     },
     godwoken: {
-      rpcUrl: 'https://mainnet.godwoken.io/rpc',
-      wsUrl: 'wss://mainnet.godwoken.io/ws',
-      networkId: '0x116e2',
+      rpcUrl: 'https://godwoken-testnet-web3-rpc.ckbapp.dev',
+      wsUrl: 'wss://godwoken-testnet-web3-rpc.ckbapp.dev/ws',
+      networkId: '0x116e1',
     },
     indexer: {
-      url: 'https://indexer.ckb.tools/',
+      url: 'https://testnet.ckb.dev/indexer',
     },
     rollupTypeHash:
-      '0x40d73f0d3c561fcaae330eabc030d8d96a9d0af36d0c5114883658a350cb9e3b',
+      '0x4cc2e6526204ae6a2e8fcf12f7ad472f41a1606d5b9624beebd215d780809f6a',
     rollupTypeScript: {
       codeHash:
-        '0xa9267ff5a16f38aa9382608eb9022883a78e6a40855107bb59f8406cce00e981',
+        '0x5c365147bb6c40e817a2a53e0dec3661f7390cc77f0c02db138303177b12e9fb',
       hashType: 'type',
       args:
-        '0x2d8d67c8d73453c1a6d6d600e491b303910802e0cc90a709da9b15d26c5c48b3',
+        '0x213743d13048e9f36728c547ab736023a7426e15a3d7d1c82f43ec3b5f266df2',
     },
     ethAccountLockCodeHash:
-      '0x1563080d175bf8ddd44a48e850cecf0c0b4575835756eb5ffd53ad830931b9f9',
+      '0xdeec13a7b8e100579541384ccaf4b5223733e4a5483c3aec95ddc4c1d5ea5b22',
     depositLockScriptTypeHash:
-      '0xe24164e2204f998b088920405dece3dcfd5c1fbcb23aecfce4b3d3edf1488897',
+      '0x5a2506bb68d81a11dcadad4cb7eae62a17c43c619fe47ac8037bc8ce2dd90360',
     portalWalletLockHash:
-      '0xbf43c3602455798c1a61a596e0d95278864c552fafe231c063b3fabf97a8febc',
-    forceBridgeUrl: 'https://forcebridge.com/api/force-bridge/api/v1',
+      '0x58c5f491aba6d61678b7cf7edf4910b1f5e00ec0cde2f42e0abb4fd9aff25a63',
+    forceBridgeUrl: 'https://testnet.forcebridge.com/api/force-bridge/api/v1',
   },
   ethereum: {
-    networkId: '0x1',
+    networkId: '0x4',
   },
 }
