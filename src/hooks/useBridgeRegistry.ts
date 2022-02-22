@@ -78,7 +78,11 @@ export const useBridgeRegistry = ({
       )
       const godwokenRpcHandler = new GodwokenRpcHandler(config.godwokenRpcUrl)
 
-      await addressTranslator.init(pwCoreClient, PWCore.config, PWCore.chainId)
+      await addressTranslator.init({
+        pwCore: pwCoreClient,
+        pwConfig: PWCore.config,
+        pwChainId: PWCore.chainId,
+      })
 
       const godwokenNetwork = new GodwokenNetwork(
         network,
