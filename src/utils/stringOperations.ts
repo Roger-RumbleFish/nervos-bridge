@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers'
+import numeral from 'numeral'
 
 export const getInputValue = (
   value: string,
@@ -120,11 +121,7 @@ export const truncateDecimals = (text: string, decimals = 2): string => {
   return text
 }
 
-export const addThousandSeparators = (text: string): string => {
-  return text.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
-}
-
 export const getRepresentativeValue = (text: string, decimals = 2): string => {
   const truncatedText = truncateDecimals(text, decimals)
-  return addThousandSeparators(truncatedText)
+  return numeral(truncatedText).format('0,0.0000')
 }
