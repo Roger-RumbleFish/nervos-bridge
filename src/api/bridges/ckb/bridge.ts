@@ -1,7 +1,9 @@
+import { providers } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
 import { BigNumber } from '@ethersproject/bignumber'
 import {
+  Bridge,
   BridgeFeature,
   IBridge,
   IBridgeDescriptor,
@@ -31,7 +33,11 @@ const ZERO_LOCK_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 export class CkbBridge implements IBridge {
-  public id: string
+  private _id: Bridge = Bridge.CkbBridge
+  public get id(): Bridge {
+    return this._id
+  }
+
   public name: string
 
   public features = {
@@ -49,7 +55,6 @@ export class CkbBridge implements IBridge {
   private godwokenRpcHandler: GodwokenRpcHandler
 
   constructor(
-    id: string,
     name: string,
     depositNetwork: INetworkAdapter,
     withdrawalNetwork: INetworkAdapter,
@@ -58,7 +63,6 @@ export class CkbBridge implements IBridge {
     pwCoreClient: PWCore,
     godwokenRpcHandler: GodwokenRpcHandler,
   ) {
-    this.id = id
     this.name = name
 
     this.depositNetwork = depositNetwork
@@ -71,9 +75,18 @@ export class CkbBridge implements IBridge {
     this.godwokenRpcHandler = godwokenRpcHandler
   }
 
+  async init(
+    _: providers.JsonRpcProvider,
+    withdrawalProvider: providers.JsonRpcProvider,
+  ): Promise<IBridge> {
+    this.withdrawalNetwork.init(withdrawalProvider)
+
+    return this as IBridge
+  }
+
   toDescriptor(): IBridgeDescriptor {
     return {
-      id: this.id,
+      id: Bridge.CkbBridge,
       name: this.name,
       networks: [this.depositNetwork.name, this.withdrawalNetwork.name],
     }

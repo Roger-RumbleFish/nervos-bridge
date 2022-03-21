@@ -5,7 +5,6 @@ import {
   GenerateBridgeInTransactionPayload,
   GenerateBridgeOutNervosTransactionPayload,
 } from 'nervos-godwoken-integration'
-import Web3 from 'web3'
 
 import { BigNumber } from '@ethersproject/bignumber'
 import {
@@ -13,14 +12,19 @@ import {
   IBridgeDescriptor,
   Token,
   BridgeFeature,
+  Bridge,
 } from '@interfaces/data'
 import { Networks } from '@utils/constants'
 
-import { ERC20__factory } from '../../../factories/ERC20__factory'
+import { ERC20__factory } from '../../../contracts/ERC20__factory'
 import { INetworkAdapter } from '../../network/types'
 
 export class EthereumForceBridge implements IBridge {
-  public id: string
+  private _id: Bridge = Bridge.EthereumBridge
+  public get id(): Bridge {
+    return this._id
+  }
+
   public name: string
 
   public features = {
@@ -31,37 +35,37 @@ export class EthereumForceBridge implements IBridge {
   public depositNetwork: INetworkAdapter
   public withdrawalNetwork: INetworkAdapter
 
-  private _web3: Web3
   private _jsonRpcProvider: providers.JsonRpcProvider
   private forceBridgeClient: ForceBridgeRPCHandler
   private _forceBridgeAddress: string
   private _addressTranslator: AddressTranslator
 
   constructor(
-    id: string,
     name: string,
     depositNetwork: INetworkAdapter,
     withdrawalNetwork: INetworkAdapter,
     addressTranslator: AddressTranslator,
     forceBridgeClient: ForceBridgeRPCHandler,
-    web3: Web3,
-    provider: providers.JsonRpcProvider,
   ) {
-    this.id = id
     this.name = name
 
     this.depositNetwork = depositNetwork
     this.withdrawalNetwork = withdrawalNetwork
 
-    this._web3 = web3
-    this._jsonRpcProvider = provider
     this.forceBridgeClient = forceBridgeClient
     this._addressTranslator = addressTranslator
   }
 
-  async init(): Promise<IBridge> {
+  async init(
+    depositProvider: providers.JsonRpcProvider,
+    withdrawalProvider: providers.JsonRpcProvider,
+  ): Promise<IBridge> {
     const bridgeConfig = await this.forceBridgeClient.getBridgeConfig()
     this._forceBridgeAddress = bridgeConfig.xchains.Ethereum.contractAddress
+    this._jsonRpcProvider = depositProvider
+
+    this.depositNetwork.init(depositProvider)
+    this.withdrawalNetwork.init(withdrawalProvider)
 
     return this as IBridge
   }

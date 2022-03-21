@@ -19,7 +19,8 @@ import { messages, errorMessages } from './BridgeContainer.messages'
 const BridgeContainer: React.FC = () => {
   const isMobile = !useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
 
-  const { provider, bridge } = useContext(ConfigContext)
+  const { provider, polyjuiceProvider, bridge } = useContext(ConfigContext)
+
   const {
     tokens,
     token,
@@ -30,7 +31,7 @@ const BridgeContainer: React.FC = () => {
     withdraw,
     selectedFeature,
     setSelectedFeature,
-  } = useBridge({ bridge, provider })
+  } = useBridge({ bridge, provider, polyjuiceProvider })
 
   const onBaseTokenChange = async (token: AccountBoundToken) => {
     setToken(token)

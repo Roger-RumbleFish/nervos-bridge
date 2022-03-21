@@ -2,16 +2,20 @@ import { BigNumber, providers } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
 import { TokensRegistry } from '@api/types'
-import { NetworkName, Network } from '@interfaces/data'
+import { NetworkName, Network, Environment } from '@interfaces/data'
 
-import { ERC20__factory } from '../../factories/ERC20__factory'
+import { ERC20__factory } from '../../contracts/ERC20__factory'
 import { registry } from '../registry/godwoken'
 import { INetworkAdapter } from './types'
 
 const GODWOKEN_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+const GODWOKEN_NETWORK_ID = Network.Godwoken
 
 export class GodwokenNetwork implements INetworkAdapter {
-  public id: string
+  private _id: Network = GODWOKEN_NETWORK_ID
+  public get id(): Network {
+    return this._id
+  }
   public name: NetworkName
 
   private provider: providers.JsonRpcProvider
@@ -20,21 +24,27 @@ export class GodwokenNetwork implements INetworkAdapter {
   private supportedTokens: TokensRegistry
 
   constructor(
-    network: Network,
-    id: string,
+    environment: Environment,
     name: string,
-    provider: providers.JsonRpcProvider,
     addressTranslator: AddressTranslator,
   ) {
-    this.id = id
     this.name = name
-    this.provider = provider
     this.addressTranslator = addressTranslator
 
-    this.supportedTokens = registry(network)
+    this.supportedTokens = registry(environment)
+  }
+
+  async init(provider: providers.JsonRpcProvider): Promise<void> {
+    console.log('[bridge][godwokent network] init', provider)
+    this.provider = provider
   }
 
   async _getBalanceNative(ethereumAddress: string): Promise<BigNumber> {
+    console.log(
+      '[bridge][godwoken network] get balance NATIVE',
+      ethereumAddress,
+    )
+
     return this.provider.getBalance(ethereumAddress)
   }
 
@@ -42,6 +52,15 @@ export class GodwokenNetwork implements INetworkAdapter {
     tokenAddress: string,
     accountAddress: string,
   ): Promise<BigNumber> {
+    console.log(
+      '[bridge][godwoken network] get balance ERC20',
+      tokenAddress,
+      accountAddress,
+    )
+    console.log(
+      '[bridge][godwoken network] get balance ERC20 provider',
+      this.provider,
+    )
     const erc20Contract = ERC20__factory.connect(tokenAddress, this.provider)
 
     const balance = await erc20Contract.balanceOf(accountAddress, {
@@ -56,9 +75,24 @@ export class GodwokenNetwork implements INetworkAdapter {
     tokenAddress: string,
     accountAddress: string,
   ): Promise<BigNumber> {
+    console.log(
+      '[bridge][godwoken network] get balance',
+      tokenAddress,
+      accountAddress,
+    )
+    console.log(
+      '[bridge][godwoken network] get balance address translatror',
+      this.addressTranslator,
+    )
+
     const godwokenAddress = this.addressTranslator.ethAddressToGodwokenShortAddress(
       accountAddress,
     )
+    console.log(
+      '[bridge][godwoken network] get balance godwoken address',
+      godwokenAddress,
+    )
+
     if (tokenAddress !== GODWOKEN_ZERO_ADDRESS) {
       return this._getBalanceERC20(tokenAddress, godwokenAddress)
     }

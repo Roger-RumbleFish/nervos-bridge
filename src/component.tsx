@@ -3,7 +3,7 @@ import React from 'react'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
 import BridgeSelector from '@components/bridge/BridgeSelector'
-import { IBridgeDescriptor, Network } from '@interfaces/data'
+import { IBridgeDescriptor, Bridge, Environment } from '@interfaces/data'
 import { Box } from '@material-ui/core'
 import { ConfigContext as BridgeConfigContext } from '@utils/hooks'
 
@@ -15,6 +15,7 @@ import { ThemeProvider } from './styles/theme'
 
 export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
   provider,
+  polyjuiceProvider,
   config,
 }) => {
   const addressTranslator = new AddressTranslator({
@@ -32,7 +33,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
     portal_wallet_lock_hash: Config.nervos.portalWalletLockHash,
   })
   const { bridges, selectedBridge, selectBridge } = useBridgeRegistry({
-    network: Network.Testnet,
+    environment: Environment.Testnet,
     provider,
     addressTranslator,
     config: {
@@ -46,6 +47,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         forceBridge: { url: Config.nervos.forceBridgeUrl },
       },
     },
+    defaultBridge: Bridge.CkbBridge,
   })
 
   const handleSelect = (bridgeId: IBridgeDescriptor['id']) => {
@@ -61,6 +63,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         value={{
           config: config,
           provider: provider,
+          polyjuiceProvider: polyjuiceProvider,
           bridge: selectedBridge,
         }}
       >

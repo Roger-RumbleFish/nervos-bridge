@@ -1,6 +1,7 @@
 import React from 'react'
 
 import BridgeDescriptor from '@components/bridge/BridgeDescriptor'
+import { Bridge } from '@interfaces/data'
 import { Box, Button, Paper, Typography } from '@material-ui/core'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
@@ -32,7 +33,7 @@ const BridgeSelector: React.FC<IBridgeSelectorProps> = ({
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
 
-  const handleBridgeSelect = (id: string) => {
+  const handleBridgeSelect = (id: Bridge) => {
     if (id !== selectedBridgeId) {
       onSelect?.(id)
     }
