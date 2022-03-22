@@ -48,9 +48,6 @@ export const useBridge = ({
 
   useEffect(() => {
     const init = async (): Promise<void> => {
-      console.log('[use bridge] provider', provider)
-      console.log('[use bridge] polyjuice provider', polyjuiceProvider)
-
       await godwokenBridge.init(provider, polyjuiceProvider)
       setInitialized(true)
     }
