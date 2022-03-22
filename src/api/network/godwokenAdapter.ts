@@ -60,7 +60,6 @@ export class GodwokenNetwork implements INetworkAdapter {
     tokenAddress: string,
     accountAddress: string,
   ): Promise<BigNumber> {
-
     const godwokenAddress = this.addressTranslator.ethAddressToGodwokenShortAddress(
       accountAddress,
     )

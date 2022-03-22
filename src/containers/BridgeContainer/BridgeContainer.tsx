@@ -1,4 +1,6 @@
-import React, { useContext } from 'react'
+import React from 'react'
+
+import { providers } from 'ethers'
 
 import Bridge from '@components/Bridge'
 import ErrorLabel from '@components/ErrorLabel'
@@ -6,32 +8,43 @@ import Toggle from '@components/Toggle'
 import {
   AccountBoundToken,
   BridgeFeature,
+  IBridge,
   IDisplayValue,
 } from '@interfaces/data'
 import { Button, Paper, Theme, useMediaQuery } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
-import { ConfigContext } from '@utils/hooks'
 
-import { useBridge } from '../../hooks/useBridge'
 import { BRIDGE_FEATURES_LABELS } from './BridgeContainer.constants'
 import { messages, errorMessages } from './BridgeContainer.messages'
 
-const BridgeContainer: React.FC = () => {
+export interface BridgeProps {
+  provider: providers.JsonRpcProvider
+  bridge: IBridge
+  tokens: AccountBoundToken[]
+  token: AccountBoundToken
+  setToken: (token: AccountBoundToken) => void
+  deposit: () => void
+  withdraw: () => void
+  value: IDisplayValue
+  setValue: (value: IDisplayValue) => void
+  selectedFeature: BridgeFeature
+  setSelectedFeature: (feature: BridgeFeature) => void
+}
+
+const BridgeContainer: React.FC<BridgeProps> = ({
+  provider,
+  bridge,
+  tokens,
+  token,
+  setToken,
+  deposit,
+  withdraw,
+  value,
+  setValue,
+  selectedFeature,
+  setSelectedFeature,
+}) => {
   const isMobile = !useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
-
-  const { provider, polyjuiceProvider, bridge } = useContext(ConfigContext)
-
-  const {
-    tokens,
-    token,
-    setToken,
-    setValue,
-    value,
-    deposit,
-    withdraw,
-    selectedFeature,
-    setSelectedFeature,
-  } = useBridge({ bridge, provider, polyjuiceProvider })
 
   const onBaseTokenChange = async (token: AccountBoundToken) => {
     setToken(token)

@@ -1,3 +1,5 @@
+import { CanonicalTokenSymbol } from '@api/types'
+
 import { BridgeComponent } from './component'
 import { useBridge } from './hooks/useBridge'
 import { useBridgeRegistry } from './hooks/useBridgeRegistry'
@@ -10,5 +12,13 @@ import {
   Bridge,
 } from './interfaces/data'
 
-export { useBridgeRegistry, useBridge, BridgeComponent, Bridge, BridgeFeature, Environment }
+export {
+  useBridgeRegistry,
+  useBridge,
+  BridgeComponent,
+  Bridge,
+  BridgeFeature,
+  Environment,
+  CanonicalTokenSymbol,
+}
 export type { IDisplayValue, AccountBoundToken, IBridge }

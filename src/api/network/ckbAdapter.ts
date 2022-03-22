@@ -51,7 +51,7 @@ export class CkbNetwork implements INetworkAdapter {
     this.supportedTokens = registry(environment)
   }
 
-  async init(provider: providers.JsonRpcProvider): Promise<void> {
+  async init(_provider: providers.JsonRpcProvider): Promise<void> {
     const web3 = new Web3(Web3.givenProvider)
     this.provider = new Web3ModalProvider(web3)
   }
