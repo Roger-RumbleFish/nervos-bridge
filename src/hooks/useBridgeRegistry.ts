@@ -44,10 +44,6 @@ export const useBridgeRegistry = ({
   selectedBridge: IBridge | null
   selectBridge: (bridge: IBridge) => void
 } => {
-  console.log('[bridge][registry] *********************')
-  console.log('[bridge][registry] default bridge', defaultBridge)
-  console.log('[bridge][registry] environment', environment)
-
   const [bridges, setBridges] = useState<IBridge[]>([])
   const [selectedBridge, selectBridge] = useState<IBridge>(null)
 

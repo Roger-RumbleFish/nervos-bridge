@@ -29,17 +29,10 @@ export class EthereumNetwork implements INetworkAdapter {
   }
 
   async init(provider: providers.JsonRpcProvider): Promise<void> {
-    console.log('[bridge][ethereum network] init', provider)
     this.provider = provider
   }
 
   async _getBalanceNative(ethereumAddress: string): Promise<BigNumber> {
-    console.log(
-      '[bridge][ethereum network] get balance ethereum address',
-      ethereumAddress,
-    )
-    console.log('[bridge][ethereum network] provider', this.provider)
-
     return this.provider.getBalance(ethereumAddress)
   }
 

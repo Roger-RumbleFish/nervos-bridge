@@ -32,12 +32,8 @@ export const useBridge = ({
   selectedFeature: BridgeFeature
   setSelectedFeature: (feature: BridgeFeature) => void
 } => {
-  console.log('[bridge][use bridge] ****************************')
-  console.log('[bridge][use bridge] used bridge', godwokenBridge?.name)
-  console.log('[bridge][use bridge]', provider, polyjuiceProvider)
   const [initialized, setInitialized] = useState<boolean>(false)
 
-  // const prevBridge = useRef<IBridge>()
 
   const [tokens, setTokens] = useState<AccountBoundToken[]>([])
   const [token, setToken] = useState<AccountBoundToken>(null)
@@ -48,14 +44,8 @@ export const useBridge = ({
   const [value, setValue] = useState(DEFAULT_VALUE)
 
   useEffect(() => {
-    //assign the ref's current value to the count Hook
-    console.log('[bridge][use bridge] bridge changed', godwokenBridge?.name)
-    // prevBridge.current = godwokenBridge
     setInitialized(false)
   }, [godwokenBridge])
-
-  // useEffect(() => {
-  // }, [godwokenBridge, selectedFeature])
 
   useEffect(() => {
     const init = async (): Promise<void> => {
@@ -135,7 +125,6 @@ export const useBridge = ({
     }
 
     if (initialized && provider && polyjuiceProvider && godwokenBridge) {
-      console.log('[bridge][use bridge] fetch tokens', initialized, provider, polyjuiceProvider, godwokenBridge)
       fetchTokens(godwokenBridge, provider)
     }
 

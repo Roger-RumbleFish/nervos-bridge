@@ -52,7 +52,6 @@ export class CkbNetwork implements INetworkAdapter {
   }
 
   async init(provider: providers.JsonRpcProvider): Promise<void> {
-    console.log('[bridge][ckb network] init', provider)
     const web3 = new Web3(Web3.givenProvider)
     this.provider = new Web3ModalProvider(web3)
   }
