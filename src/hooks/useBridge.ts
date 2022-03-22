@@ -14,11 +14,13 @@ import {
 const DEFAULT_VALUE = getDisplayValue(BigNumber.from(0), 2, 0)
 
 export const useBridge = ({
-  bridge,
+  bridge: godwokenBridge,
   provider,
+  polyjuiceProvider,
 }: {
-  bridge: IBridge
-  provider: providers.JsonRpcProvider
+  bridge: IBridge | null
+  provider: providers.JsonRpcProvider | null
+  polyjuiceProvider: providers.JsonRpcProvider | null
 }): {
   tokens: AccountBoundToken[]
   token: AccountBoundToken
@@ -30,6 +32,8 @@ export const useBridge = ({
   selectedFeature: BridgeFeature
   setSelectedFeature: (feature: BridgeFeature) => void
 } => {
+  const [initialized, setInitialized] = useState<boolean>(false)
+
   const [tokens, setTokens] = useState<AccountBoundToken[]>([])
   const [token, setToken] = useState<AccountBoundToken>(null)
 
@@ -38,10 +42,32 @@ export const useBridge = ({
   )
   const [value, setValue] = useState(DEFAULT_VALUE)
 
-  const cleanTokens = () => setTokens([])
+  useEffect(() => {
+    setInitialized(false)
+  }, [godwokenBridge])
 
   useEffect(() => {
-    async function fetchTokens(): Promise<void> {
+    const init = async (): Promise<void> => {
+      console.log('[use bridge] provider', provider)
+      console.log('[use bridge] polyjuice provider', polyjuiceProvider)
+
+      await godwokenBridge.init(provider, polyjuiceProvider)
+      setInitialized(true)
+    }
+
+    if (!initialized && provider && polyjuiceProvider && godwokenBridge) {
+      init()
+    }
+  }, [initialized, provider, polyjuiceProvider, godwokenBridge])
+
+  useEffect(() => {
+    let didCancel = false
+
+    const cleanTokens = () => setTokens([])
+    const fetchTokens = async (
+      bridge: IBridge,
+      provider: providers.JsonRpcProvider,
+    ): Promise<void> => {
       const network = bridge.getDepositNetwork()
       const tokensRegistry = network.getTokens()
 
@@ -67,9 +93,11 @@ export const useBridge = ({
           }),
         )
 
-        setTokens(accountBoundTokens)
+        if (!didCancel) {
+          setTokens(accountBoundTokens)
+        }
       } else if (selectedFeature === BridgeFeature.Withdraw) {
-        const network = bridge.getWithdrawalNetwork()
+        const network = godwokenBridge.getWithdrawalNetwork()
 
         const tokens = network.getTokens()
         const tokensSymbols = Object.keys(tokens) as CanonicalTokenSymbol[]
@@ -92,18 +120,29 @@ export const useBridge = ({
           }),
         )
 
-        setTokens(accountBoundTokens)
+        if (!didCancel) {
+          setTokens(accountBoundTokens)
+        }
       }
     }
 
-    if (provider && bridge) {
-      fetchTokens()
+    if (initialized && provider && polyjuiceProvider && godwokenBridge) {
+      fetchTokens(godwokenBridge, provider)
     }
-  }, [provider, bridge, selectedFeature, setTokens])
 
-  useEffect(() => {
-    cleanTokens()
-  }, [bridge, selectedFeature])
+    return () => {
+      didCancel = true
+
+      cleanTokens()
+    }
+  }, [
+    initialized,
+    provider,
+    polyjuiceProvider,
+    selectedFeature,
+    godwokenBridge,
+    setTokens,
+  ])
 
   useEffect(() => {
     function setDefaultToken(token: AccountBoundToken) {
@@ -114,18 +153,18 @@ export const useBridge = ({
       const defaultToken = tokens[0]
       setDefaultToken(defaultToken)
     }
-  }, [tokens])
+  }, [selectedFeature, godwokenBridge, setToken, tokens])
 
   const deposit = async () => {
     const depositAmount = value.value
 
-    await bridge.deposit(depositAmount, token)
+    await godwokenBridge.deposit(depositAmount, token)
   }
 
   const withdraw = async () => {
     const withdrawalAmount = value.value
 
-    await bridge.withdraw(withdrawalAmount, {
+    await godwokenBridge.withdraw(withdrawalAmount, {
       ...token,
       address: token.address,
     })

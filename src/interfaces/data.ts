@@ -1,51 +1,49 @@
-import { BigNumber } from 'ethers'
+import { BigNumber, providers } from 'ethers'
 
 import { INetworkAdapter } from '@api/network/types'
 import { Networks } from '@utils/constants'
 
-export enum Network {
+export enum Environment {
   Mainnet,
   Testnet,
 }
 
-export type BridgedPairShadow = {
-  address?: string
-  network: Networks
-  name?: string
-  symbol?: string
-}
-
-export type BridgedPair = {
-  address?: string
-  name?: string
-  symbol?: string
-  decimals?: number
-  network?: Networks
-  shadow: BridgedPairShadow
-}
-
 export type NetworkName = string
+export enum Network {
+  Godwoken,
+  Ethereum,
+  CKB,
+}
 
 export interface IBridgeDescriptor {
-  id: string
+  id: Bridge
   name: string
-  networks: [INetworkAdapter['name'], INetworkAdapter['name']]
+  networks: [NetworkName, NetworkName]
 }
 
-export interface IBridge {
-  id: string
-  name: string
-  features: IBridgeFeaturesToggle
-  toDescriptor(): IBridgeDescriptor
-  deposit(amount: BigNumber, token: Token): Promise<string>
-  withdraw(amount: BigNumber, token: Token): Promise<string>
-  getDepositNetwork(): INetworkAdapter
-  getWithdrawalNetwork(): INetworkAdapter
+export enum Bridge {
+  CkbBridge = 'ckb',
+  EthereumBridge = 'ethereum',
 }
 
 export enum BridgeFeature {
   Deposit = 'Deposit',
   Withdraw = 'Withdraw',
+}
+
+export interface IBridge {
+  id: Bridge
+  name: string
+  features: IBridgeFeaturesToggle
+  init(
+    depositProvider: providers.JsonRpcProvider,
+    withdrawalProvider: providers.JsonRpcProvider,
+  ): Promise<IBridge>
+  toDescriptor(): IBridgeDescriptor
+  deposit(amount: BigNumber, token: Token): Promise<string>
+  withdraw(amount: BigNumber, token: Token): Promise<string>
+  getDepositNetwork(): INetworkAdapter
+  getWithdrawalNetwork(): INetworkAdapter
 }
 
 export interface IBridgeFeaturesToggle {

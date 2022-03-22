@@ -35,6 +35,7 @@ export function useActions(reducer: any, mapDispatchToActions: any) {
 export interface IConfigContext {
   bridge?: IBridge
   provider?: IBridgeContainerProps['provider']
+  polyjuiceProvider?: IBridgeContainerProps['provider']
   config?: IBridgeContainerProps['config']
 }
 

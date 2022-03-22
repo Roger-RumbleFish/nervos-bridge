@@ -1,13 +1,13 @@
 import { TokensRegistry } from '@api/types'
-import { Network } from '@interfaces/data'
+import { Environment } from '@interfaces/data'
 
 import { registry as registryTestnet } from './ethereumRegistry.testnet'
 import { registry as registryMainnet } from './etherumRegistry.mainnet'
 
-export const registry = (network: Network): TokensRegistry | null => {
-  if (network === Network.Mainnet) {
+export const registry = (environment: Environment): TokensRegistry | null => {
+  if (environment === Environment.Mainnet) {
     return registryMainnet
-  } else if (network === Network.Testnet) {
+  } else if (environment === Environment.Testnet) {
     return registryTestnet
   }
 

@@ -4,19 +4,21 @@ import { BridgeComponent } from './component'
 import { useBridge } from './hooks/useBridge'
 import { useBridgeRegistry } from './hooks/useBridgeRegistry'
 import {
-  Network,
+  Environment,
   IDisplayValue,
   AccountBoundToken,
   BridgeFeature,
   IBridge,
+  Bridge,
 } from './interfaces/data'
 
 export {
   useBridgeRegistry,
   useBridge,
   BridgeComponent,
+  Bridge,
   BridgeFeature,
-  Network,
+  Environment,
   CanonicalTokenSymbol,
 }
 export type { IDisplayValue, AccountBoundToken, IBridge }

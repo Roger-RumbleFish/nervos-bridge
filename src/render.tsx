@@ -4,7 +4,9 @@ import ReactDOM from 'react-dom'
 import { providers } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
+import { Environment } from '@interfaces/data'
 import { Box, Button, Typography } from '@material-ui/core'
+import PolyjuiceHttpProvider from '@polyjuice-provider/web3'
 
 import Bridge from './component'
 import Config from './config'
@@ -19,6 +21,11 @@ const Index = () => {
   const [provider, setProvider] = React.useState<providers.Web3Provider | null>(
     null,
   )
+  const [
+    polyjuiceProvider,
+    setPolyjuiceProvider,
+  ] = React.useState<providers.Web3Provider | null>(null)
+
   const [account, setAccount] = React.useState<string | null>(null)
   const [loginRequired, setLoginRequired] = React.useState<boolean>(false)
   const [
@@ -36,7 +43,23 @@ const Index = () => {
       if (accounts.length > 0) {
         const web3EthereumProvider = new providers.Web3Provider(ethereum)
 
+        const providerConfig = {
+          rollupTypeHash: Config.nervos.rollupTypeHash,
+          ethAccountLockCodeHash: Config.nervos.ethAccountLockCodeHash,
+          web3Url: Config.nervos.godwoken.rpcUrl,
+        }
+
+        const httpPolyjuiceProvider = new PolyjuiceHttpProvider(
+          Config.nervos.godwoken.rpcUrl,
+          providerConfig,
+        )
+        const web3PolyjuiceProvider = new providers.Web3Provider(
+          httpPolyjuiceProvider,
+        )
+
         setProvider(web3EthereumProvider)
+        setPolyjuiceProvider(web3PolyjuiceProvider)
+
         setAccount(account)
         setLoginRequired(false)
       } else {
@@ -94,7 +117,12 @@ const Index = () => {
           </Typography>
         )}
       </Box>
-      <Bridge provider={provider} addressTranslator={addressTranslator} />
+      <Bridge
+        environment={Environment.Testnet}
+        addressTranslator={addressTranslator}
+        provider={provider}
+        polyjuiceProvider={polyjuiceProvider}
+      />
     </>
   )
 }

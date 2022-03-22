@@ -1,23 +1,22 @@
 import { ethers } from 'ethers'
-import {
-  AddressTranslator,
-  IAddressTranslatorConfig,
-} from 'nervos-godwoken-integration'
-import { Network } from '@interfaces/data'
+import { AddressTranslator } from 'nervos-godwoken-integration'
+
+import { Environment } from '@interfaces/data'
 
 export interface IBridgeContainerProps {
   provider: ethers.providers.JsonRpcProvider
+  polyjuiceProvider: ethers.providers.JsonRpcProvider
   addressTranslator: AddressTranslator
-  network?: Network
+  environment: Environment
   config?: {
-    godwokenRpcUrl: string,
-    ckbRpcUrl:string,
-    ckbIndexerUrl: string,
-    depositLockScriptTypeHash: string,
-    ethAccountLockCodeHash: string,
-    rollupTypeHash: string,
+    godwokenRpcUrl: string
+    ckbRpcUrl: string
+    ckbIndexerUrl: string
+    depositLockScriptTypeHash: string
+    ethAccountLockCodeHash: string
+    rollupTypeHash: string
     bridge: {
-      forceBridge: { url: string },
-    },
+      forceBridge: { url: string }
+    }
   }
 }

@@ -3,7 +3,7 @@ import React from 'react'
 import { useBridge } from 'src'
 
 import BridgeSelector from '@components/bridge/BridgeSelector'
-import { IBridgeDescriptor, Network } from '@interfaces/data'
+import { IBridgeDescriptor, Bridge } from '@interfaces/data'
 import { Box } from '@material-ui/core'
 import { ConfigContext as BridgeConfigContext } from '@utils/hooks'
 
@@ -14,27 +14,44 @@ import { useBridgeRegistry } from './hooks/useBridgeRegistry'
 import { ThemeProvider } from './styles/theme'
 
 export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
-  network,
+  environment,
   provider,
+  polyjuiceProvider,
   config,
   addressTranslator,
 }) => {
   const { bridges, selectedBridge, selectBridge } = useBridgeRegistry({
-    network: network ?? Network.Testnet,
+    environment,
     provider,
     addressTranslator,
     config: {
-      godwokenRpcUrl: config ? config.godwokenRpcUrl : Config.nervos.godwoken.rpcUrl,
+      godwokenRpcUrl: config
+        ? config.godwokenRpcUrl
+        : Config.nervos.godwoken.rpcUrl,
       ckbRpcUrl: config ? config.ckbRpcUrl : Config.nervos.ckb.url,
       ckbIndexerUrl: config ? config.ckbIndexerUrl : Config.nervos.indexer.url,
-      depositLockScriptTypeHash: config ? config.depositLockScriptTypeHash : Config.nervos.depositLockScriptTypeHash,
-      ethAccountLockCodeHash: config ? config.ethAccountLockCodeHash : Config.nervos.ethAccountLockCodeHash,
-      rollupTypeHash: config ? config.rollupTypeHash : Config.nervos.rollupTypeHash,
+      depositLockScriptTypeHash: config
+        ? config.depositLockScriptTypeHash
+        : Config.nervos.depositLockScriptTypeHash,
+      ethAccountLockCodeHash: config
+        ? config.ethAccountLockCodeHash
+        : Config.nervos.ethAccountLockCodeHash,
+      rollupTypeHash: config
+        ? config.rollupTypeHash
+        : Config.nervos.rollupTypeHash,
       bridge: {
-        forceBridge: { url: config ? config.bridge.forceBridge.url : Config.nervos.forceBridgeUrl },
+        forceBridge: {
+          url: config
+            ? config.bridge.forceBridge.url
+            : Config.nervos.forceBridgeUrl,
+        },
       },
     },
+    defaultBridge: Bridge.CkbBridge,
   })
+
+  console.log('provider', provider)
+  console.log('polyjuice provider', provider)
 
   const {
     tokens,
@@ -46,7 +63,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
     withdraw,
     selectedFeature,
     setSelectedFeature,
-  } = useBridge({ bridge: selectedBridge, provider })
+  } = useBridge({ bridge: selectedBridge, provider, polyjuiceProvider })
 
   const handleSelect = (bridgeId: IBridgeDescriptor['id']) => {
     const bridge = bridges.find(
@@ -61,6 +78,7 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         value={{
           config: config,
           provider: provider,
+          polyjuiceProvider: polyjuiceProvider,
           bridge: selectedBridge,
         }}
       >
