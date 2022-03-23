@@ -40,9 +40,6 @@ export class EthereumNetwork implements INetworkAdapter {
     tokenAddress: string,
     accountAddress: string,
   ): Promise<BigNumber> {
-    console.log('[ethereum adapter] provider', this.provider)
-    console.log('[ethereum adapter] account address', accountAddress)
-    console.log('[ethereum adapter] token address', tokenAddress)
     const erc20Contract = ERC20__factory.connect(tokenAddress, this.provider)
 
     const balance = await erc20Contract.balanceOf(accountAddress)
