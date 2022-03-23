@@ -50,9 +50,6 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
     defaultBridge: Bridge.CkbBridge,
   })
 
-  console.log('provider', provider)
-  console.log('polyjuice provider', provider)
-
   const {
     tokens,
     token,

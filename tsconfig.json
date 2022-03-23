@@ -37,12 +37,13 @@
       ],
       "@utils/*": [
         "./src/utils/*"
-      ],
+      ]
     },
   },
   "include": [
     "src/**/*",
-    "setup-tests.ts" ],
+    "setup-tests.ts"
+  ],
   "exclude": [
     "node_modules",
     "scr/**/*.test.ts",
