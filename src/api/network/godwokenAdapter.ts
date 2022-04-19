@@ -117,4 +117,8 @@ export class GodwokenNetwork implements IGodwokenAdapter {
 
     return this._signMessageEthereum(message, signerAddress)
   }
+
+  getProvider(): providers.JsonRpcProvider {
+    return this.provider
+  }
 }

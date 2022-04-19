@@ -7,7 +7,7 @@ import {
 
 import { BigNumber } from '@ethersproject/bignumber'
 import {
-  IBridge,
+  IGodwokenBridge,
   IBridgeDescriptor,
   Token,
   BridgeFeature,
@@ -18,7 +18,7 @@ import { Networks } from '@utils/constants'
 import { ERC20__factory } from '../../../contracts/ERC20__factory'
 import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
 
-export class ForceBridge implements IBridge {
+export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
   private _id: Bridge
   public get id(): Bridge {
     return this._id
@@ -34,7 +34,7 @@ export class ForceBridge implements IBridge {
     [BridgeFeature.Withdraw]: false,
   }
 
-  public depositNetwork: INetworkAdapter
+  public depositNetwork: INetworkAdapter<providers.JsonRpcProvider>
   public withdrawalNetwork: IGodwokenAdapter
 
   private _jsonRpcProvider: providers.JsonRpcProvider
@@ -51,7 +51,7 @@ export class ForceBridge implements IBridge {
     id: Bridge
     name: string
     url: string
-    bridgeNetwork: INetworkAdapter
+    bridgeNetwork: INetworkAdapter<providers.JsonRpcProvider>
     godwokenNetwork: IGodwokenAdapter
   }) {
     this._id = id
@@ -62,12 +62,18 @@ export class ForceBridge implements IBridge {
 
     const forceBridgeClient = new ForceBridgeRPCHandler(url)
     this.forceBridgeClient = forceBridgeClient
+
+    this.init = this.init.bind(this)
+    this.toDescriptor = this.toDescriptor.bind(this)
+    this.getDepositNetwork = this.getDepositNetwork.bind(this)
+    this.deposit = this.deposit.bind(this)
+    this.withdraw = this.withdraw.bind(this)
   }
 
   async init(
     depositProvider: providers.JsonRpcProvider,
     withdrawalProvider: providers.JsonRpcProvider,
-  ): Promise<IBridge> {
+  ): Promise<IGodwokenBridge<providers.JsonRpcProvider>> {
     const bridgeConfig = await this.forceBridgeClient.getBridgeConfig()
     this._forceBridgeAddress = bridgeConfig.xchains.Ethereum.contractAddress
     this._jsonRpcProvider = depositProvider
@@ -75,7 +81,7 @@ export class ForceBridge implements IBridge {
     this.depositNetwork.init(depositProvider)
     this.withdrawalNetwork.init(withdrawalProvider)
 
-    return this as IBridge
+    return this
   }
 
   toDescriptor(): IBridgeDescriptor {
@@ -86,11 +92,11 @@ export class ForceBridge implements IBridge {
     }
   }
 
-  getDepositNetwork(): INetworkAdapter {
+  getDepositNetwork(): INetworkAdapter<providers.JsonRpcProvider> {
     return this.depositNetwork
   }
 
-  getWithdrawalNetwork(): INetworkAdapter {
+  getWithdrawalNetwork(): IGodwokenAdapter {
     return this.withdrawalNetwork
   }
 

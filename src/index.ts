@@ -8,7 +8,7 @@ import {
   IDisplayValue,
   AccountBoundToken,
   BridgeFeature,
-  IBridge,
+  IGodwokenBridge,
   Bridge,
 } from './interfaces/data'
 
@@ -21,4 +21,4 @@ export {
   Environment,
   CanonicalTokenSymbol,
 }
-export type { IDisplayValue, AccountBoundToken, IBridge }
+export type { IDisplayValue, AccountBoundToken, IGodwokenBridge }

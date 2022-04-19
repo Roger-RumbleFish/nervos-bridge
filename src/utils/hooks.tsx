@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, createContext } from 'react'
 
-import { IBridge } from '@interfaces/data'
+import { IGodwokenBridge } from '@interfaces/data'
 
 import { IBridgeContainerProps } from '../containers/BridgeContainer/BridgeContainer.types'
 
@@ -33,7 +33,7 @@ export function useActions(reducer: any, mapDispatchToActions: any) {
 }
 
 export interface IConfigContext {
-  bridge?: IBridge
+  bridge?: IGodwokenBridge
   provider?: IBridgeContainerProps['provider']
   polyjuiceProvider?: IBridgeContainerProps['provider']
   config?: IBridgeContainerProps['config']

@@ -1,6 +1,6 @@
 import { BigNumber, providers } from 'ethers'
 
-import { INetworkAdapter } from '@api/network/types'
+import { IGodwokenAdapter, INetworkAdapter } from '@api/network/types'
 import { Networks } from '@utils/constants'
 
 export enum Environment {
@@ -33,19 +33,21 @@ export enum BridgeFeature {
   Withdraw = 'Withdraw',
 }
 
-export interface IBridge {
+export type Provider = any
+
+export interface IGodwokenBridge<T = Provider> {
   id: Bridge
   name: string
   features: IBridgeFeaturesToggle
   init(
     depositProvider: providers.JsonRpcProvider,
     withdrawalProvider: providers.JsonRpcProvider,
-  ): Promise<IBridge>
+  ): Promise<IGodwokenBridge<T>>
   toDescriptor(): IBridgeDescriptor
   deposit(amount: BigNumber, token: Token): Promise<string>
   withdraw(amount: BigNumber, token: Token): Promise<string>
-  getDepositNetwork(): INetworkAdapter
-  getWithdrawalNetwork(): INetworkAdapter
+  getDepositNetwork(): INetworkAdapter<T>
+  getWithdrawalNetwork(): IGodwokenAdapter
 }
 
 export interface IBridgeFeaturesToggle {

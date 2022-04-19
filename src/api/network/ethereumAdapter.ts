@@ -8,7 +8,8 @@ import { INetworkAdapter } from './types'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-export class EthereumNetwork implements INetworkAdapter {
+export class EthereumNetwork
+  implements INetworkAdapter<providers.JsonRpcProvider> {
   private _id: Network
   public get id(): Network {
     return this._id
@@ -31,7 +32,6 @@ export class EthereumNetwork implements INetworkAdapter {
   }
 
   async init(provider: providers.JsonRpcProvider): Promise<void> {
-    console.log('[network] Ethereum provider', provider)
     this.provider = provider
   }
 
@@ -54,9 +54,6 @@ export class EthereumNetwork implements INetworkAdapter {
     tokenAddress: string,
     accountAddress: string,
   ): Promise<BigNumber> {
-    console.log('tokenAddress', tokenAddress)
-    console.log('accountAddress', accountAddress)
-    console.log('provider', this.provider)
     if (tokenAddress !== ZERO_ADDRESS) {
       return this._getBalanceERC20(tokenAddress, accountAddress)
     }
@@ -77,5 +74,9 @@ export class EthereumNetwork implements INetworkAdapter {
 
   async sign(_message: string): Promise<string> {
     return ''
+  }
+
+  getProvider(): providers.JsonRpcProvider {
+    return this.provider
   }
 }
