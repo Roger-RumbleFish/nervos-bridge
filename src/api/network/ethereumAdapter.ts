@@ -1,10 +1,9 @@
 import { BigNumber, providers } from 'ethers'
 
 import { TokensRegistry } from '@api/types'
-import { Network, Environment } from '@interfaces/data'
+import { Network } from '@interfaces/data'
 
 import { ERC20__factory } from '../../contracts/ERC20__factory'
-import { registry } from '../registry/ethereum'
 import { INetworkAdapter } from './types'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -24,11 +23,11 @@ export class EthereumNetwork implements INetworkAdapter {
 
   private supportedTokens: TokensRegistry
 
-  constructor(id: Network, name: string, environment: Environment) {
+  constructor(id: Network, name: string, tokensRegistry: TokensRegistry) {
     this._id = id
     this._name = name
 
-    this.supportedTokens = registry(environment)
+    this.supportedTokens = tokensRegistry
   }
 
   async init(provider: providers.JsonRpcProvider): Promise<void> {
@@ -55,6 +54,9 @@ export class EthereumNetwork implements INetworkAdapter {
     tokenAddress: string,
     accountAddress: string,
   ): Promise<BigNumber> {
+    console.log('tokenAddress', tokenAddress)
+    console.log('accountAddress', accountAddress)
+    console.log('provider', this.provider)
     if (tokenAddress !== ZERO_ADDRESS) {
       return this._getBalanceERC20(tokenAddress, accountAddress)
     }
