@@ -13,6 +13,7 @@ export enum Network {
   Godwoken,
   Ethereum,
   CKB,
+  BSC,
 }
 
 export interface IBridgeDescriptor {
@@ -24,6 +25,7 @@ export interface IBridgeDescriptor {
 export enum Bridge {
   CkbBridge = 'ckb',
   EthereumBridge = 'ethereum',
+  BscBridge = 'bsc',
 }
 
 export enum BridgeFeature {

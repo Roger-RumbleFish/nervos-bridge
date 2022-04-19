@@ -4,12 +4,12 @@ import { TokensRegistry } from '@api/types'
 import { Network, Environment } from '@interfaces/data'
 
 import { ERC20__factory } from '../../contracts/ERC20__factory'
-import { registry } from '../registry/ethereum'
+import { registry } from '../registry/bsc'
 import { INetworkAdapter } from './types'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-export class EthereumNetwork implements INetworkAdapter {
+export class BscNetwork implements INetworkAdapter {
   private _id: Network
   public get id(): Network {
     return this._id
@@ -32,11 +32,11 @@ export class EthereumNetwork implements INetworkAdapter {
   }
 
   async init(provider: providers.JsonRpcProvider): Promise<void> {
-    console.log('[network] Ethereum provider', provider)
     this.provider = provider
   }
 
   async _getBalanceNative(ethereumAddress: string): Promise<BigNumber> {
+    console.log('bsc provider', this.provider)
     return this.provider.getBalance(ethereumAddress)
   }
 

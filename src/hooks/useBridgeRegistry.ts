@@ -1,29 +1,27 @@
 import { useEffect, useState } from 'react'
 
-import { providers } from 'ethers'
-import {
-  AddressTranslator,
-  BridgeRPCHandler as ForceBridgeRPCHandler,
-} from 'nervos-godwoken-integration'
+import { AddressTranslator } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
-import { CkbBridge } from '@api/bridges/ckb/bridge'
-import { EthereumForceBridge } from '@api/bridges/ethereum/bridge'
-import { CkbNetwork } from '@api/network/ckbAdapter'
+import { IBridge, Environment, Network, Bridge } from '@interfaces/data'
+import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
+
+import {
+  createForceBridge,
+  createForceBridgeBsc,
+  createPwBridge,
+} from './createBridge'
+import { ForceBridge } from '@api/bridges/ethereum/bridge'
 import { EthereumNetwork } from '@api/network/ethereumAdapter'
 import { GodwokenNetwork } from '@api/network/godwokenAdapter'
-import { IBridge, Bridge, Environment } from '@interfaces/data'
-import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
-import { Godwoken as GodwokenRpcHandler } from '@polyjuice-provider/godwoken'
 
 export const useBridgeRegistry = ({
   environment,
   addressTranslator,
   config,
-  defaultBridge,
+  defaultBridge: defaultBridgeId,
 }: {
   environment: Environment
-  provider: providers.JsonRpcProvider
   addressTranslator: AddressTranslator
   config: {
     godwokenRpcUrl: string
@@ -44,73 +42,10 @@ export const useBridgeRegistry = ({
   selectedBridge: IBridge | null
   selectBridge: (bridge: IBridge) => void
 } => {
-  const [bridges, setBridges] = useState<IBridge[]>([])
+  const [bridgesState, setBridges] = useState<IBridge[]>([])
   const [selectedBridge, selectBridge] = useState<IBridge>(null)
 
   useEffect(() => {
-    async function createForceBridge(
-      environment: Environment,
-      addressTranslator: AddressTranslator,
-    ) {
-      const forceBridgeClient = new ForceBridgeRPCHandler(
-        config.bridge.forceBridge.url,
-      )
-
-      const godwokenNetwork = new GodwokenNetwork(
-        environment,
-        'Godwoken',
-        addressTranslator,
-      )
-
-      const ethereumNetwork = new EthereumNetwork(environment, 'Ethereum')
-
-      const ethBridge = new EthereumForceBridge(
-        'Force Bridge',
-        ethereumNetwork,
-        godwokenNetwork,
-        addressTranslator,
-        forceBridgeClient,
-      )
-
-      return ethBridge
-    }
-
-    async function createPwBridge(
-      environment: Environment,
-      pwCoreClient: PWCore,
-      addressTranslator: AddressTranslator,
-      indexerCollector: IndexerCollector,
-      web3CKBProvider: Web3ModalProvider,
-    ) {
-      const godwokenRpcHandler = new GodwokenRpcHandler(config.godwokenRpcUrl)
-
-      const godwokenNetwork = new GodwokenNetwork(
-        environment,
-        'Godwoken',
-        addressTranslator,
-      )
-
-      const ckbNetwork = new CkbNetwork(
-        environment,
-        'CKB',
-        indexerCollector,
-        pwCoreClient,
-        addressTranslator,
-      )
-
-      const pwBridge = new CkbBridge(
-        'Godwoken Bridge',
-        ckbNetwork,
-        godwokenNetwork,
-        addressTranslator,
-        web3CKBProvider,
-        pwCoreClient,
-        godwokenRpcHandler,
-      )
-
-      return pwBridge
-    }
-
     async function createBridges(
       environment: Environment,
       addressTranslator: AddressTranslator,
@@ -132,19 +67,48 @@ export const useBridgeRegistry = ({
       })
 
       const pwBridge = await createPwBridge(
-        environment,
-        pwCoreClient,
-        addressTranslator,
-        indexerCollector,
-        web3CKBProvider,
-      )
-      const forceBridge = await createForceBridge(
+        'Godwoken Bridge',
         environment,
         addressTranslator,
+        {
+          godwokenRpcUrl: config.godwokenRpcUrl,
+          ckbRpcUrl: config.ckbRpcUrl,
+          ckbIndexerUrl: config.ckbIndexerUrl,
+        },
       )
 
-      setBridges([pwBridge, forceBridge])
-      selectBridge(defaultBridge === Bridge.CkbBridge ? pwBridge : forceBridge)
+      const godwokenNetwork = new GodwokenNetwork(
+        Network.Godwoken,
+        'Godwoken',
+        addressTranslator,
+        environment,
+      )
+      const ethereumNetwork = new EthereumNetwork(Network.Ethereum, 'Ethereum', environment)
+      const bscNetwork = new EthereumNetwork(Network.BSC, 'Bsc', environment)
+    
+      const forceBridgeEthereum = new ForceBridge({
+        id: Bridge.EthereumBridge,
+        name: 'Force Bridge Ethereum',
+        url: config.bridge.forceBridge.url,
+        bridgeNetwork: ethereumNetwork,
+        godwokenNetwork: godwokenNetwork,
+      })
+
+      const forceBridgeBsc = new ForceBridge({
+        id: Bridge.BscBridge,
+        name: 'Force Bridge BSC',
+        url: 'https://testnet.forcebridge.com/bscapi/force-bridge/api/v1',
+        bridgeNetwork: bscNetwork,
+        godwokenNetwork: godwokenNetwork,
+      })
+
+      const bridges = [pwBridge, forceBridgeEthereum, forceBridgeBsc]
+      const defaultBridge: IBridge = bridges.find(
+        ({ id }) => id === defaultBridgeId,
+      )
+
+      setBridges(bridges)
+      selectBridge(defaultBridge)
     }
 
     if (addressTranslator && Object.values(Environment).includes(environment)) {
@@ -153,7 +117,7 @@ export const useBridgeRegistry = ({
   }, [addressTranslator, environment])
 
   return {
-    bridges,
+    bridges: bridgesState,
     selectedBridge,
     selectBridge,
   }

@@ -37,4 +37,32 @@ export const registry: TokensRegistry = {
     decimals: 6,
     network: Networks.CKB,
   },
+  [CanonicalTokenSymbol.BNBBSC]: {
+    address:
+      '0x578cd6ab8c0800e6fbc17b58633857dac5626883af89f842e79cb8f7af24de75',
+    symbol: CanonicalTokenSymbol.BNBBSC,
+    decimals: 18,
+    network: Networks.CKB,
+  },
+  [CanonicalTokenSymbol.USDTBSC]: {
+    address:
+      '0xfd6f1818fe746687ef5268f82ce1835ba1a94fdccee5f098a389aeed0067eb57',
+    symbol: CanonicalTokenSymbol.USDTBSC,
+    decimals: 18,
+    network: Networks.CKB,
+  },
+  [CanonicalTokenSymbol.USDCBSC]: {
+    address:
+      '0xcedd0f67f2d218ab992284ab343c2e729d2a124a1612592deaa9f8b8f8a581dd',
+    symbol: CanonicalTokenSymbol.USDCBSC,
+    decimals: 18,
+    network: Networks.CKB,
+  },
+  [CanonicalTokenSymbol.BUSDBSC]: {
+    address:
+      '0x69c215249102308356778d58259c91c0f1988f6f5b07aa614921ee1803ea0059',
+    symbol: CanonicalTokenSymbol.BUSDBSC,
+    decimals: 18,
+    network: Networks.CKB,
+  },
 }

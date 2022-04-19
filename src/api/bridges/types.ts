@@ -1,12 +1,10 @@
-import { providers } from 'ethers'
+import { IGodwokenAdapter, INetworkAdapter } from '@api/network/types'
+import { Bridge, IBridge } from '@interfaces/data'
 
-import { IConfigContext } from '@utils/hooks'
-
-export type IBridgeTokenHandler = (
-  amount: string,
-  tokenAddress: string,
-  userAddress: string,
-  provider?: providers.Web3Provider,
-  network?: string,
-  config?: IConfigContext['config'],
-) => Promise<void>
+export interface BridgeBuilder<T extends INetworkAdapter> {
+  setId(id: Bridge): BridgeBuilder<T>
+  setName(name: string): BridgeBuilder<T>
+  setGodwokenNetwork(godwokenNetwork: IGodwokenAdapter): BridgeBuilder<T>
+  setBridgeNetwork(bridgeNetwork: T): BridgeBuilder<T>
+  build(): IBridge
+}

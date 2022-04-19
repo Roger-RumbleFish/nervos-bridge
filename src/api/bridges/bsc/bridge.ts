@@ -1,5 +1,6 @@
 import { providers } from 'ethers'
 import {
+  AddressTranslator,
   BridgeRPCHandler as ForceBridgeRPCHandler,
   GenerateBridgeInTransactionPayload,
   GenerateBridgeOutNervosTransactionPayload,
@@ -16,18 +17,15 @@ import {
 import { Networks } from '@utils/constants'
 
 import { ERC20__factory } from '../../../contracts/ERC20__factory'
-import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
+import { INetworkAdapter } from '../../network/types'
 
-export class ForceBridge implements IBridge {
+export class BscForceBridge implements IBridge {
   private _id: Bridge
   public get id(): Bridge {
     return this._id
   }
 
-  private _name: string
-  public get name(): string {
-    return this._name
-  }
+  public name: string
 
   public features = {
     [BridgeFeature.Deposit]: true,
@@ -35,33 +33,29 @@ export class ForceBridge implements IBridge {
   }
 
   public depositNetwork: INetworkAdapter
-  public withdrawalNetwork: IGodwokenAdapter
+  public withdrawalNetwork: INetworkAdapter
 
   private _jsonRpcProvider: providers.JsonRpcProvider
   private forceBridgeClient: ForceBridgeRPCHandler
   private _forceBridgeAddress: string
+  private _addressTranslator: AddressTranslator
 
-  constructor({
-    id,
-    name,
-    url,
-    godwokenNetwork,
-    bridgeNetwork,
-  }: {
-    id: Bridge
-    name: string
-    url: string
-    bridgeNetwork: INetworkAdapter
-    godwokenNetwork: IGodwokenAdapter
-  }) {
+  constructor(
+    id: Bridge,
+    name: string,
+    depositNetwork: INetworkAdapter,
+    withdrawalNetwork: INetworkAdapter,
+    addressTranslator: AddressTranslator,
+    forceBridgeClient: ForceBridgeRPCHandler,
+  ) {
     this._id = id
-    this._name = name
+    this.name = name
 
-    this.depositNetwork = bridgeNetwork
-    this.withdrawalNetwork = godwokenNetwork
+    this.depositNetwork = depositNetwork
+    this.withdrawalNetwork = withdrawalNetwork
 
-    const forceBridgeClient = new ForceBridgeRPCHandler(url)
     this.forceBridgeClient = forceBridgeClient
+    this._addressTranslator = addressTranslator
   }
 
   async init(
@@ -98,25 +92,31 @@ export class ForceBridge implements IBridge {
     if (this.features[BridgeFeature.Deposit]) {
       // TODO: Move signer logic to network layer
       const signer = this._jsonRpcProvider.getSigner()
-      const ethereumAddress = await signer.getAddress()
-
-      const depositAddress = await this.withdrawalNetwork.getDepositAddress(
-        ethereumAddress,
-      )
+      const ethereumAccountAddress = await signer.getAddress()
 
       const tokenAddress = token.address
-      const erc20Contract = ERC20__factory.connect(tokenAddress, signer)
+      console.log('[bridge][deposit] token address', tokenAddress)
+      if (tokenAddress !== '0x0000000000000000000000000000000000000000') {
+        const erc20Contract = ERC20__factory.connect(tokenAddress, signer)
 
-      const allowedAmount = await erc20Contract.allowance(
-        ethereumAddress,
-        this._forceBridgeAddress,
-      )
+        const allowedAmount = await erc20Contract.allowance(
+          ethereumAccountAddress,
+          this._forceBridgeAddress,
+        )
 
-      if (!allowedAmount.gte(amount)) {
-        const tx = await erc20Contract.approve(this._forceBridgeAddress, amount)
+        if (!allowedAmount.gte(amount)) {
+          const tx = await erc20Contract.approve(
+            this._forceBridgeAddress,
+            amount,
+          )
 
-        await tx.wait()
+          await tx.wait()
+        }
       }
+
+      const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
+        ethereumAccountAddress,
+      )
 
       const payload: GenerateBridgeInTransactionPayload = {
         asset: {
@@ -124,8 +124,8 @@ export class ForceBridge implements IBridge {
           ident: tokenAddress,
           amount: amount.toString(),
         },
-        recipient: depositAddress,
-        sender: ethereumAddress,
+        recipient: depositAddress.addressString,
+        sender: ethereumAccountAddress,
       }
       const result = await this.forceBridgeClient.generateBridgeInNervosTransaction(
         payload,
@@ -143,18 +143,18 @@ export class ForceBridge implements IBridge {
     if (this.features[BridgeFeature.Withdraw]) {
       // TODO: Move signer logic to network layer
       const signer = this._jsonRpcProvider.getSigner()
-      const ethereumAddress = await signer.getAddress()
+      const ethereumAccountAddress = await signer.getAddress()
       const tokenAddress = token.address
 
-      const depositAddress = await this.withdrawalNetwork.getDepositAddress(
-        ethereumAddress,
+      const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
+        ethereumAccountAddress,
       )
 
       const payload: GenerateBridgeOutNervosTransactionPayload = {
         network: 'Ethereum',
         asset: tokenAddress,
-        recipient: ethereumAddress,
-        sender: depositAddress,
+        recipient: ethereumAccountAddress,
+        sender: depositAddress.addressString,
         amount: amount.toString(),
       }
 

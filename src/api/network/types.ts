@@ -12,3 +12,7 @@ export interface INetworkAdapter {
   getSignerAddress(): Promise<string>
   sign(message: string): Promise<string>
 }
+
+export interface IGodwokenAdapter extends INetworkAdapter {
+  getDepositAddress(address: string): Promise<string>
+}

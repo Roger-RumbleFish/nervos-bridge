@@ -20,9 +20,28 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
   config,
   addressTranslator,
 }) => {
+  // const pwBridge = await createPwBridge(
+  //   'Godwoken Bridge',
+  //   environment,
+  //   addressTranslator,
+  //   {
+  //     godwokenRpcUrl: config.godwokenRpcUrl,
+  //     ckbRpcUrl: config.ckbRpcUrl,
+  //     ckbIndexerUrl: config.ckbIndexerUrl,
+  //   }
+  // )
+  // const forceBridge = await createForceBridge(
+  //   'Force Bridge',
+  //   environment,
+  //   addressTranslator,
+  //   {
+  //     forceBridgeUrl: config.bridge.forceBridge.url
+  //   }
+  // )
+
+  console.log('[component] Bridge provider', provider)
   const { bridges, selectedBridge, selectBridge } = useBridgeRegistry({
     environment,
-    provider,
     addressTranslator,
     config: {
       godwokenRpcUrl: config

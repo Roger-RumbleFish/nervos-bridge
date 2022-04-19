@@ -18,6 +18,7 @@ import PWCore, {
   BuilderOption,
   AmountUnit,
   Address,
+  AddressType,
 } from '@lay2/pw-core'
 import {
   Godwoken as GodwokenRpcHandler,
@@ -27,18 +28,21 @@ import {
   WithdrawalRequest,
 } from '@polyjuice-provider/godwoken'
 
-import { INetworkAdapter } from '../../network/types'
+import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
 
 const ZERO_LOCK_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 export class CkbBridge implements IBridge {
-  private _id: Bridge = Bridge.CkbBridge
+  private _id: Bridge
   public get id(): Bridge {
     return this._id
   }
 
-  public name: string
+  private _name: string
+  public get name(): string {
+    return this._name
+  }
 
   public features = {
     [BridgeFeature.Deposit]: true,
@@ -46,7 +50,7 @@ export class CkbBridge implements IBridge {
   }
 
   public depositNetwork: INetworkAdapter
-  public withdrawalNetwork: INetworkAdapter
+  public withdrawalNetwork: IGodwokenAdapter
 
   private pwCore: PWCore
   private web3CKBProvider: Provider
@@ -57,13 +61,14 @@ export class CkbBridge implements IBridge {
   constructor(
     name: string,
     depositNetwork: INetworkAdapter,
-    withdrawalNetwork: INetworkAdapter,
+    withdrawalNetwork: IGodwokenAdapter,
     addressTranslator: AddressTranslator,
     web3CKBProvider: Web3ModalProvider,
     pwCoreClient: PWCore,
     godwokenRpcHandler: GodwokenRpcHandler,
   ) {
-    this.name = name
+    this._id = Bridge.CkbBridge
+    this._name = name
 
     this.depositNetwork = depositNetwork
     this.withdrawalNetwork = withdrawalNetwork
@@ -148,9 +153,10 @@ export class CkbBridge implements IBridge {
 
       const depositAmount = new Amount(amount.toString(), AmountUnit.shannon)
 
-      const depositAddress = await this.addressTranslator.getLayer2DepositAddress(
+      const depositAddressString = await this.withdrawalNetwork.getDepositAddress(
         accountAddressString,
       )
+      const depositAddress = new Address(depositAddressString, AddressType.ckb)
 
       if (sudtIssuerLockHash !== ZERO_LOCK_HASH) {
         return this._depositSUDT(depositAmount, depositAddress, sudt)

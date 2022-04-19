@@ -3,8 +3,8 @@ import { AddressTranslator } from 'nervos-godwoken-integration'
 import Web3 from 'web3'
 
 import { TokensRegistry } from '@api/types'
-import { NetworkName, Network, Environment } from '@interfaces/data'
-import PWCore, {
+import { Network, Environment } from '@interfaces/data'
+import {
   Address,
   AddressType,
   IndexerCollector,
@@ -15,20 +15,20 @@ import PWCore, {
 import { registry } from '../registry/ckb'
 import { INetworkAdapter } from './types'
 
-const ZERO_LOCK_HASH =
+const ZERO_ADDRESS =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
-const CKB_NETWORK_ID = Network.CKB
 
 export class CkbNetwork implements INetworkAdapter {
-  private _id: Network = CKB_NETWORK_ID
+  private _id: Network
   public get id(): Network {
     return this._id
   }
 
-  public name: NetworkName
-
+  private _name: string
+  public get name(): string {
+    return this._name
+  }
   private provider: Web3ModalProvider
-  private pwCore: PWCore
 
   private indexerCollector: IndexerCollector
   private addressTranslator: AddressTranslator
@@ -36,16 +36,16 @@ export class CkbNetwork implements INetworkAdapter {
   private supportedTokens: TokensRegistry
 
   constructor(
-    environment: Environment,
+    id: Network,
     name: string,
     indexerCollector: IndexerCollector,
-    pwCoreClient: PWCore,
     addressTranslator: AddressTranslator,
+    environment: Environment,
   ) {
-    this.name = name
+    this._id = id
+    this._name = name
 
     this.indexerCollector = indexerCollector
-    this.pwCore = pwCoreClient
     this.addressTranslator = addressTranslator
 
     this.supportedTokens = registry(environment)
@@ -85,7 +85,7 @@ export class CkbNetwork implements INetworkAdapter {
     )
     const ckbAddress = new Address(ckbAddressString, AddressType.ckb)
 
-    if (sudtIssuerLockHash !== ZERO_LOCK_HASH) {
+    if (sudtIssuerLockHash !== ZERO_ADDRESS) {
       return this._getBalanceSUDT(sudtIssuerLockHash, ckbAddress)
     }
 

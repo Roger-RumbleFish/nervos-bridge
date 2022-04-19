@@ -4,6 +4,7 @@ export enum Networks {
   NervosL1 = 'Nervos L1',
   CKB = 'CKB',
   Godwoken = 'Godwoken',
+  BSC = 'Bsc',
 }
 
 export enum ApiNetworks {
