@@ -10,6 +10,7 @@ import {
   BridgeFeature,
   IGodwokenBridge,
   Bridge,
+  Network,
 } from './interfaces/data'
 
 export {
@@ -20,5 +21,6 @@ export {
   BridgeFeature,
   Environment,
   CanonicalTokenSymbol,
+  Network,
 }
 export type { IDisplayValue, AccountBoundToken, IGodwokenBridge }

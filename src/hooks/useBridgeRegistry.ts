@@ -30,8 +30,15 @@ export const useBridgeRegistry = ({
     ckbRpcUrl: string
     ckbIndexerUrl: string
     bridge: {
-      forceBridge: {
-        url: string
+      ethereum: {
+        forceBridge: {
+          url: string
+        }
+      },
+      bsc: {
+        forceBridge: {
+          url: string
+        }
       }
     }
   }
@@ -91,14 +98,14 @@ export const useBridgeRegistry = ({
       const forceBridgeEthereum = new ForceBridge({
         id: Bridge.EthereumBridge,
         name: 'Force Bridge Ethereum',
-        url: config.bridge.forceBridge.url,
+        url: config.bridge.ethereum.forceBridge.url,
         bridgeNetwork: ethereumNetwork,
         godwokenNetwork: godwokenNetwork,
       })
       const forceBridgeBsc = new ForceBridge({
         id: Bridge.BscBridge,
         name: 'Force Bridge BSC',
-        url: 'https://testnet.forcebridge.com/bscapi/force-bridge/api/v1',
+        url: config.bridge.bsc.forceBridge.url,
         bridgeNetwork: bscNetwork,
         godwokenNetwork: godwokenNetwork,
       })

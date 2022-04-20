@@ -12,8 +12,8 @@ import {
   Token,
   BridgeFeature,
   Bridge,
+  Network,
 } from '@interfaces/data'
-import { Networks } from '@utils/constants'
 
 import { ERC20__factory } from '../../../contracts/ERC20__factory'
 import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
@@ -126,7 +126,7 @@ export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
 
       const payload: GenerateBridgeInTransactionPayload = {
         asset: {
-          network: Networks.Ethereum,
+          network: Network.Ethereum,
           ident: tokenAddress,
           amount: amount.toString(),
         },

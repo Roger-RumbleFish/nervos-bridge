@@ -26,7 +26,18 @@ export default {
       '0x5a2506bb68d81a11dcadad4cb7eae62a17c43c619fe47ac8037bc8ce2dd90360',
     portalWalletLockHash:
       '0x58c5f491aba6d61678b7cf7edf4910b1f5e00ec0cde2f42e0abb4fd9aff25a63',
-    forceBridgeUrl: 'https://testnet.forcebridge.com/api/force-bridge/api/v1',
+  },
+  bridge: {
+    ethereum: {
+      forceBridge: {
+        url: 'https://testnet.forcebridge.com/api/force-bridge/api/v1',
+      }
+    },
+    bsc: {
+      forceBridge: {
+        url: 'https://testnet.forcebridge.com/bscapi/force-bridge/api/v1',
+      }
+    },
   },
   ethereum: {
     networkId: '0x4',

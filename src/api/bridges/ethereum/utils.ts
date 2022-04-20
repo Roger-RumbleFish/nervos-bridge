@@ -1,9 +1,9 @@
-import { Networks } from '@utils/constants'
+import { Network } from '@interfaces/data'
 
-enum ForceBridgeNetworks {
+enum ForceBridgeNetwork {
   Ethereum = 'Ethereum',
   Nervos = 'Nervos',
 }
 
-export const mapForceBridgeNetwork = (network: string): Networks =>
-  network === ForceBridgeNetworks.Ethereum ? Networks.Ethereum : Networks.CKB
+export const mapForceBridgeNetwork = (network: string): Network =>
+  network === ForceBridgeNetwork.Ethereum ? Network.Ethereum : Network.CKB

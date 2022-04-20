@@ -1,20 +1,19 @@
 import { BigNumber, providers } from 'ethers'
 
 import { IGodwokenAdapter, INetworkAdapter } from '@api/network/types'
-import { Networks } from '@utils/constants'
 
 export enum Environment {
   Mainnet,
   Testnet,
 }
+export enum Network {
+  Ethereum = 'Ethereum',
+  CKB = 'CKB',
+  Godwoken = 'Godwoken',
+  BSC = 'Bsc',
+}
 
 export type NetworkName = string
-export enum Network {
-  Godwoken,
-  Ethereum,
-  CKB,
-  BSC,
-}
 
 export interface IBridgeDescriptor {
   id: Bridge
@@ -76,7 +75,7 @@ export interface Token {
 
 export interface BridgedToken extends Token {
   id: string
-  network: Networks
+  network: Network
   shadow: Token
 }
 

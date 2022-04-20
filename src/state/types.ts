@@ -2,8 +2,8 @@ import {
   AccountBoundToken,
   IGodwokenBridge,
   IDisplayValue,
+  Network,
 } from '@interfaces/data'
-import { Networks } from '@utils/constants'
 
 export type BridgeState = {
   bridges: IGodwokenBridge[]
@@ -13,7 +13,7 @@ export type BridgeState = {
   baseToken: AccountBoundToken
   quoteToken: AccountBoundToken
   exchangeValue: IDisplayValue
-  network: Networks
+  network: Network
   fee: string
 }
 
