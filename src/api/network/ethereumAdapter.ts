@@ -1,9 +1,9 @@
 import { BigNumber, providers } from 'ethers'
 
 import { TokensRegistry } from '@api/types'
+import { ERC20__factory } from '@contracts/ERC20__factory'
 import { Network } from '@interfaces/data'
 
-import { ERC20__factory } from '../../contracts/ERC20__factory'
 import { INetworkAdapter } from './types'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'

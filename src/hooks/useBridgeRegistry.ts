@@ -8,11 +8,10 @@ import { ForceBridge } from '@api/bridges/ethereum/bridge'
 import { CkbNetwork } from '@api/network/ckbAdapter'
 import { EthereumNetwork } from '@api/network/ethereumAdapter'
 import { GodwokenNetwork } from '@api/network/godwokenAdapter'
+import { registry as bscTokensRegistry } from '@api/registry/bsc'
+import { registry as ethereumTokensRegistry } from '@api/registry/ethereum'
 import { IGodwokenBridge, Environment, Network, Bridge } from '@interfaces/data'
 import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
-
-import { registry as bscTokensRegistry } from '../api/registry/bsc'
-import { registry as ethereumTokensRegistry } from '../api/registry/ethereum'
 
 export const useBridgeRegistry = ({
   environment,
@@ -34,7 +33,7 @@ export const useBridgeRegistry = ({
         forceBridge: {
           url: string
         }
-      },
+      }
       bsc: {
         forceBridge: {
           url: string

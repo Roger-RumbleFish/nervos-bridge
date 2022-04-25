@@ -3,13 +3,13 @@ import { useEffect, useState } from 'react'
 import { BigNumber, providers } from 'ethers'
 
 import { CanonicalTokenSymbol } from '@api/types'
-import { getDisplayValue } from '@components/BigNumberInput/BigNumberInput.utils'
 import {
   IDisplayValue,
   AccountBoundToken,
   BridgeFeature,
   IGodwokenBridge,
 } from '@interfaces/data'
+import { getDisplayValue } from '@utils/stringOperations'
 
 const DEFAULT_VALUE = getDisplayValue(BigNumber.from(0), 2, 0)
 

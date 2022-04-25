@@ -18,26 +18,23 @@
     "baseUrl": "./",
     "paths": {
       "@api/*": [
-        "./src/api/*"
+        "src/api/*"
       ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@containers/*": [
-        "./src/containers/*"
+      "@contracts/*": [
+        "src/contracts/*"
       ],
       "@interfaces/*": [
-        "./src/interfaces/*"
+        "src/interfaces/*"
       ],
-      "@state/*": [
-        "./src/state/*"
-      ],
-      "@styles/*": [
-        "./src/styles/*"
+      "@hooks/*": [
+        "src/hooks/*"
       ],
       "@utils/*": [
-        "./src/utils/*"
-      ]
+        "src/utils/*"
+      ],
+      "@config": [
+        "src/config.ts"
+      ],
     },
   },
   "include": [
