@@ -68,7 +68,6 @@ export const useBridge = ({
       const network = bridge.getDepositNetwork()
       const tokensRegistry = network.getTokens()
 
-      console.log('bridge tokens registry', tokensRegistry)
       if (selectedFeature === BridgeFeature.Deposit) {
         const tokensSymbols = Object.keys(
           tokensRegistry,
@@ -83,7 +82,6 @@ export const useBridge = ({
               token.address,
               accountAddress,
             )
-            console.log('bridge token balance', token.symbol, balance)
             return {
               ...token,
               balance,
@@ -124,7 +122,6 @@ export const useBridge = ({
       }
     }
 
-    console.log('bridge fetch tokens', initialized, provider, polyjuiceProvider, godwokenBridge)
     if (initialized && provider && polyjuiceProvider && godwokenBridge) {
       fetchTokens(godwokenBridge, provider)
     }
