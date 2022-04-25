@@ -1,6 +1,6 @@
 import React, { ComponentProps, useState } from 'react'
 
-import { IBridgeDescriptor } from '@interfaces/data'
+import { Bridge, IBridgeDescriptor } from '@interfaces/data'
 import { Box } from '@material-ui/core'
 import { Story } from '@storybook/react/types-6-0'
 
@@ -14,11 +14,11 @@ export default {
 
 const Template: Story<ComponentProps<typeof BridgeSelector>> = () => {
   const bridgeDescriptor: IBridgeDescriptor = {
-    id: 'force bridge',
+    id: Bridge.EthereumBridge,
     name: 'ethereum/godwoken',
     networks: ['ethereum', 'godwoken'],
   }
-  const [bridgeId, setBridgeId] = useState('godwoken')
+  const [bridgeId, setBridgeId] = useState(bridgeDescriptor.id)
   return (
     <Box maxWidth={500}>
       <BridgeSelector

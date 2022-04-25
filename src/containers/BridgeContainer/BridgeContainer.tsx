@@ -8,7 +8,7 @@ import Toggle from '@components/Toggle'
 import {
   AccountBoundToken,
   BridgeFeature,
-  IBridge,
+  IGodwokenBridge,
   IDisplayValue,
 } from '@interfaces/data'
 import { Button, Paper, Theme, useMediaQuery } from '@material-ui/core'
@@ -19,7 +19,7 @@ import { messages, errorMessages } from './BridgeContainer.messages'
 
 export interface BridgeProps {
   provider: providers.JsonRpcProvider
-  bridge: IBridge
+  bridge: IGodwokenBridge
   tokens: AccountBoundToken[]
   token: AccountBoundToken
   setToken: (token: AccountBoundToken) => void

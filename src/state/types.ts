@@ -1,15 +1,19 @@
-import { AccountBoundToken, IBridge, IDisplayValue } from '@interfaces/data'
-import { Networks } from '@utils/constants'
+import {
+  AccountBoundToken,
+  IGodwokenBridge,
+  IDisplayValue,
+  Network,
+} from '@interfaces/data'
 
 export type BridgeState = {
-  bridges: IBridge[]
+  bridges: IGodwokenBridge[]
   tokens: AccountBoundToken[]
   fetchingTokens: boolean
   isCalculating: boolean
   baseToken: AccountBoundToken
   quoteToken: AccountBoundToken
   exchangeValue: IDisplayValue
-  network: Networks
+  network: Network
   fee: string
 }
 
@@ -38,7 +42,7 @@ export type IInitBridgesAction = IBridgeAction<
   typeof BRIDGE_ACTIONS.INIT_BRIDGES,
   {
     bridges: {
-      [key: string]: IBridge[]
+      [key: string]: IGodwokenBridge[]
     }
   }
 >

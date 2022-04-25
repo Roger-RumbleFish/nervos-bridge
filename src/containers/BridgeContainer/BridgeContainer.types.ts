@@ -16,7 +16,16 @@ export interface IBridgeContainerProps {
     ethAccountLockCodeHash: string
     rollupTypeHash: string
     bridge: {
-      forceBridge: { url: string }
+      ethereum: {
+        forceBridge: {
+          url: string
+        }
+      }
+      bsc: {
+        forceBridge: {
+          url: string
+        }
+      }
     }
   }
 }

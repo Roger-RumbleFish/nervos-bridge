@@ -1,4 +1,8 @@
-import { AccountBoundToken, IBridge, IDisplayValue } from '@interfaces/data'
+import {
+  AccountBoundToken,
+  IGodwokenBridge,
+  IDisplayValue,
+} from '@interfaces/data'
 import {
   BRIDGE_ACTIONS,
   IInitBridgesAction,
@@ -11,7 +15,9 @@ import {
   ISetNetworkAction,
 } from '@state/types'
 
-export const initBridgesAction = (bridges: IBridge[]): IInitBridgesAction => ({
+export const initBridgesAction = (
+  bridges: IGodwokenBridge[],
+): IInitBridgesAction => ({
   type: BRIDGE_ACTIONS.INIT_BRIDGES,
   payload: {
     bridges: bridges.reduce(

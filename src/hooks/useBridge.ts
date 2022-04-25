@@ -8,7 +8,7 @@ import {
   IDisplayValue,
   AccountBoundToken,
   BridgeFeature,
-  IBridge,
+  IGodwokenBridge,
 } from '@interfaces/data'
 
 const DEFAULT_VALUE = getDisplayValue(BigNumber.from(0), 2, 0)
@@ -18,7 +18,7 @@ export const useBridge = ({
   provider,
   polyjuiceProvider,
 }: {
-  bridge: IBridge | null
+  bridge: IGodwokenBridge | null
   provider: providers.JsonRpcProvider | null
   polyjuiceProvider: providers.JsonRpcProvider | null
 }): {
@@ -62,7 +62,7 @@ export const useBridge = ({
 
     const cleanTokens = () => setTokens([])
     const fetchTokens = async (
-      bridge: IBridge,
+      bridge: IGodwokenBridge,
       provider: providers.JsonRpcProvider,
     ): Promise<void> => {
       const network = bridge.getDepositNetwork()
@@ -72,7 +72,6 @@ export const useBridge = ({
         const tokensSymbols = Object.keys(
           tokensRegistry,
         ) as CanonicalTokenSymbol[]
-
         const accountAddress = await provider.getSigner().getAddress()
 
         const accountBoundTokens: AccountBoundToken[] = await Promise.all(

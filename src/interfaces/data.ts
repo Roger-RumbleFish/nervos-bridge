@@ -1,19 +1,19 @@
 import { BigNumber, providers } from 'ethers'
 
-import { INetworkAdapter } from '@api/network/types'
-import { Networks } from '@utils/constants'
+import { IGodwokenAdapter, INetworkAdapter } from '@api/network/types'
 
 export enum Environment {
   Mainnet,
   Testnet,
 }
+export enum Network {
+  Ethereum = 'Ethereum',
+  CKB = 'CKB',
+  Godwoken = 'Godwoken',
+  BSC = 'Bsc',
+}
 
 export type NetworkName = string
-export enum Network {
-  Godwoken,
-  Ethereum,
-  CKB,
-}
 
 export interface IBridgeDescriptor {
   id: Bridge
@@ -24,6 +24,7 @@ export interface IBridgeDescriptor {
 export enum Bridge {
   CkbBridge = 'ckb',
   EthereumBridge = 'ethereum',
+  BscBridge = 'bsc',
 }
 
 export enum BridgeFeature {
@@ -31,19 +32,21 @@ export enum BridgeFeature {
   Withdraw = 'Withdraw',
 }
 
-export interface IBridge {
+export type Provider = any
+
+export interface IGodwokenBridge<T = Provider> {
   id: Bridge
   name: string
   features: IBridgeFeaturesToggle
   init(
     depositProvider: providers.JsonRpcProvider,
     withdrawalProvider: providers.JsonRpcProvider,
-  ): Promise<IBridge>
+  ): Promise<IGodwokenBridge<T>>
   toDescriptor(): IBridgeDescriptor
   deposit(amount: BigNumber, token: Token): Promise<string>
   withdraw(amount: BigNumber, token: Token): Promise<string>
-  getDepositNetwork(): INetworkAdapter
-  getWithdrawalNetwork(): INetworkAdapter
+  getDepositNetwork(): INetworkAdapter<T>
+  getWithdrawalNetwork(): IGodwokenAdapter
 }
 
 export interface IBridgeFeaturesToggle {
@@ -72,7 +75,7 @@ export interface Token {
 
 export interface BridgedToken extends Token {
   id: string
-  network: Networks
+  network: Network
   shadow: Token
 }
 

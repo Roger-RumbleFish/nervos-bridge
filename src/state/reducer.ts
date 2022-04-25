@@ -1,5 +1,4 @@
-import { AccountBoundToken } from '@interfaces/data'
-import { Networks } from '@utils/constants'
+import { AccountBoundToken, Network } from '@interfaces/data'
 
 import {
   BridgeState,
@@ -20,7 +19,7 @@ export const initialState: BridgeState = {
   baseToken: null,
   quoteToken: null,
   exchangeValue: null,
-  network: Networks.Ethereum,
+  network: Network.Ethereum,
   fee: null,
 }
 
@@ -64,17 +63,8 @@ export const reducer = (
         (token) => token.symbol === setQuoteTokenAction.payload,
       )
 
-      if (state.network === Networks.NervosL1) {
-        return {
-          ...state,
-          baseToken: newQuoteToken,
-          quoteToken: newQuoteToken,
-        }
-      }
-
       if (
-        state.network === Networks.NervosL2 ||
-        state.network === Networks.Ethereum
+        state.network === Network.Ethereum
       ) {
         return {
           ...state,
@@ -116,28 +106,12 @@ export const reducer = (
       const setAction = action as ISetNetworkAction
       const network = setAction.payload.network
 
-      if (network === Networks.NervosL1) {
+
+      if (network === Network.Ethereum) {
         const baseToken =
-          state?.baseToken?.network !== Networks.Ethereum
+          state?.baseToken?.network === Network.Ethereum
             ? state?.baseToken
-            : state?.tokens.find((token) => token.network !== Networks.Ethereum)
-
-        return {
-          ...state,
-          baseToken: baseToken,
-          quoteToken: baseToken,
-          network,
-        }
-      }
-
-      if (network === Networks.NervosL1) {
-      }
-
-      if (network === Networks.Ethereum) {
-        const baseToken =
-          state?.baseToken?.network === Networks.Ethereum
-            ? state?.baseToken
-            : state?.tokens.find((token) => token.network === Networks.Ethereum)
+            : state?.tokens.find((token) => token.network === Network.Ethereum)
 
         const quoteToken = getShadowToken(state.tokens, baseToken)
 

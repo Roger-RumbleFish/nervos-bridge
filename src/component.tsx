@@ -22,7 +22,6 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
 }) => {
   const { bridges, selectedBridge, selectBridge } = useBridgeRegistry({
     environment,
-    provider,
     addressTranslator,
     config: {
       godwokenRpcUrl: config
@@ -40,11 +39,20 @@ export const BridgeComponent: React.FC<IBridgeContainerProps> = ({
         ? config.rollupTypeHash
         : Config.nervos.rollupTypeHash,
       bridge: {
-        forceBridge: {
-          url: config
-            ? config.bridge.forceBridge.url
-            : Config.nervos.forceBridgeUrl,
+        ethereum: {
+          forceBridge: {
+            url: config
+              ? config.bridge.ethereum.forceBridge.url
+              : Config.bridge.ethereum.forceBridge.url,
+          },
         },
+        bsc: {
+          forceBridge: {
+            url: config
+              ? config.bridge.ethereum.forceBridge.url
+              : Config.bridge.bsc.forceBridge.url,
+          },
+        }
       },
     },
     defaultBridge: Bridge.CkbBridge,

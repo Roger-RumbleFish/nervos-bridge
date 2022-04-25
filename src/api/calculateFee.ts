@@ -2,7 +2,7 @@
 // import { AddressTranslator } from 'nervos-godwoken-integration'
 
 // import { IDisplayValue, Token } from '@interfaces/data'
-// import { ApiNetworks, Networks } from '@utils/constants'
+// import { ApiNetwork, Network } from '@utils/constants'
 // import { IConfigContext } from '@utils/hooks'
 // import {
 //   convertDecimalToIntegerDecimal,
@@ -55,10 +55,10 @@
 //     const decimals = baseToken.decimals ?? 2
 //     const value = convertDecimalToIntegerDecimal(amount, decimals)
 
-//     if (network === Networks.Ethereum) {
+//     if (network === Network.Ethereum) {
 //       const payload = {
 //         amount: value.toString(),
-//         network: ApiNetworks.Ethereum,
+//         network: ApiNetwork.Ethereum,
 //         xchainAssetIdent: baseToken.address,
 //       }
 
@@ -70,7 +70,7 @@
 //       return convertFeeToFeeModel(value, fee, decimals)
 //     }
 
-//     if (network === Networks.NervosL1) {
+//     if (network === Network.NervosL1) {
 //       const addressTranslator = new AddressTranslator(config?.addressTranslator)
 //       const accounts = await provider?.listAccounts()
 
@@ -120,10 +120,10 @@
 //       return convertFeeToFeeModel(value, fee2, decimals)
 //     }
 
-//     if (network === Networks.NervosL2) {
+//     if (network === Network.NervosL2) {
 //       const payload = {
 //         amount: value.toString(),
-//         network: ApiNetworks.Ethereum, // I dont know why it is the same network but w/e
+//         network: ApiNetwork.Ethereum, // I dont know why it is the same network but w/e
 //         xchainAssetIdent: quoteToken.address,
 //       }
 

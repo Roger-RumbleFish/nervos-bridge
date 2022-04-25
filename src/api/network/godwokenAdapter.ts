@@ -2,21 +2,24 @@ import { BigNumber, providers } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
 import { TokensRegistry } from '@api/types'
-import { NetworkName, Network, Environment } from '@interfaces/data'
+import { Network, Environment } from '@interfaces/data'
 
 import { ERC20__factory } from '../../contracts/ERC20__factory'
 import { registry } from '../registry/godwoken'
-import { INetworkAdapter } from './types'
+import { IGodwokenAdapter } from './types'
 
 const GODWOKEN_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-const GODWOKEN_NETWORK_ID = Network.Godwoken
 
-export class GodwokenNetwork implements INetworkAdapter {
-  private _id: Network = GODWOKEN_NETWORK_ID
+export class GodwokenNetwork implements IGodwokenAdapter {
+  private _id: Network
   public get id(): Network {
     return this._id
   }
-  public name: NetworkName
+
+  private _name: string
+  public get name(): string {
+    return this._name
+  }
 
   private provider: providers.JsonRpcProvider
   private addressTranslator: AddressTranslator
@@ -24,11 +27,13 @@ export class GodwokenNetwork implements INetworkAdapter {
   private supportedTokens: TokensRegistry
 
   constructor(
-    environment: Environment,
+    id: Network,
     name: string,
     addressTranslator: AddressTranslator,
+    environment: Environment,
   ) {
-    this.name = name
+    this._id = id
+    this._name = name
     this.addressTranslator = addressTranslator
 
     this.supportedTokens = registry(environment)
@@ -54,6 +59,14 @@ export class GodwokenNetwork implements INetworkAdapter {
     })
 
     return balance
+  }
+
+  async getDepositAddress(ethereumAddress: string): Promise<string> {
+    const depositAddress = await this.addressTranslator.getLayer2DepositAddress(
+      ethereumAddress,
+    )
+
+    return depositAddress.addressString
   }
 
   async getBalance(
@@ -103,5 +116,9 @@ export class GodwokenNetwork implements INetworkAdapter {
     const signerAddress = await this.getSignerAddress()
 
     return this._signMessageEthereum(message, signerAddress)
+  }
+
+  getProvider(): providers.JsonRpcProvider {
+    return this.provider
   }
 }

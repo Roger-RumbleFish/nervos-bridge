@@ -1,11 +1,10 @@
 import { providers } from 'ethers'
-import { AddressTranslator } from 'nervos-godwoken-integration'
 
 import { BigNumber } from '@ethersproject/bignumber'
 import {
   Bridge,
   BridgeFeature,
-  IBridge,
+  IGodwokenBridge,
   IBridgeDescriptor,
   Token,
 } from '@interfaces/data'
@@ -18,70 +17,67 @@ import PWCore, {
   BuilderOption,
   AmountUnit,
   Address,
+  AddressType,
 } from '@lay2/pw-core'
-import {
-  Godwoken as GodwokenRpcHandler,
-  GodwokenUtils as GodwokenMessageUtils,
-  RawWithdrawalRequest,
-  Uint32,
-  WithdrawalRequest,
-} from '@polyjuice-provider/godwoken'
 
-import { INetworkAdapter } from '../../network/types'
+import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
 
 const ZERO_LOCK_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-export class CkbBridge implements IBridge {
-  private _id: Bridge = Bridge.CkbBridge
+export class CkbBridge implements IGodwokenBridge<Provider> {
+  private _id: Bridge
   public get id(): Bridge {
     return this._id
   }
 
-  public name: string
+  private _name: string
+  public get name(): string {
+    return this._name
+  }
 
   public features = {
     [BridgeFeature.Deposit]: true,
     [BridgeFeature.Withdraw]: false,
   }
 
-  public depositNetwork: INetworkAdapter
-  public withdrawalNetwork: INetworkAdapter
+  public depositNetwork: INetworkAdapter<Provider>
+  public withdrawalNetwork: IGodwokenAdapter
 
   private pwCore: PWCore
   private web3CKBProvider: Provider
-  private addressTranslator: AddressTranslator
 
-  private godwokenRpcHandler: GodwokenRpcHandler
+  constructor({
+    name,
+    bridgeNetwork,
+    godwokenNetwork,
+    pwCore,
+    web3CKBProvider,
+  }: {
+    name: string
+    bridgeNetwork: INetworkAdapter<Provider>
+    godwokenNetwork: IGodwokenAdapter
+    pwCore: PWCore
+    web3CKBProvider: Web3ModalProvider
+  }) {
+    this._id = Bridge.CkbBridge
+    this._name = name
 
-  constructor(
-    name: string,
-    depositNetwork: INetworkAdapter,
-    withdrawalNetwork: INetworkAdapter,
-    addressTranslator: AddressTranslator,
-    web3CKBProvider: Web3ModalProvider,
-    pwCoreClient: PWCore,
-    godwokenRpcHandler: GodwokenRpcHandler,
-  ) {
-    this.name = name
+    this.depositNetwork = bridgeNetwork
+    this.withdrawalNetwork = godwokenNetwork
 
-    this.depositNetwork = depositNetwork
-    this.withdrawalNetwork = withdrawalNetwork
-
-    this.pwCore = pwCoreClient
+    this.pwCore = pwCore
     this.web3CKBProvider = web3CKBProvider
-    this.addressTranslator = addressTranslator
-
-    this.godwokenRpcHandler = godwokenRpcHandler
   }
 
   async init(
-    _: providers.JsonRpcProvider,
+    _depositProvider: providers.JsonRpcProvider,
     withdrawalProvider: providers.JsonRpcProvider,
-  ): Promise<IBridge> {
+  ): Promise<IGodwokenBridge<Provider>> {
     this.withdrawalNetwork.init(withdrawalProvider)
+    this.depositNetwork.init(this.web3CKBProvider)
 
-    return this as IBridge
+    return this
   }
 
   toDescriptor(): IBridgeDescriptor {
@@ -92,11 +88,11 @@ export class CkbBridge implements IBridge {
     }
   }
 
-  getDepositNetwork(): INetworkAdapter {
+  getDepositNetwork(): INetworkAdapter<Provider> {
     return this.depositNetwork
   }
 
-  getWithdrawalNetwork(): INetworkAdapter {
+  getWithdrawalNetwork(): IGodwokenAdapter {
     return this.withdrawalNetwork
   }
 
@@ -140,17 +136,19 @@ export class CkbBridge implements IBridge {
 
   async deposit(amount: BigNumber, token: Token): Promise<string> {
     if (this.features[BridgeFeature.Deposit]) {
-      const accountAddress = this.web3CKBProvider.address
-      const accountAddressString = accountAddress.addressString
+      const depositProvider = this.depositNetwork.getProvider()
+      const address = depositProvider.address
+      const accountAddressString = address.addressString
 
       const sudtIssuerLockHash = token.address
       const sudt = new SUDT(sudtIssuerLockHash)
 
       const depositAmount = new Amount(amount.toString(), AmountUnit.shannon)
 
-      const depositAddress = await this.addressTranslator.getLayer2DepositAddress(
+      const depositAddressString = await this.withdrawalNetwork.getDepositAddress(
         accountAddressString,
       )
+      const depositAddress = new Address(depositAddressString, AddressType.ckb)
 
       if (sudtIssuerLockHash !== ZERO_LOCK_HASH) {
         return this._depositSUDT(depositAmount, depositAddress, sudt)
@@ -162,63 +160,7 @@ export class CkbBridge implements IBridge {
     return 'deposit'
   }
 
-  async withdraw(amount: BigNumber, token: Token): Promise<string> {
-    if (this.features[BridgeFeature.Withdraw]) {
-      const accountAddress = this.web3CKBProvider.address
-      const accountAddressString = accountAddress.addressString
-
-      const sudtIssuerLockHash = token.address
-
-      const ckbAddress = this.addressTranslator.ethAddressToCkbAddress(
-        accountAddressString,
-      )
-      const l2EthLockHash = this.addressTranslator.getLayer2EthLockHash(
-        accountAddressString,
-      )
-
-      const accountId = await this.godwokenRpcHandler.getAccountIdByScriptHash(
-        l2EthLockHash,
-      )
-      const depositTransactionNonce: Uint32 = await this.godwokenRpcHandler.getNonce(
-        accountId,
-      )
-
-      const accountLock = this.addressTranslator.ckbAddressToLockScriptHash(
-        ckbAddress,
-      )
-
-      const HARDCODED_CAPACITY = BigNumber.from(0).mul(
-        BigNumber.from(10).pow(8),
-      )
-
-      const rawWithdrawalRequest: RawWithdrawalRequest = GodwokenMessageUtils.createRawWithdrawalRequest(
-        depositTransactionNonce,
-        amount.toBigInt(),
-        HARDCODED_CAPACITY.toBigInt(),
-        sudtIssuerLockHash,
-        l2EthLockHash,
-        BigInt(0),
-        BigInt(100 * 10 ** 8),
-        accountLock,
-        '0x' + '0'.repeat(64),
-      )
-      const godwokenUtils = new GodwokenMessageUtils(
-        '0x4cc2e6526204ae6a2e8fcf12f7ad472f41a1606d5b9624beebd215d780809f6a',
-      )
-      const message = godwokenUtils.generateWithdrawalMessageToSign(
-        rawWithdrawalRequest,
-      )
-
-      const signature = await this.withdrawalNetwork.sign(message)
-
-      const withdrawalRequest: WithdrawalRequest = {
-        raw: rawWithdrawalRequest,
-        signature: signature,
-      }
-
-      await this.godwokenRpcHandler.submitWithdrawalRequest(withdrawalRequest)
-    }
-
+  async withdraw(_amount: BigNumber, _token: Token): Promise<string> {
     return 'withdraw'
   }
 }

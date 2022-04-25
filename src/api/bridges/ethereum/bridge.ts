@@ -1,6 +1,5 @@
 import { providers } from 'ethers'
 import {
-  AddressTranslator,
   BridgeRPCHandler as ForceBridgeRPCHandler,
   GenerateBridgeInTransactionPayload,
   GenerateBridgeOutNervosTransactionPayload,
@@ -8,58 +7,73 @@ import {
 
 import { BigNumber } from '@ethersproject/bignumber'
 import {
-  IBridge,
+  IGodwokenBridge,
   IBridgeDescriptor,
   Token,
   BridgeFeature,
   Bridge,
+  Network,
 } from '@interfaces/data'
-import { Networks } from '@utils/constants'
 
 import { ERC20__factory } from '../../../contracts/ERC20__factory'
-import { INetworkAdapter } from '../../network/types'
+import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
 
-export class EthereumForceBridge implements IBridge {
-  private _id: Bridge = Bridge.EthereumBridge
+export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
+  private _id: Bridge
   public get id(): Bridge {
     return this._id
   }
 
-  public name: string
+  private _name: string
+  public get name(): string {
+    return this._name
+  }
 
   public features = {
     [BridgeFeature.Deposit]: true,
     [BridgeFeature.Withdraw]: false,
   }
 
-  public depositNetwork: INetworkAdapter
-  public withdrawalNetwork: INetworkAdapter
+  public depositNetwork: INetworkAdapter<providers.JsonRpcProvider>
+  public withdrawalNetwork: IGodwokenAdapter
 
   private _jsonRpcProvider: providers.JsonRpcProvider
   private forceBridgeClient: ForceBridgeRPCHandler
   private _forceBridgeAddress: string
-  private _addressTranslator: AddressTranslator
 
-  constructor(
-    name: string,
-    depositNetwork: INetworkAdapter,
-    withdrawalNetwork: INetworkAdapter,
-    addressTranslator: AddressTranslator,
-    forceBridgeClient: ForceBridgeRPCHandler,
-  ) {
-    this.name = name
+  constructor({
+    id,
+    name,
+    url,
+    godwokenNetwork,
+    bridgeNetwork,
+  }: {
+    id: Bridge
+    name: string
+    url: string
+    bridgeNetwork: INetworkAdapter<providers.JsonRpcProvider>
+    godwokenNetwork: IGodwokenAdapter
+  }) {
+    this._id = id
+    this._name = name
 
-    this.depositNetwork = depositNetwork
-    this.withdrawalNetwork = withdrawalNetwork
+    this.depositNetwork = bridgeNetwork
+    this.withdrawalNetwork = godwokenNetwork
 
+    const forceBridgeClient = new ForceBridgeRPCHandler(url)
     this.forceBridgeClient = forceBridgeClient
-    this._addressTranslator = addressTranslator
+
+    this.init = this.init.bind(this)
+    this.toDescriptor = this.toDescriptor.bind(this)
+    this.getDepositNetwork = this.getDepositNetwork.bind(this)
+    this.deposit = this.deposit.bind(this)
+    this.withdraw = this.withdraw.bind(this)
   }
 
   async init(
     depositProvider: providers.JsonRpcProvider,
     withdrawalProvider: providers.JsonRpcProvider,
-  ): Promise<IBridge> {
+  ): Promise<IGodwokenBridge<providers.JsonRpcProvider>> {
     const bridgeConfig = await this.forceBridgeClient.getBridgeConfig()
     this._forceBridgeAddress = bridgeConfig.xchains.Ethereum.contractAddress
     this._jsonRpcProvider = depositProvider
@@ -67,7 +81,7 @@ export class EthereumForceBridge implements IBridge {
     this.depositNetwork.init(depositProvider)
     this.withdrawalNetwork.init(withdrawalProvider)
 
-    return this as IBridge
+    return this
   }
 
   toDescriptor(): IBridgeDescriptor {
@@ -78,11 +92,11 @@ export class EthereumForceBridge implements IBridge {
     }
   }
 
-  getDepositNetwork(): INetworkAdapter {
+  getDepositNetwork(): INetworkAdapter<providers.JsonRpcProvider> {
     return this.depositNetwork
   }
 
-  getWithdrawalNetwork(): INetworkAdapter {
+  getWithdrawalNetwork(): IGodwokenAdapter {
     return this.withdrawalNetwork
   }
 
@@ -90,13 +104,17 @@ export class EthereumForceBridge implements IBridge {
     if (this.features[BridgeFeature.Deposit]) {
       // TODO: Move signer logic to network layer
       const signer = this._jsonRpcProvider.getSigner()
-      const ethereumAccountAddress = await signer.getAddress()
+      const ethereumAddress = await signer.getAddress()
+
+      const depositAddress = await this.withdrawalNetwork.getDepositAddress(
+        ethereumAddress,
+      )
 
       const tokenAddress = token.address
       const erc20Contract = ERC20__factory.connect(tokenAddress, signer)
 
       const allowedAmount = await erc20Contract.allowance(
-        ethereumAccountAddress,
+        ethereumAddress,
         this._forceBridgeAddress,
       )
 
@@ -106,18 +124,14 @@ export class EthereumForceBridge implements IBridge {
         await tx.wait()
       }
 
-      const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
-        ethereumAccountAddress,
-      )
-
       const payload: GenerateBridgeInTransactionPayload = {
         asset: {
-          network: Networks.Ethereum,
+          network: Network.Ethereum,
           ident: tokenAddress,
           amount: amount.toString(),
         },
-        recipient: depositAddress.addressString,
-        sender: ethereumAccountAddress,
+        recipient: depositAddress,
+        sender: ethereumAddress,
       }
       const result = await this.forceBridgeClient.generateBridgeInNervosTransaction(
         payload,
@@ -135,18 +149,18 @@ export class EthereumForceBridge implements IBridge {
     if (this.features[BridgeFeature.Withdraw]) {
       // TODO: Move signer logic to network layer
       const signer = this._jsonRpcProvider.getSigner()
-      const ethereumAccountAddress = await signer.getAddress()
+      const ethereumAddress = await signer.getAddress()
       const tokenAddress = token.address
 
-      const depositAddress = await this._addressTranslator.getLayer2DepositAddress(
-        ethereumAccountAddress,
+      const depositAddress = await this.withdrawalNetwork.getDepositAddress(
+        ethereumAddress,
       )
 
       const payload: GenerateBridgeOutNervosTransactionPayload = {
         network: 'Ethereum',
         asset: tokenAddress,
-        recipient: ethereumAccountAddress,
-        sender: depositAddress.addressString,
+        recipient: ethereumAddress,
+        sender: depositAddress,
         amount: amount.toString(),
       }
 
