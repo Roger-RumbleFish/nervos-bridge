@@ -1,6 +1,6 @@
 {
   "name": "nervos-bridge",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,9 +8,10 @@
     "dist/**/*"
   ],
   "scripts": {
-    "buildtt": "ttsc -P ./tsconfig.build.json",
-    "build": "webpack --config webpack.config.js",
-    "lint": "eslint . --ext .ts --ext .tsx --fix"
+    "build": "ttsc -P ./tsconfig.build.json",
+    "lint": "eslint . --ext .ts --ext .tsx --fix",
+    "test": "jest",
+    "type": "tsc"
   },
   "dependencies": {
     "@lay2/pw-core": "0.4.0-alpha.12",
