@@ -1,46 +1,47 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "moduleResolution": "node",
-    "jsx": "react",
+    "outDir": "./dist/",
+    "noImplicitAny": true,
     "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
     "declaration": true,
     "module": "commonjs",
-    "target": "es5",
-    "lib": [ "es2015", "dom" ],
-    "outDir": "dist",
+    "target": "ES2020",
+    "jsx": "react",
+    "allowJs": true,
     "baseUrl": "./",
     "paths": {
       "@api/*": [
         "src/api/*"
       ],
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@containers/*": [
-        "src/containers/*"
+      "@contracts/*": [
+        "src/contracts/*"
       ],
       "@interfaces/*": [
         "src/interfaces/*"
       ],
-      "@state/*": [
-        "src/state/*"
-      ],
-      "@styles/*": [
-        "src/styles/*"
+      "@hooks/*": [
+        "src/hooks/*"
       ],
       "@utils/*": [
         "src/utils/*"
       ],
+      "@config": [
+        "src/config.ts"
+      ],
     },
     "plugins": [
-      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+      { "transform": "@zerollup/ts-transform-paths" }
     ],
     "types": [
       "@nervosnetwork/ckb-types",
+      "jest",
+      "node"
     ],
   },
   "include": [

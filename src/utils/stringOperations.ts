@@ -1,6 +1,8 @@
 import { BigNumber } from 'ethers'
 import numeral from 'numeral'
 
+import { IDisplayValue } from '@interfaces/data'
+
 export const getInputValue = (
   value: string,
   decimals?: number,
@@ -124,4 +126,24 @@ export const truncateDecimals = (text: string, decimals = 2): string => {
 export const getRepresentativeValue = (text: string, decimals = 2): string => {
   const truncatedText = truncateDecimals(text, decimals)
   return numeral(truncatedText).format('0,0.0000')
+}
+
+// Change decimals to required, displayDecimals to optional
+export const getDisplayValue = (
+  value: BigNumber,
+  displayDecimals: number,
+  _decimals?: number,
+): IDisplayValue => {
+  const decimals = _decimals ? _decimals : 0
+
+  const displayValue = truncateDecimals(
+    convertIntegerDecimalToDecimal(value, decimals),
+    displayDecimals,
+  )
+
+  return {
+    value,
+    displayValue,
+    decimals,
+  }
 }

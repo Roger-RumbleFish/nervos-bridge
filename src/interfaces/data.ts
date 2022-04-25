@@ -54,17 +54,11 @@ export interface IBridgeFeaturesToggle {
   [BridgeFeature.Withdraw]: boolean
 }
 
-// REDEFINE
 export interface IDisplayValue {
   value: BigNumber
   displayValue: string
   decimals?: number
 }
-
-export interface IIcon {
-  size?: number
-}
-// END REDEFINE
 
 export interface Token {
   address: string
@@ -73,20 +67,6 @@ export interface Token {
   decimals: number
 }
 
-export interface BridgedToken extends Token {
-  id: string
-  network: Network
-  shadow: Token
-}
-
-export interface TokenAmount {
-  address: Token['address']
-  decimals: Token['decimals']
-  amount: BigNumber
-}
-
 export interface AccountBoundToken extends Token {
   balance: BigNumber
 }
-
-//END TO BE REMOVED

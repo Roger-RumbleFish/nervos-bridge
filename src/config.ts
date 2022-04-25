@@ -31,12 +31,12 @@ export default {
     ethereum: {
       forceBridge: {
         url: 'https://testnet.forcebridge.com/api/force-bridge/api/v1',
-      }
+      },
     },
     bsc: {
       forceBridge: {
         url: 'https://testnet.forcebridge.com/bscapi/force-bridge/api/v1',
-      }
+      },
     },
   },
   ethereum: {

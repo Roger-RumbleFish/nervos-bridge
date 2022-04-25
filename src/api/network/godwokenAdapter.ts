@@ -2,9 +2,9 @@ import { BigNumber, providers } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
 import { TokensRegistry } from '@api/types'
+import { ERC20__factory } from '@contracts/ERC20__factory'
 import { Network, Environment } from '@interfaces/data'
 
-import { ERC20__factory } from '../../contracts/ERC20__factory'
 import { registry } from '../registry/godwoken'
 import { IGodwokenAdapter } from './types'
 
