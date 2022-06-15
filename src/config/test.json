@@ -1,0 +1,44 @@
+{
+  "env": "test",
+  "godwoken": {
+    "rpcUrl": "https://godwoken-testnet-v1.ckbapp.dev",
+    "wsUrl": "wss://godwoken-testnet-v1.ckbapp.dev/ws",
+    "chainId": "0x116e9"
+  },
+  "ckb": {
+    "url": "https://rpc-testnet.ckb.tools",
+    "indexer": {
+      "url": "https://indexer-testnet.ckb.tools"
+    },
+    "rollupTypeHash": "0x702359ea7f073558921eb50d8c1c77e92f760c8f8656bde4995f26b8963e2dd8",
+    "rollupTypeScript": {
+      "codeHash": "0x1e44736436b406f8e48a30dfbddcf044feb0c9eebfe63b0f81cb5bb727d84854",
+      "hashType": "type",
+      "args": "0x86c7429247beba7ddd6e4361bcdfc0510b0b644131e2afb7e486375249a01802"
+    },
+    "ethAccountLockHash": "0x07521d0aa8e66ef441ebc31204d86bb23fc83e9edc58c19dbb1b0ebe64336ec0",
+    "depositLockScriptTypeHash": "0x50704b84ecb4c4b12b43c7acb260ddd69171c21b4c0ba15f3c469b7d143f6f18",
+    "rcLockScriptTypeHash": "0x79f90bb5e892d80dd213439eeab551120eb417678824f282b4ffb5f21bad2e1e"
+  },
+  "explorerUrl": {
+    "ckb": "https://v1.betanet.gwscan.com",
+    "godwoken": "https://gw-explorer.nervosdao.community",
+    "ethereum": "https://rinkeby.etherscan.io"
+  },
+  "bridges": {
+    "ethereum": {
+      "bridges": {
+        "forceBridge": {
+          "url": "https://testnet.forcebridge.com/api/force-bridge/api/v1"
+        }
+      }
+    },
+    "bsc": {
+      "bridges": {
+        "forceBridge": {
+          "url": "https://testnet.forcebridge.com/bscapi/force-bridge/api/v1"
+        }
+      }
+    }
+  }
+}

@@ -6,6 +6,7 @@ export enum Environment {
   Mainnet,
   Testnet,
 }
+
 export enum Network {
   Ethereum = 'Ethereum',
   CKB = 'CKB',

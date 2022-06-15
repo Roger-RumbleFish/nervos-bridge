@@ -1,0 +1,44 @@
+{
+  "env": "",
+  "godwoken": {
+    "rpcUrl": "",
+    "wsUrl": "",
+    "chainId": ""
+  },
+  "ckb": {
+    "url": "",
+    "indexer": {
+      "url": ""
+    },
+    "rollupTypeHash": "",
+    "rollupTypeScript": {
+      "codeHash": "",
+      "hashType": "",
+      "args": ""
+    },
+    "ethAccountLockHash": "",
+    "depositLockScriptTypeHash": "",
+    "rcLockScriptTypeHash": ""
+  },
+  "explorerUrl": {
+    "ckb": "",
+    "godwoken": "",
+    "ethereum": ""
+  },
+  "bridges": {
+    "ethereum": {
+      "bridges": {
+        "forceBridge": {
+          "url": ""
+        }
+      }
+    },
+    "bsc": {
+      "bridges": {
+        "forceBridge": {
+          "url": ""
+        }
+      }
+    }
+  }
+}

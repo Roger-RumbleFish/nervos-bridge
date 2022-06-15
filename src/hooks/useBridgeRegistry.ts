@@ -10,37 +10,24 @@ import { EthereumNetwork } from '@api/network/ethereumAdapter'
 import { GodwokenNetwork } from '@api/network/godwokenAdapter'
 import { registry as bscTokensRegistry } from '@api/registry/bsc'
 import { registry as ethereumTokensRegistry } from '@api/registry/ethereum'
-import { IGodwokenBridge, Environment, Network, Bridge } from '@interfaces/data'
+import {
+  IGodwokenBridge,
+  Environment,
+  Network,
+  Bridge,
+  GodwokenEvironmentMap,
+} from '@interfaces/data'
 import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
+import { mapGodwokenEnvironment } from '@utils/mapGodwokenNetwork'
+import { getConfig } from 'src/config/config'
 
 export const useBridgeRegistry = ({
   environment,
   addressTranslator,
-  config,
   defaultBridge: defaultBridgeId,
 }: {
   environment: Environment
   addressTranslator: AddressTranslator
-  config: {
-    godwokenRpcUrl: string
-    ethAccountLockCodeHash: string
-    depositLockScriptTypeHash: string
-    rollupTypeHash: string
-    ckbRpcUrl: string
-    ckbIndexerUrl: string
-    bridge: {
-      ethereum: {
-        forceBridge: {
-          url: string
-        }
-      }
-      bsc: {
-        forceBridge: {
-          url: string
-        }
-      }
-    }
-  }
   defaultBridge: IGodwokenBridge['id']
 }): {
   bridges: IGodwokenBridge[]
@@ -50,25 +37,35 @@ export const useBridgeRegistry = ({
   const [bridgesState, setBridges] = useState<IGodwokenBridge[]>([])
   const [selectedBridge, selectBridge] = useState<IGodwokenBridge>(null)
 
+  const config = getConfig(environment)
+
   useEffect(() => {
-    async function createBridges(
-      environment: Environment,
-      addressTranslator: AddressTranslator,
-    ) {
+    async function createBridges(environment: Environment) {
       const web3 = new Web3(Web3.givenProvider)
       const web3CKBProvider = new Web3ModalProvider(web3)
 
-      const indexerCollector = new IndexerCollector(config.ckbIndexerUrl)
-      const pwCoreClient = await new PWCore(config.ckbRpcUrl).init(
+      const indexerCollector = new IndexerCollector(config.ckb.indexer.url)
+      const pwCoreClient = await new PWCore(config.ckb.url).init(
         web3CKBProvider,
         indexerCollector,
       )
 
-      await addressTranslator.init({
-        pwCore: pwCoreClient,
-        pwConfig: PWCore.config,
-        pwChainId: PWCore.chainId,
+      const addressTranslator = new AddressTranslator({
+        CKB_URL: config.ckb.url,
+        RPC_URL: config.godwoken.rpcUrl,
+        INDEXER_URL: config.ckb.indexer.url,
+        deposit_lock_script_type_hash: config.ckb.depositLockScriptTypeHash,
+        eth_account_lock_script_type_hash: config.ckb.ethAccountLockHash,
+        rollup_type_script: {
+          code_hash: config.ckb.rollupTypeScript.codeHash,
+          hash_type: config.ckb.rollupTypeScript.hashType,
+          args: config.ckb.rollupTypeScript.args,
+        },
+        rollup_type_hash: config.ckb.rollupTypeHash,
+        rc_lock_script_type_hash: config.ckb.rcLockScriptTypeHash,
       })
+
+      await addressTranslator.init(mapGodwokenEnvironment(environment))
 
       const godwokenNetwork = new GodwokenNetwork(
         Network.Godwoken,
