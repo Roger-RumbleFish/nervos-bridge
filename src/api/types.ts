@@ -7,10 +7,10 @@ export enum CanonicalTokenSymbol {
   ETH = 'ETH',
   CKB = 'CKB',
   dCKB = 'dCKB',
-  USDTBSC = 'USDT|bsc',
-  BNBBSC = 'BNB|bsc',
-  BUSDBSC = 'BUSD|bsc',
-  USDCBSC = 'USDC|bsc',
+  USDTBSC = 'USDT',
+  BNBBSC = 'BNB',
+  BUSDBSC = 'BUSD',
+  USDCBSC = 'USDC',
 }
 
 export interface TokenDescriptor {

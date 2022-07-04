@@ -1,15 +1,9 @@
-import { BigNumber } from 'ethers'
+import { BigNumber, providers } from 'ethers'
 import { AddressTranslator } from 'nervos-godwoken-integration'
 
 import { TokensRegistry } from '@api/types'
 import { Network, Environment } from '@interfaces/data'
-import {
-  Address,
-  AddressType,
-  IndexerCollector,
-  SUDT,
-  Provider,
-} from '@lay2/pw-core'
+import { Address, AddressType, SUDT } from '@lay2/pw-core'
 
 import { registry } from '../registry/ckb'
 import { INetworkAdapter } from './types'
@@ -17,7 +11,7 @@ import { INetworkAdapter } from './types'
 const ZERO_ADDRESS =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-export class CkbNetwork implements INetworkAdapter<Provider> {
+export class CkbNetwork implements INetworkAdapter<providers.JsonRpcProvider> {
   private _id: Network
   public get id(): Network {
     return this._id
@@ -27,9 +21,8 @@ export class CkbNetwork implements INetworkAdapter<Provider> {
   public get name(): string {
     return this._name
   }
-  private provider: Provider
+  private provider: providers.JsonRpcProvider
 
-  private indexerCollector: IndexerCollector
   private addressTranslator: AddressTranslator
 
   private supportedTokens: TokensRegistry
@@ -37,31 +30,27 @@ export class CkbNetwork implements INetworkAdapter<Provider> {
   constructor(
     id: Network,
     name: string,
-    indexerCollector: IndexerCollector,
     addressTranslator: AddressTranslator,
     environment: Environment,
   ) {
     this._id = id
     this._name = name
 
-    this.indexerCollector = indexerCollector
     this.addressTranslator = addressTranslator
 
     this.supportedTokens = registry(environment)
-
-    this.getProvider = this.getProvider.bind(this)
   }
 
-  async init(provider: Provider): Promise<void> {
+  async init(provider: providers.JsonRpcProvider): Promise<void> {
     this.provider = provider
   }
 
   async _getBalanceNative(ckbAddress: Address): Promise<BigNumber> {
-    const balance = await this.indexerCollector.getBalance(ckbAddress)
+    const balance = await this.addressTranslator.getCKBBalance(
+      ckbAddress.addressString,
+    )
 
-    const balanceString: string = balance.toBigInt().toString()
-
-    return BigNumber.from(balanceString)
+    return BigNumber.from(balance)
   }
 
   async _getBalanceSUDT(
@@ -70,10 +59,12 @@ export class CkbNetwork implements INetworkAdapter<Provider> {
   ): Promise<BigNumber> {
     const sudt = new SUDT(sudtIssuerLockHash)
 
-    const balance = await this.indexerCollector.getSUDTBalance(sudt, ckbAddress)
-    const balanceString: string = balance.toBigInt().toString()
+    const balance = await this.addressTranslator.getSUDTBalance(
+      ckbAddress.addressString,
+      sudt.issuerLockHash,
+    )
 
-    return BigNumber.from(balanceString)
+    return BigNumber.from(balance)
   }
 
   async getBalance(
@@ -97,7 +88,7 @@ export class CkbNetwork implements INetworkAdapter<Provider> {
   }
 
   async getSignerAddress(): Promise<string> {
-    const ethSignerAddress = this.provider.address.addressString
+    const ethSignerAddress = this.addressTranslator.getConnectedWalletAddress()
     const ckbSignerAddress = this.addressTranslator.ethAddressToCkbAddress(
       ethSignerAddress,
     )
@@ -109,7 +100,7 @@ export class CkbNetwork implements INetworkAdapter<Provider> {
     return ''
   }
 
-  getProvider(): Provider {
+  getProvider(): providers.JsonRpcProvider {
     return this.provider
   }
 }

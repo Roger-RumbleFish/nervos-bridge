@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { AddressTranslator } from 'nervos-godwoken-integration'
-import Web3 from 'web3'
 
-import { CkbBridge } from '@api/bridges/ckb/bridge'
 import { ForceBridge } from '@api/bridges/ethereum/bridge'
 import { CkbNetwork } from '@api/network/ckbAdapter'
 import { EthereumNetwork } from '@api/network/ethereumAdapter'
@@ -11,7 +9,7 @@ import { GodwokenNetwork } from '@api/network/godwokenAdapter'
 import { registry as bscTokensRegistry } from '@api/registry/bsc'
 import { registry as ethereumTokensRegistry } from '@api/registry/ethereum'
 import { IGodwokenBridge, Environment, Network, Bridge } from '@interfaces/data'
-import PWCore, { IndexerCollector, Web3ModalProvider } from '@lay2/pw-core'
+import { OmniBridge } from '@api/bridges/ckb/omni-bridge'
 
 export const useBridgeRegistry = ({
   environment,
@@ -55,20 +53,7 @@ export const useBridgeRegistry = ({
       environment: Environment,
       addressTranslator: AddressTranslator,
     ) {
-      const web3 = new Web3(Web3.givenProvider)
-      const web3CKBProvider = new Web3ModalProvider(web3)
-
-      const indexerCollector = new IndexerCollector(config.ckbIndexerUrl)
-      const pwCoreClient = await new PWCore(config.ckbRpcUrl).init(
-        web3CKBProvider,
-        indexerCollector,
-      )
-
-      await addressTranslator.init({
-        pwCore: pwCoreClient,
-        pwConfig: PWCore.config,
-        pwChainId: PWCore.chainId,
-      })
+      await addressTranslator.init('testnet')
 
       const godwokenNetwork = new GodwokenNetwork(
         Network.Godwoken,
@@ -86,10 +71,10 @@ export const useBridgeRegistry = ({
         'Bsc',
         bscTokensRegistry(environment),
       )
+
       const ckbNetwork = new CkbNetwork(
         Network.CKB,
         'CKB',
-        indexerCollector,
         addressTranslator,
         environment,
       )
@@ -108,15 +93,14 @@ export const useBridgeRegistry = ({
         bridgeNetwork: bscNetwork,
         godwokenNetwork: godwokenNetwork,
       })
-      const pwBridge = new CkbBridge({
-        name: 'PwCore Bridge',
-        pwCore: pwCoreClient,
+      const omniBridge = new OmniBridge({
+        name: 'Omni Bridge',
         bridgeNetwork: ckbNetwork,
         godwokenNetwork: godwokenNetwork,
-        web3CKBProvider,
+        addressTranslator,
       })
 
-      const bridges = [pwBridge, forceBridgeEthereum, forceBridgeBsc]
+      const bridges = [forceBridgeEthereum, forceBridgeBsc, omniBridge]
       const defaultBridge: IGodwokenBridge = bridges.find(
         ({ id }) => id === defaultBridgeId,
       )
