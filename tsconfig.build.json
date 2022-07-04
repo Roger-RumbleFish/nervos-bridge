@@ -16,40 +16,16 @@
     "allowJs": true,
     "baseUrl": "./",
     "paths": {
-      "@api/*": [
-        "src/api/*"
-      ],
-      "@contracts/*": [
-        "src/contracts/*"
-      ],
-      "@interfaces/*": [
-        "src/interfaces/*"
-      ],
-      "@hooks/*": [
-        "src/hooks/*"
-      ],
-      "@utils/*": [
-        "src/utils/*"
-      ],
-      "@config": [
-        "src/config.ts"
-      ],
+      "@api/*": ["src/api/*"],
+      "@contracts/*": ["src/contracts/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@utils/*": ["src/utils/*"],
+      "@config": ["src/config.ts"]
     },
-    "plugins": [
-      { "transform": "@zerollup/ts-transform-paths" }
-    ],
-    "types": [
-      "@nervosnetwork/ckb-types",
-      "jest",
-      "node"
-    ],
+    "plugins": [{ "transform": "@zerollup/ts-transform-paths" }],
+    "types": ["@nervosnetwork/ckb-types", "jest", "node"]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "src/**/*.test.ts*",
-    "src/**/*.stories.ts*"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/**/*.test.ts*", "src/**/*.stories.ts*"]
 }

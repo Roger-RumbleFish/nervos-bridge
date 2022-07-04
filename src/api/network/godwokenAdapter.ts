@@ -53,10 +53,7 @@ export class GodwokenNetwork implements IGodwokenAdapter {
   ): Promise<BigNumber> {
     const erc20Contract = ERC20__factory.connect(tokenAddress, this.provider)
 
-    const balance = await erc20Contract.balanceOf(accountAddress, {
-      gasLimit: 6000000,
-      gasPrice: 0,
-    })
+    const balance = await erc20Contract.balanceOf(accountAddress)
 
     return balance
   }
@@ -66,22 +63,18 @@ export class GodwokenNetwork implements IGodwokenAdapter {
       ethereumAddress,
     )
 
-    return depositAddress.addressString
+    return depositAddress
   }
 
   async getBalance(
     tokenAddress: string,
     accountAddress: string,
   ): Promise<BigNumber> {
-    const godwokenAddress = this.addressTranslator.ethAddressToGodwokenShortAddress(
-      accountAddress,
-    )
-
     if (tokenAddress !== GODWOKEN_ZERO_ADDRESS) {
-      return this._getBalanceERC20(tokenAddress, godwokenAddress)
+      return this._getBalanceERC20(tokenAddress, accountAddress)
     }
 
-    return this._getBalanceNative(godwokenAddress)
+    return this._getBalanceNative(accountAddress)
   }
 
   getTokens(): TokensRegistry {

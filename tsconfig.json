@@ -6,7 +6,7 @@
     "module": "esnext",
     "allowJs": true,
     "strictBindCallApply": true,
-    "types": ["jest", "node"],
+    "skipLibCheck": true,
     "noImplicitAny": true,
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
@@ -17,33 +17,15 @@
     "lib": ["dom", "esnext"],
     "baseUrl": "./",
     "paths": {
-      "@api/*": [
-        "src/api/*"
-      ],
-      "@contracts/*": [
-        "src/contracts/*"
-      ],
-      "@interfaces/*": [
-        "src/interfaces/*"
-      ],
-      "@hooks/*": [
-        "src/hooks/*"
-      ],
-      "@utils/*": [
-        "src/utils/*"
-      ],
-      "@config": [
-        "src/config.ts"
-      ],
+      "@api/*": ["src/api/*"],
+      "@contracts/*": ["src/contracts/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@utils/*": ["src/utils/*"],
+      "@config": ["src/config.ts"]
     },
+    "types": ["@nervosnetwork/ckb-types", "jest", "node"]
   },
-  "include": [
-    "src/**/*",
-    "setup-tests.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "scr/**/*.test.ts",
-    "scr/**/*.test.tsx"
-  ]
+  "include": ["src/**/*", "setup-tests.ts"],
+  "exclude": ["node_modules", "scr/**/*.test.ts", "scr/**/*.test.tsx"]
 }
