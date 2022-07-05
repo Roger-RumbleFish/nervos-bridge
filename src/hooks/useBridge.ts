@@ -55,6 +55,7 @@ export const useBridge = ({
     let didCancel = false
 
     const cleanTokens = () => setTokens([])
+    const cleanValue = () => setValue(undefined)
     const fetchTokens = async (
       bridge: IGodwokenBridge,
       provider: providers.JsonRpcProvider,
@@ -123,8 +124,16 @@ export const useBridge = ({
       didCancel = true
 
       cleanTokens()
+      cleanValue()
     }
-  }, [initialized, provider, selectedFeature, godwokenBridge, setTokens])
+  }, [
+    initialized,
+    provider,
+    selectedFeature,
+    godwokenBridge,
+    setTokens,
+    setValue,
+  ])
 
   useEffect(() => {
     function setDefaultToken(token: AccountBoundToken) {
