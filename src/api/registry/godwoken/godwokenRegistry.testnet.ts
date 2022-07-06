@@ -14,6 +14,12 @@ export const registry: TokensRegistry = {
     decimals: 18,
     network: Network.Ethereum,
   },
+  [CanonicalTokenSymbol.ETH]: {
+    address: '0xf0d66bf1260D21fE90329A7A311e84979FEB004d',
+    symbol: CanonicalTokenSymbol.ETH,
+    decimals: 18,
+    network: Network.Ethereum,
+  },
   [CanonicalTokenSymbol.USDC]: {
     address: '0x630AcC0A29E325ce022563Df69ba7E25Eeb1e184',
     symbol: CanonicalTokenSymbol.USDC,

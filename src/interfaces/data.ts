@@ -1,7 +1,6 @@
 import { BigNumber, providers } from 'ethers'
 
 import { IGodwokenAdapter, INetworkAdapter } from '@api/network/types'
-import { Provider } from '@lay2/pw-core'
 
 export enum Environment {
   Mainnet,
@@ -33,7 +32,7 @@ export enum BridgeFeature {
   Withdraw = 'Withdraw',
 }
 
-export interface IGodwokenBridge<T = providers.JsonRpcProvider | Provider> {
+export interface IGodwokenBridge<T = providers.JsonRpcProvider> {
   id: Bridge
   name: string
   features: IBridgeFeaturesToggle

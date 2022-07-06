@@ -3,7 +3,6 @@ import { AddressTranslator } from 'nervos-godwoken-integration'
 
 import { TokensRegistry } from '@api/types'
 import { Network, Environment } from '@interfaces/data'
-import { Address, AddressType, SUDT } from '@lay2/pw-core'
 
 import { registry } from '../registry/ckb'
 import { INetworkAdapter } from './types'
@@ -45,23 +44,19 @@ export class CkbNetwork implements INetworkAdapter<providers.JsonRpcProvider> {
     this.provider = provider
   }
 
-  async _getBalanceNative(ckbAddress: Address): Promise<BigNumber> {
-    const balance = await this.addressTranslator.getCKBBalance(
-      ckbAddress.addressString,
-    )
+  async _getBalanceNative(ckbAddress: string): Promise<BigNumber> {
+    const balance = await this.addressTranslator.getCKBBalance(ckbAddress)
 
     return BigNumber.from(balance)
   }
 
   async _getBalanceSUDT(
     sudtIssuerLockHash: string,
-    ckbAddress: Address,
+    ckbAddress: string,
   ): Promise<BigNumber> {
-    const sudt = new SUDT(sudtIssuerLockHash)
-
     const balance = await this.addressTranslator.getSUDTBalance(
-      ckbAddress.addressString,
-      sudt.issuerLockHash,
+      ckbAddress,
+      sudtIssuerLockHash,
     )
 
     return BigNumber.from(balance)
@@ -74,13 +69,12 @@ export class CkbNetwork implements INetworkAdapter<providers.JsonRpcProvider> {
     const ckbAddressString = this.addressTranslator.ethAddressToCkbAddress(
       accountAddress,
     )
-    const ckbAddress = new Address(ckbAddressString, AddressType.ckb)
 
     if (sudtIssuerLockHash !== ZERO_ADDRESS) {
-      return this._getBalanceSUDT(sudtIssuerLockHash, ckbAddress)
+      return this._getBalanceSUDT(sudtIssuerLockHash, ckbAddressString)
     }
 
-    return this._getBalanceNative(ckbAddress)
+    return this._getBalanceNative(ckbAddressString)
   }
 
   getTokens(): TokensRegistry {

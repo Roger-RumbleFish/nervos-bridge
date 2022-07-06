@@ -18,6 +18,8 @@ import {
 import { ERC20__factory } from '../../../contracts/ERC20__factory'
 import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
 export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
   private _id: Bridge
   public get id(): Bridge {
@@ -74,12 +76,12 @@ export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
     depositProvider: providers.JsonRpcProvider,
     withdrawalProvider: providers.JsonRpcProvider,
   ): Promise<IGodwokenBridge<providers.JsonRpcProvider>> {
+    this.depositNetwork.init(depositProvider)
+    this.withdrawalNetwork.init(withdrawalProvider)
+
     const bridgeConfig = await this.forceBridgeClient.getBridgeConfig()
     this._forceBridgeAddress = bridgeConfig.xchains.Ethereum.contractAddress
     this._jsonRpcProvider = depositProvider
-
-    this.depositNetwork.init(depositProvider)
-    this.withdrawalNetwork.init(withdrawalProvider)
 
     return this
   }
@@ -100,46 +102,80 @@ export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
     return this.withdrawalNetwork
   }
 
+  async _depositNative(amount: BigNumber, token: Token): Promise<string> {
+    const signer = this._jsonRpcProvider.getSigner()
+    const ethereumAddress = await signer.getAddress()
+
+    const depositAddress = await this.withdrawalNetwork.getDepositAddress(
+      ethereumAddress,
+    )
+
+    const payload: GenerateBridgeInTransactionPayload = {
+      asset: {
+        network: Network.Ethereum,
+        ident: token.address,
+        amount: amount.toString(),
+      },
+      recipient: depositAddress,
+      sender: ethereumAddress,
+    }
+
+    const result = await this.forceBridgeClient.generateBridgeInNervosTransaction(
+      payload,
+    )
+
+    const transaction = await signer.sendTransaction(result.rawTransaction)
+
+    return transaction.hash
+  }
+
+  async _depositERC20(amount: BigNumber, token: Token): Promise<string> {
+    const signer = this._jsonRpcProvider.getSigner()
+    const ethereumAddress = await signer.getAddress()
+
+    const depositAddress = await this.withdrawalNetwork.getDepositAddress(
+      ethereumAddress,
+    )
+
+    const tokenAddress = token.address
+    const erc20Contract = ERC20__factory.connect(tokenAddress, signer)
+
+    const allowedAmount = await erc20Contract.allowance(
+      ethereumAddress,
+      this._forceBridgeAddress,
+    )
+
+    if (!allowedAmount.gte(amount)) {
+      const tx = await erc20Contract.approve(this._forceBridgeAddress, amount)
+
+      await tx.wait()
+    }
+
+    const payload: GenerateBridgeInTransactionPayload = {
+      asset: {
+        network: Network.Ethereum,
+        ident: tokenAddress,
+        amount: amount.toString(),
+      },
+      recipient: depositAddress,
+      sender: ethereumAddress,
+    }
+    const result = await this.forceBridgeClient.generateBridgeInNervosTransaction(
+      payload,
+    )
+
+    const transaction = await signer.sendTransaction(result.rawTransaction)
+
+    return transaction.hash
+  }
+
   async deposit(amount: BigNumber, token: Token): Promise<string> {
     if (this.features[BridgeFeature.Deposit]) {
-      // TODO: Move signer logic to network layer
-      const signer = this._jsonRpcProvider.getSigner()
-      const ethereumAddress = await signer.getAddress()
-
-      const depositAddress = await this.withdrawalNetwork.getDepositAddress(
-        ethereumAddress,
-      )
-
-      const tokenAddress = token.address
-      const erc20Contract = ERC20__factory.connect(tokenAddress, signer)
-
-      const allowedAmount = await erc20Contract.allowance(
-        ethereumAddress,
-        this._forceBridgeAddress,
-      )
-
-      if (!allowedAmount.gte(amount)) {
-        const tx = await erc20Contract.approve(this._forceBridgeAddress, amount)
-
-        await tx.wait()
+      if (token.address !== ZERO_ADDRESS) {
+        return this._depositERC20(amount, token)
       }
 
-      const payload: GenerateBridgeInTransactionPayload = {
-        asset: {
-          network: Network.Ethereum,
-          ident: tokenAddress,
-          amount: amount.toString(),
-        },
-        recipient: depositAddress,
-        sender: ethereumAddress,
-      }
-      const result = await this.forceBridgeClient.generateBridgeInNervosTransaction(
-        payload,
-      )
-
-      const transaction = await signer.sendTransaction(result.rawTransaction)
-
-      return transaction.hash
+      return this._depositNative(amount, token)
     }
 
     return 'deposit'
