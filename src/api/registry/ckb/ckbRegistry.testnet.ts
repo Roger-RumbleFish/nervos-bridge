@@ -58,4 +58,11 @@ export const registry: TokensRegistry = {
     decimals: 6,
     network: Network.BSC,
   },
+  [CanonicalTokenSymbol.WBTC]: {
+    address:
+      '0x46d5b7aa1035b6cdae6ae3b1682042a35e2683768869527fa7d534054f6d1238',
+    symbol: CanonicalTokenSymbol.WBTC,
+    decimals: 8,
+    network: Network.Ethereum,
+  },
 }

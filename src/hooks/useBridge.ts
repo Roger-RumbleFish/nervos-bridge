@@ -71,11 +71,12 @@ export const useBridge = ({
         const accountBoundTokens: AccountBoundToken[] = await Promise.all(
           tokensSymbols.map(async (tokenSymbol) => {
             const token = tokensRegistry[tokenSymbol]
-
-            const balance = await network.getBalance(
-              token.address,
-              accountAddress,
-            )
+            let balance = BigNumber.from(0)
+            try {
+              balance = await network.getBalance(token.address, accountAddress)
+            } catch (error) {
+              console.error(error)
+            }
             return {
               ...token,
               balance,
@@ -117,7 +118,11 @@ export const useBridge = ({
     }
 
     if (initialized && provider && godwokenBridge) {
-      fetchTokens(godwokenBridge, provider)
+      try {
+        fetchTokens(godwokenBridge, provider)
+      } catch (error) {
+        console.error(error)
+      }
     }
 
     return () => {

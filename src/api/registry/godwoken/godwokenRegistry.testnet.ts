@@ -32,4 +32,11 @@ export const registry: TokensRegistry = {
     decimals: 6,
     network: Network.Ethereum,
   },
+  //TODO: format all addresses to lowerCase
+  [CanonicalTokenSymbol.WBTC]: {
+    address: '0x6935a6841bbBDb7430acc1906188301F3044FB76',
+    symbol: CanonicalTokenSymbol.WBTC,
+    decimals: 18,
+    network: Network.Ethereum,
+  },
 }
