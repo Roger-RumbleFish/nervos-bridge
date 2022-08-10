@@ -29,7 +29,7 @@ export const registry: TokensRegistry = {
   [CanonicalTokenSymbol.WBTC]: {
     address: '0x14B980AE9990391DF946fBA440A9ac88E28DB10c',
     symbol: CanonicalTokenSymbol.WBTC,
-    decimals: 8,
+    decimals: 18,
     network: Network.Ethereum,
   },
 }
