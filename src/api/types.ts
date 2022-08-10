@@ -11,6 +11,7 @@ export enum CanonicalTokenSymbol {
   BNBBSC = 'BNB',
   BUSDBSC = 'BUSD',
   USDCBSC = 'USDC',
+  WBTC = 'WBTC',
 }
 
 export interface TokenDescriptor {
