@@ -39,4 +39,10 @@ export const registry: TokensRegistry = {
     decimals: 18,
     network: Network.Ethereum,
   },
+  [CanonicalTokenSymbol.BNBBSC]: {
+    address: '0xFB60eBF591bc5e363A24b67518339F0015Ad02eE',
+    symbol: CanonicalTokenSymbol.BNBBSC,
+    decimals: 18,
+    network: Network.BSC,
+  },
 }
