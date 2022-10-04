@@ -5,7 +5,7 @@ export const registry: TokensRegistry = {
   [CanonicalTokenSymbol.CKB]: {
     address: '0x7538C85caE4E4673253fFd2568c1F1b48A71558a',
     symbol: CanonicalTokenSymbol.CKB,
-    decimals: 8,
+    decimals: 18,
     network: Network.CKB,
   },
   [CanonicalTokenSymbol.dCKB]: {

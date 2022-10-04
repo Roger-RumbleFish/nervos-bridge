@@ -5,6 +5,7 @@
 # Visual Studio Code
 #
 .vscode/
+.idea/
 
 # node.js
 
