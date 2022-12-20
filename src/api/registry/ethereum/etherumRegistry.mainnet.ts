@@ -1,5 +1,6 @@
 import { CanonicalTokenSymbol, TokensRegistry } from '@api/types'
 import { Network } from '@interfaces/data'
+import { BigNumber } from 'ethers'
 
 export const registry: TokensRegistry = {
   [CanonicalTokenSymbol.ETH]: {
@@ -7,29 +8,54 @@ export const registry: TokensRegistry = {
     symbol: CanonicalTokenSymbol.ETH,
     decimals: 18,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('24000000000000000'),
+    bridgeFee: {
+      in: BigNumber.from('1490000000000000'),
+      out: BigNumber.from('12000000000000000'),
+    },
   },
   [CanonicalTokenSymbol.DAI]: {
     address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     symbol: CanonicalTokenSymbol.DAI,
     decimals: 18,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('77500000000000000000'),
+    bridgeFee: {
+      in: BigNumber.from('4820000000000000000'),
+      out: BigNumber.from('38700000000000000000'),
+    },
   },
   [CanonicalTokenSymbol.USDC]: {
     address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     symbol: CanonicalTokenSymbol.USDC,
     decimals: 6,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('77600000'),
+    bridgeFee: {
+      in: BigNumber.from('4820000'),
+      out: BigNumber.from('38800000'),
+    },
   },
   [CanonicalTokenSymbol.USDT]: {
     address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     symbol: CanonicalTokenSymbol.USDT,
     decimals: 6,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('77500000'),
+    bridgeFee: {
+      in: BigNumber.from('4820000'),
+      out: BigNumber.from('38700000'),
+    },
   },
   [CanonicalTokenSymbol.WBTC]: {
     address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
     symbol: CanonicalTokenSymbol.WBTC,
     decimals: 8,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('176000'),
+    bridgeFee: {
+      in: BigNumber.from('10900'),
+      out: BigNumber.from('10900'),
+    },
   },
 }

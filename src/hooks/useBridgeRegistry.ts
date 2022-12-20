@@ -68,7 +68,7 @@ export const useBridgeRegistry = ({
       )
       const bscNetwork = new EthereumNetwork(
         Network.BSC,
-        'Bsc',
+        'BNB Chain',
         bscTokensRegistry(environment),
       )
 
@@ -88,13 +88,13 @@ export const useBridgeRegistry = ({
       })
       const forceBridgeBsc = new ForceBridge({
         id: Bridge.BscBridge,
-        name: 'Force Bridge BSC',
+        name: 'Force Bridge BNB Chain',
         url: config.bridge.bsc.forceBridge.url,
         bridgeNetwork: bscNetwork,
         godwokenNetwork: godwokenNetwork,
       })
       const omniBridge = new OmniBridge({
-        name: 'Omni Bridge',
+        name: 'Godwoken Bridge',
         bridgeNetwork: ckbNetwork,
         godwokenNetwork: godwokenNetwork,
         addressTranslator,
