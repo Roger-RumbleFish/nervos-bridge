@@ -8,6 +8,7 @@ import {
   BridgeFeature,
   IGodwokenBridge,
 } from '@interfaces/data'
+import { convertIntegerDecimalToDecimal } from '@utils/stringOperations'
 
 export const useBridge = ({
   bridge: godwokenBridge,
@@ -25,8 +26,15 @@ export const useBridge = ({
   setValue: (value: BigNumber) => void
   selectedFeature: BridgeFeature
   setSelectedFeature: (feature: BridgeFeature) => void
+  transactionInProgress: boolean
+  error?: string
 } => {
   const [initialized, setInitialized] = useState<boolean>(false)
+
+  const [error, setError] = useState<string | undefined>()
+  const [transactionInProgress, setTransactionInProgress] = useState<boolean>(
+    false,
+  )
 
   const [tokens, setTokens] = useState<AccountBoundToken[]>([])
   const [token, setToken] = useState<AccountBoundToken>(null)
@@ -138,6 +146,7 @@ export const useBridge = ({
     godwokenBridge,
     setTokens,
     setValue,
+    transactionInProgress,
   ])
 
   useEffect(() => {
@@ -154,16 +163,29 @@ export const useBridge = ({
   const deposit = async () => {
     const depositAmount = value
 
+    setTransactionInProgress(true)
     await godwokenBridge.deposit(depositAmount, token)
+    setTransactionInProgress(false)
   }
 
   const withdraw = async () => {
     const withdrawalAmount = value
 
+    setTransactionInProgress(true)
     await godwokenBridge.withdraw(withdrawalAmount, {
       ...token,
       address: token.address,
     })
+    setTransactionInProgress(false)
+  }
+
+  const setValueHandler = (value: BigNumber) => {
+    if (value && token?.minimalBridgeAmount?.gt(value)) {
+      setError('Below minimum threshold')
+    } else {
+      setError(undefined)
+    }
+    setValue(value)
   }
 
   return {
@@ -171,10 +193,12 @@ export const useBridge = ({
     token,
     setToken,
     value,
-    setValue,
+    setValue: setValueHandler,
     deposit,
     withdraw,
     selectedFeature,
     setSelectedFeature,
+    transactionInProgress,
+    error,
   }
 }

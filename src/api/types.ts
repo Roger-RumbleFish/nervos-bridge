@@ -1,4 +1,4 @@
-import { Token } from '@interfaces/data'
+import { BridgedToken } from '@interfaces/data'
 
 export enum CanonicalTokenSymbol {
   DAI = 'DAI',
@@ -14,16 +14,6 @@ export enum CanonicalTokenSymbol {
   WBTC = 'WBTC',
 }
 
-export interface TokenDescriptor {
-  address: string
-  symbol: string
-  decimals: number
-}
-
-export type TokenDescriptorsRegistry = {
-  [key in CanonicalTokenSymbol]?: TokenDescriptor
-}
-
 export type TokensRegistry = {
-  [key in CanonicalTokenSymbol]?: Token
+  [key in CanonicalTokenSymbol]?: BridgedToken
 }

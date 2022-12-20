@@ -1,5 +1,6 @@
 import { CanonicalTokenSymbol, TokensRegistry } from '@api/types'
 import { Network } from '@interfaces/data'
+import { BigNumber } from "ethers";
 
 export const registry: TokensRegistry = {
   [CanonicalTokenSymbol.ETH]: {
@@ -7,29 +8,54 @@ export const registry: TokensRegistry = {
     symbol: CanonicalTokenSymbol.ETH,
     decimals: 18,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('10000000000000'),
+    bridgeFee: {
+      in: BigNumber.from('1000000000000'),
+      out: BigNumber.from('2000000000000'),
+    },
   },
   [CanonicalTokenSymbol.DAI]: {
-    address: '0x7Af456bf0065aADAB2E6BEc6DaD3731899550b84',
+    address: '0x9D4b99b866910E9647d5f8D35CCAbFc91c0A501F',
     symbol: CanonicalTokenSymbol.DAI,
     decimals: 18,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('1000000000000000'),
+    bridgeFee: {
+      in: BigNumber.from('1000000000000'),
+      out: BigNumber.from('2000000000000'),
+    },
   },
   [CanonicalTokenSymbol.USDC]: {
-    address: '0x265566D4365d80152515E800ca39424300374A83',
+    address: '0x149Dd3299643b4d607ef7E63ad6C94ca4C1b3527',
     symbol: CanonicalTokenSymbol.USDC,
     decimals: 6,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('1000'),
+    bridgeFee: {
+      in: BigNumber.from('10'),
+      out: BigNumber.from('20'),
+    },
   },
   [CanonicalTokenSymbol.USDT]: {
-    address: '0x74a3dbd5831f45CD0F3002Bb87a59B7C15b1B5E6',
+    address: '0xD5b940de010672CF8C009b2DDb2d7095d40C5175',
     symbol: CanonicalTokenSymbol.USDT,
     decimals: 6,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('1000'),
+    bridgeFee: {
+      in: BigNumber.from('10'),
+      out: BigNumber.from('20'),
+    },
   },
   [CanonicalTokenSymbol.WBTC]: {
-    address: '0x14B980AE9990391DF946fBA440A9ac88E28DB10c',
+    address: '0x6fB39185e89959AeF4a47A84611fB36255C2b3da',
     symbol: CanonicalTokenSymbol.WBTC,
     decimals: 18,
     network: Network.Ethereum,
+    minimalBridgeAmount: BigNumber.from('1000000000'),
+    bridgeFee: {
+      in: BigNumber.from('1000000000'),
+      out: BigNumber.from('1000000000'),
+    },
   },
 }

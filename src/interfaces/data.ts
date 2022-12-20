@@ -10,7 +10,7 @@ export enum Network {
   Ethereum = 'Ethereum',
   CKB = 'CKB',
   Godwoken = 'Godwoken',
-  BSC = 'Bsc',
+  BSC = 'BNB Chain',
 }
 
 export type NetworkName = string
@@ -32,6 +32,16 @@ export enum BridgeFeature {
   Withdraw = 'Withdraw',
 }
 
+export type BridgeTransactionResponse =
+  | {
+      result: string
+      error?: string
+    }
+  | {
+      result?: string
+      error: string
+    }
+
 export interface IGodwokenBridge<T = providers.JsonRpcProvider> {
   id: Bridge
   name: string
@@ -41,8 +51,14 @@ export interface IGodwokenBridge<T = providers.JsonRpcProvider> {
     withdrawalProvider: providers.JsonRpcProvider,
   ): Promise<IGodwokenBridge<T>>
   toDescriptor(): IBridgeDescriptor
-  deposit(amount: BigNumber, token: Token): Promise<string>
-  withdraw(amount: BigNumber, token: Token): Promise<string>
+  deposit(
+    amount: BigNumber,
+    token: BridgedToken,
+  ): Promise<BridgeTransactionResponse>
+  withdraw(
+    amount: BigNumber,
+    token: BridgedToken,
+  ): Promise<BridgeTransactionResponse>
   getDepositNetwork(): INetworkAdapter<T>
   getWithdrawalNetwork(): IGodwokenAdapter
 }
@@ -65,6 +81,14 @@ export interface Token {
   decimals: number
 }
 
-export interface AccountBoundToken extends Token {
+export interface BridgedToken extends Token {
+  minimalBridgeAmount?: BigNumber
+  bridgeFee?: {
+    in: BigNumber
+    out: BigNumber
+  }
+}
+
+export interface AccountBoundToken extends BridgedToken {
   balance: BigNumber
 }

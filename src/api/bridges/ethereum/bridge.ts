@@ -13,10 +13,13 @@ import {
   BridgeFeature,
   Bridge,
   Network,
+  BridgeTransactionResponse,
+  BridgedToken,
 } from '@interfaces/data'
 
 import { ERC20__factory } from '../../../contracts/ERC20__factory'
 import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
+import { convertIntegerDecimalToDecimal } from '@utils/stringOperations'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -102,7 +105,10 @@ export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
     return this.withdrawalNetwork
   }
 
-  async _depositNative(amount: BigNumber, token: Token): Promise<string> {
+  async _depositNative(
+    amount: BigNumber,
+    token: BridgedToken,
+  ): Promise<BridgeTransactionResponse> {
     const signer = this._jsonRpcProvider.getSigner()
     const ethereumAddress = await signer.getAddress()
 
@@ -124,12 +130,20 @@ export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
       payload,
     )
 
-    const transaction = await signer.sendTransaction(result.rawTransaction)
+    try {
+      const transaction = await signer.sendTransaction(result.rawTransaction)
+      await transaction.wait(2)
 
-    return transaction.hash
+      return { result: transaction.hash }
+    } catch (error) {
+      return { error }
+    }
   }
 
-  async _depositERC20(amount: BigNumber, token: Token): Promise<string> {
+  async _depositERC20(
+    amount: BigNumber,
+    token: BridgedToken,
+  ): Promise<BridgeTransactionResponse> {
     const signer = this._jsonRpcProvider.getSigner()
     const ethereumAddress = await signer.getAddress()
 
@@ -164,12 +178,29 @@ export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
       payload,
     )
 
-    const transaction = await signer.sendTransaction(result.rawTransaction)
+    try {
+      const transaction = await signer.sendTransaction(result.rawTransaction)
+      await transaction.wait()
 
-    return transaction.hash
+      return { result: transaction.hash }
+    } catch (error) {
+      return { error }
+    }
   }
 
-  async deposit(amount: BigNumber, token: Token): Promise<string> {
+  async deposit(
+    amount: BigNumber,
+    token: BridgedToken,
+  ): Promise<BridgeTransactionResponse> {
+    if (token?.minimalBridgeAmount?.gt(amount)) {
+      return {
+        error: `Please enter an amount greater than ${convertIntegerDecimalToDecimal(
+          token.minimalBridgeAmount,
+          token.decimals,
+        )} to ensure your bridge deposit goes through.`,
+      }
+    }
+
     if (this.features[BridgeFeature.Deposit]) {
       if (token.address !== ZERO_ADDRESS) {
         return this._depositERC20(amount, token)
@@ -178,10 +209,15 @@ export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
       return this._depositNative(amount, token)
     }
 
-    return 'deposit'
+    return {
+      error: 'Deposit disabled',
+    }
   }
 
-  async withdraw(amount: BigNumber, token: Token): Promise<string> {
+  async withdraw(
+    amount: BigNumber,
+    token: Token,
+  ): Promise<BridgeTransactionResponse> {
     if (this.features[BridgeFeature.Withdraw]) {
       // TODO: Move signer logic to network layer
       const signer = this._jsonRpcProvider.getSigner()
@@ -204,11 +240,15 @@ export class ForceBridge implements IGodwokenBridge<providers.JsonRpcProvider> {
         payload,
       )
 
-      const transaction = await signer.sendTransaction(result.rawTransaction)
+      try {
+        const transaction = await signer.sendTransaction(result.rawTransaction)
 
-      return transaction.hash
+        return { result: transaction.hash }
+      } catch (error) {
+        return { error }
+      }
     }
 
-    return 'withdraw'
+    return { error: 'Withdraw not supported' }
   }
 }
