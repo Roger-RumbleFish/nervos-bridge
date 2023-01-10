@@ -1,7 +1,8 @@
 import { CanonicalTokenSymbol, TokensRegistry } from '@api/types'
 import { Network } from '@interfaces/data'
-import { BigNumber } from "ethers";
+import { BigNumber } from 'ethers'
 
+// Goerli network
 export const registry: TokensRegistry = {
   [CanonicalTokenSymbol.ETH]: {
     address: '0x0000000000000000000000000000000000000000',
@@ -9,17 +10,6 @@ export const registry: TokensRegistry = {
     decimals: 18,
     network: Network.Ethereum,
     minimalBridgeAmount: BigNumber.from('10000000000000'),
-    bridgeFee: {
-      in: BigNumber.from('1000000000000'),
-      out: BigNumber.from('2000000000000'),
-    },
-  },
-  [CanonicalTokenSymbol.DAI]: {
-    address: '0x9D4b99b866910E9647d5f8D35CCAbFc91c0A501F',
-    symbol: CanonicalTokenSymbol.DAI,
-    decimals: 18,
-    network: Network.Ethereum,
-    minimalBridgeAmount: BigNumber.from('1000000000000000'),
     bridgeFee: {
       in: BigNumber.from('1000000000000'),
       out: BigNumber.from('2000000000000'),
