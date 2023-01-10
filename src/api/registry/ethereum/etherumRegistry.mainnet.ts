@@ -2,6 +2,7 @@ import { CanonicalTokenSymbol, TokensRegistry } from '@api/types'
 import { Network } from '@interfaces/data'
 import { BigNumber } from 'ethers'
 
+// Ethereum network - https://github.com/nervosnetwork/force-bridge/blob/main/configs/mainnet-asset-white-list.json
 export const registry: TokensRegistry = {
   [CanonicalTokenSymbol.ETH]: {
     address: '0x0000000000000000000000000000000000000000',
@@ -14,9 +15,9 @@ export const registry: TokensRegistry = {
       out: BigNumber.from('12000000000000000'),
     },
   },
-  [CanonicalTokenSymbol.DAI]: {
-    address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    symbol: CanonicalTokenSymbol.DAI,
+  [CanonicalTokenSymbol.BUSD]: {
+    address: '0x9dC5014998b6A7351d75D731263199D31feb4474',
+    symbol: CanonicalTokenSymbol.BUSD,
     decimals: 18,
     network: Network.Ethereum,
     minimalBridgeAmount: BigNumber.from('77500000000000000000'),

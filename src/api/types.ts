@@ -7,6 +7,7 @@ export enum CanonicalTokenSymbol {
   ETH = 'ETH',
   CKB = 'CKB',
   dCKB = 'dCKB',
+  BUSD = 'BUSD',
   USDTBSC = 'USDT',
   BNBBSC = 'BNB',
   BUSDBSC = 'BUSD',
