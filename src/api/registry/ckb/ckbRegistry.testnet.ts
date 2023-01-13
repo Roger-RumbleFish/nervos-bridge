@@ -9,26 +9,12 @@ export const registry: TokensRegistry = {
     decimals: 8,
     network: Network.CKB,
   },
-  [CanonicalTokenSymbol.dCKB]: {
-    address:
-      '0xc43009f083e70ae3fee342d59b8df9eec24d669c1c3a3151706d305f5362c37e',
-    symbol: CanonicalTokenSymbol.dCKB,
-    decimals: 8,
-    network: Network.CKB,
-  },
   [CanonicalTokenSymbol.ETH]: {
     address:
       '0x1b072aa0ded384067106ea0c43c85bd71bafa5afdb432123511da46b390a4e33',
     symbol: CanonicalTokenSymbol.ETH,
     decimals: 18,
     network: Network.CKB,
-  },
-  [CanonicalTokenSymbol.DAI]: {
-    address:
-      '0xcb8c7b352d88142993bae0f6a1cfc0ec0deac41e3377a2f7038ff6b103548353',
-    symbol: CanonicalTokenSymbol.DAI,
-    decimals: 18,
-    network: Network.Ethereum,
   },
   [CanonicalTokenSymbol.USDC]: {
     address:

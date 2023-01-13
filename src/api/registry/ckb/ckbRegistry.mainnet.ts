@@ -9,20 +9,6 @@ export const registry: TokensRegistry = {
     decimals: 8,
     network: Network.CKB,
   },
-  [CanonicalTokenSymbol.dCKB]: {
-    address:
-      '0xe5451c05231e1df43e4b199b5d12dbed820dfbea2769943bb593f874526eeb55',
-    symbol: CanonicalTokenSymbol.dCKB,
-    decimals: 8,
-    network: Network.CKB,
-  },
-  [CanonicalTokenSymbol.DAI]: {
-    address:
-      '0xdd97fe4f673ed231af188855f4ca8b1034153c8d4e40f5b4fae2afd5d3f53ccc',
-    symbol: CanonicalTokenSymbol.DAI,
-    decimals: 18,
-    network: Network.Ethereum,
-  },
   [CanonicalTokenSymbol.USDC]: {
     address:
       '0x5c4ac961a2428137f27271cf2af205e5c55156d26d9ac285ed3170e8c4cc1501',
@@ -35,6 +21,13 @@ export const registry: TokensRegistry = {
       '0x1b89ae72b96c4f02fa7667ab46febcedf9b495737752176303ddd215d66a615a',
     symbol: CanonicalTokenSymbol.USDT,
     decimals: 6,
+    network: Network.Ethereum,
+  },
+  [CanonicalTokenSymbol.BUSD]: {
+    address:
+      '0x232678824938dfd87a049122c4e244af88dad7faa79a262362f5bc5356ee4c64',
+    symbol: CanonicalTokenSymbol.BUSD,
+    decimals: 18,
     network: Network.Ethereum,
   },
   [CanonicalTokenSymbol.BNBBSC]: {

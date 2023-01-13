@@ -8,10 +8,10 @@ export enum CanonicalTokenSymbol {
   CKB = 'CKB',
   dCKB = 'dCKB',
   BUSD = 'BUSD',
-  USDTBSC = 'USDT',
-  BNBBSC = 'BNB',
-  BUSDBSC = 'BUSD',
-  USDCBSC = 'USDC',
+  USDTBSC = 'USDT|bsc',
+  BNBBSC = 'BNB|bsc',
+  BUSDBSC = 'BUSD|bsc',
+  USDCBSC = 'USDC|bsc',
   WBTC = 'WBTC',
 }
 
