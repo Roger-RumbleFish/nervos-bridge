@@ -30,20 +30,6 @@ export const registry: TokensRegistry = {
     decimals: 6,
     network: Network.Ethereum,
   },
-  [CanonicalTokenSymbol.BNBBSC]: {
-    address:
-      '0x1c57a28aeb603700dd6f4bff4186ee63af2baf3d1a807f11ba9945b52ab20253',
-    symbol: CanonicalTokenSymbol.BNBBSC,
-    decimals: 18,
-    network: Network.BSC,
-  },
-  [CanonicalTokenSymbol.USDTBSC]: {
-    address:
-      '0xf9eb966fbda208783f147dd3ebb12eb1fdd9049b18fea57cb75eb616975d3a7f',
-    symbol: CanonicalTokenSymbol.USDTBSC,
-    decimals: 6,
-    network: Network.BSC,
-  },
   [CanonicalTokenSymbol.WBTC]: {
     address:
       '0x46d5b7aa1035b6cdae6ae3b1682042a35e2683768869527fa7d534054f6d1238',
