@@ -8,7 +8,6 @@ import {
   BridgeFeature,
   IGodwokenBridge,
 } from '@interfaces/data'
-import { convertIntegerDecimalToDecimal } from '@utils/stringOperations'
 
 export const useBridge = ({
   bridge: godwokenBridge,
@@ -27,7 +26,9 @@ export const useBridge = ({
   selectedFeature: BridgeFeature
   setSelectedFeature: (feature: BridgeFeature) => void
   transactionInProgress: boolean
+  setTransactionInProgress: (inProgress: boolean) => void
   error?: string
+  setError: (error: string) => void
 } => {
   const [initialized, setInitialized] = useState<boolean>(false)
 
@@ -61,9 +62,8 @@ export const useBridge = ({
 
   useEffect(() => {
     let didCancel = false
-
     const cleanTokens = () => setTokens([])
-    const cleanValue = () => setValue(undefined)
+
     const fetchTokens = async (
       bridge: IGodwokenBridge,
       provider: providers.JsonRpcProvider,
@@ -137,7 +137,6 @@ export const useBridge = ({
       didCancel = true
 
       cleanTokens()
-      cleanValue()
     }
   }, [
     initialized,
@@ -146,7 +145,6 @@ export const useBridge = ({
     godwokenBridge,
     setTokens,
     setValue,
-    transactionInProgress,
   ])
 
   useEffect(() => {
@@ -164,7 +162,11 @@ export const useBridge = ({
     const depositAmount = value
 
     setTransactionInProgress(true)
-    await godwokenBridge.deposit(depositAmount, token)
+    const result = await godwokenBridge.deposit(depositAmount, token)
+
+    if (!result?.error) {
+      setValue(undefined)
+    }
     setTransactionInProgress(false)
   }
 
@@ -180,7 +182,7 @@ export const useBridge = ({
   }
 
   const setValueHandler = (value: BigNumber) => {
-    if (value && token?.minimalBridgeAmount?.gt(value)) {
+    if (value && token?.minimalBridgeAmount?.gte(value) && value.gt(0)) {
       setError('Below minimum threshold')
     } else {
       setError(undefined)
@@ -199,6 +201,8 @@ export const useBridge = ({
     selectedFeature,
     setSelectedFeature,
     transactionInProgress,
+    setTransactionInProgress,
     error,
+    setError,
   }
 }

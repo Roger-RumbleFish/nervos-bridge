@@ -3,18 +3,17 @@ import { providers } from 'ethers'
 import { BigNumber } from '@ethersproject/bignumber'
 import {
   Bridge,
-  BridgeFeature,
-  IGodwokenBridge,
-  IBridgeDescriptor,
-  Token,
-  BridgeTransactionResponse,
   BridgedToken,
+  BridgeFeature,
+  BridgeTransactionResponse,
+  IBridgeDescriptor,
+  IGodwokenBridge,
 } from '@interfaces/data'
 
-import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
-import { AddressTranslator } from 'nervos-godwoken-integration'
 import { convertIntegerDecimalToDecimal } from '@utils/stringOperations'
-import { delay } from "@utils/time";
+import { delay } from '@utils/time'
+import { AddressTranslator } from 'nervos-godwoken-integration'
+import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
 
 const ZERO_ADDRESS =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
