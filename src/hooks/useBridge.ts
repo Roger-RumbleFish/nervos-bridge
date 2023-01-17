@@ -8,7 +8,6 @@ import {
   BridgeFeature,
   IGodwokenBridge,
 } from '@interfaces/data'
-import { convertIntegerDecimalToDecimal } from '@utils/stringOperations'
 
 export const useBridge = ({
   bridge: godwokenBridge,
@@ -180,7 +179,7 @@ export const useBridge = ({
   }
 
   const setValueHandler = (value: BigNumber) => {
-    if (value && token?.minimalBridgeAmount?.gt(value)) {
+    if (value && token?.minimalBridgeAmount?.gte(value) && value.gt(0)) {
       setError('Below minimum threshold')
     } else {
       setError(undefined)
