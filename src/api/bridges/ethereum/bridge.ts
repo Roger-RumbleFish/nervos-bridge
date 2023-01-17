@@ -7,19 +7,19 @@ import {
 
 import { BigNumber } from '@ethersproject/bignumber'
 import {
-  IGodwokenBridge,
-  IBridgeDescriptor,
-  Token,
-  BridgeFeature,
   Bridge,
-  Network,
-  BridgeTransactionResponse,
   BridgedToken,
+  BridgeFeature,
+  BridgeTransactionResponse,
+  IBridgeDescriptor,
+  IGodwokenBridge,
+  Network,
+  Token,
 } from '@interfaces/data'
 
+import { convertIntegerDecimalToDecimal } from '@utils/stringOperations'
 import { ERC20__factory } from '../../../contracts/ERC20__factory'
 import { IGodwokenAdapter, INetworkAdapter } from '../../network/types'
-import { convertIntegerDecimalToDecimal } from '@utils/stringOperations'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
