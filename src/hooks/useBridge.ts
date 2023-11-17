@@ -47,7 +47,7 @@ export const useBridge = ({
 
   useEffect(() => {
     setInitialized(false)
-  }, [godwokenBridge])
+  }, [godwokenBridge, provider])
 
   useEffect(() => {
     const init = async (): Promise<void> => {
